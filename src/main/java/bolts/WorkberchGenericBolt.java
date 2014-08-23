@@ -16,34 +16,46 @@ import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
 
 abstract public class WorkberchGenericBolt extends BaseBasicBolt {
-    
+
     private Map<String, List<Object>> streamsValues = new HashMap<String, List<Object>>();
-    
+
     private List<String> streamsKeysOrdered = new ArrayList<String>();
-    
+
     private boolean uncompleteTuples = true;
-    
-    private void createTuples(List<String> streamsKeys, BasicOutputCollector collector, List<Object> currentTuple) {
+
+    private void createTuples(String streamId, Tuple input, List<String> streamsKeys, BasicOutputCollector collector,
+	    List<Object> currentTuple) {
 	if (streamsKeys.isEmpty()) {
 	    WorkberchTuple tuple = new WorkberchTuple();
 	    List<Values> values = new ArrayList<Values>();
 	    for (Object value : currentTuple) {
-		values.addAll((List<Values>)value);
+		values.addAll((List<Values>) value);
 	    }
 	    tuple.setValues(values);
 	    executeLogic(tuple, collector);
-	}
-	else {
-	    for (Object streamValue : streamsValues.get(streamsKeys.get(0))) {
-		Tuple tuple = (Tuple)streamValue;
-		currentTuple.add(tuple.getValues().subList(1, tuple.getValues().size()));
+	} else {
+	    String firstStream = streamsKeys.get(0);
+	    if (firstStream.equals(streamId)) {
+		currentTuple.add(input.getValues().subList(1, input.getValues().size()));
 		List<String> subKeys = new ArrayList<String>(streamsKeys.size());
 		for (String key : streamsKeys) {
 		    subKeys.add(key);
 		}
 		subKeys = subKeys.subList(1, subKeys.size());
-		createTuples(subKeys, collector, currentTuple);
-		currentTuple.remove(currentTuple.size()-1);
+		createTuples(streamId, input, subKeys, collector, currentTuple);
+		currentTuple.remove(currentTuple.size() - 1);
+	    } else {
+		for (Object streamValue : streamsValues.get(streamsKeys.get(0))) {
+		    Tuple tuple = (Tuple) streamValue;
+		    currentTuple.add(tuple.getValues().subList(1, tuple.getValues().size()));
+		    List<String> subKeys = new ArrayList<String>(streamsKeys.size());
+		    for (String key : streamsKeys) {
+			subKeys.add(key);
+		    }
+		    subKeys = subKeys.subList(1, subKeys.size());
+		    createTuples(streamId, input, subKeys, collector, currentTuple);
+		    currentTuple.remove(currentTuple.size() - 1);
+		}
 	    }
 	}
     }
@@ -58,9 +70,11 @@ abstract public class WorkberchGenericBolt extends BaseBasicBolt {
 
     @Override
     public void execute(Tuple input, BasicOutputCollector collector) {
-	List<Object> values = streamsValues.get(input.getValueByField("stream"));
-	values.add(input);
+	String streamId = (String) input.getValueByField("stream");
 	
+	List<Object> values = streamsValues.get(streamId);
+	values.add(input);
+
 	if (uncompleteTuples) {
 	    boolean notAllValues = false;
 	    for (String key : streamsValues.keySet()) {
@@ -68,12 +82,12 @@ abstract public class WorkberchGenericBolt extends BaseBasicBolt {
 	    }
 	    uncompleteTuples &= notAllValues;
 	}
-	
+
 	if (!uncompleteTuples) {
-	    createTuples(streamsKeysOrdered, collector, new ArrayList<Object>());
-	}
+	    createTuples(streamId, input, streamsKeysOrdered, collector, new ArrayList<Object>());
+	}	
     };
-    
+
     public abstract void executeLogic(WorkberchTuple input, BasicOutputCollector collector);
 
     @Override

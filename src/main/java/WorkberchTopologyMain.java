@@ -43,7 +43,7 @@ public class WorkberchTopologyMain {
 
 	    @Override
 	    public void executeLogic(WorkberchTuple input, BasicOutputCollector collector) {
-		System.out.println("Current tuple:");
+		System.out.println("Tupla actual:");
 		for (Object value : input.getValues()) {
 		    System.out.print(value.toString());
 		    System.out.print("-");
@@ -64,7 +64,7 @@ public class WorkberchTopologyMain {
 	
 	Config conf = new Config();
 	conf.setDebug(true);
-	conf.setMaxTaskParallelism(2);
+	conf.setMaxTaskParallelism(1);
 	
 	LocalCluster cluster = new LocalCluster();
 	cluster.submitTopology("workberch", conf, builder.createTopology());

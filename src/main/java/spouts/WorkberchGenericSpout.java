@@ -23,19 +23,24 @@ public class WorkberchGenericSpout extends BaseRichSpout {
 	spoutFields = fields;
 	this.streamId = streamId;
     }
-    
+
     @Override
     public void open(Map conf, TopologyContext context, SpoutOutputCollector collector) {
-      this.collector = collector;
-      this.rand = new Random();
+	this.collector = collector;
+	this.rand = new Random();
     }
 
     @Override
     public void nextTuple() {
-	for (int i = 0; i < 2; i++) {
-	    Utils.sleep(5000);
-	    collector.emit(new Values(streamId, rand.nextInt()));		
+	Utils.sleep(5000);
+	Values values = new Values(streamId, rand.nextInt(10));
+	System.out.print("Emitiendo tupla: ");
+	for (Object value : values) {
+	    System.out.print(value.toString());
+	    System.out.print("-");
 	}
+	System.out.println();
+	collector.emit(values);
     }
 
     @Override
