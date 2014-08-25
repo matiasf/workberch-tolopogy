@@ -58,7 +58,7 @@ public class WorkberchTopologyMain {
 	    if (iterator.hasNext()) {
 		bolt.allGrouping("1");
 	    } else {
-		bolt.fieldsGrouping("2", new Fields(fields2));
+		bolt.shuffleGrouping("2");
 	    }
 	}
 	
