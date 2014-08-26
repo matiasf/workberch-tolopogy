@@ -8,6 +8,7 @@ import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.List;
 
 import main.java.utils.BaseTuple;
@@ -65,11 +66,24 @@ public class RestBolt extends BaseBolt{
 
 			String output;
 			System.out.println("Output from Server .... \n");
+			
+			StringBuilder sb = new StringBuilder();
 			while ((output = br.readLine()) != null) {
-				System.out.println(output);
+				sb.append(output);
+				//System.out.println(output);
 			}
 
 			conn.disconnect();
+			
+			String outputValue = sb.toString();
+			
+			List<Object> outputValues = new ArrayList<Object>();
+			
+			for (String string : outputFields) {
+				outputValues.add(outputValue);
+			}
+			
+			collector.emit(outputValues);
 
 		} catch (MalformedURLException e) {
 			// TODO Auto-generated catch block

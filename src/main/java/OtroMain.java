@@ -5,6 +5,7 @@ import java.util.List;
 
 import main.java.bolts.BaseBolt;
 import main.java.bolts.RestBolt;
+import main.java.bolts.XPathBolt;
 import main.java.spouts.SpoutTrucho;
 import main.java.utils.BaseTuple;
 import backtype.storm.Config;
@@ -28,7 +29,7 @@ public class OtroMain {
 		
 		List<String> field2 = new ArrayList<String>();
 		field2.add("B");
-		builder.setSpout("2", new SpoutTrucho(field2));
+		//builder.setSpout("2", new SpoutTrucho(field2));
 		
 		/*
 		List<String> field3 = new ArrayList<String>();
@@ -36,10 +37,13 @@ public class OtroMain {
 		field3.add("B");*/
 		
 		String url = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db={db}&term={term}&retmax={retmax}&usehistory=y";
-		BaseBolt basebolt = new RestBolt(field1, field2, url, "GET", "text/xml");
+		BaseBolt searchStudies = new RestBolt(field1, field2, url, "GET", "text/xml");
 		
 		//BoltDeclarer bolt = builder.setBolt("3", basebolt, 1).allGrouping("1").shuffleGrouping("2");
-		BoltDeclarer bolt = builder.setBolt("3", basebolt, 1).shuffleGrouping("1");
+		BoltDeclarer bolt = builder.setBolt("searchStudies", searchStudies, 1).shuffleGrouping("1");
+		
+		BaseBolt getStudiesId = new XPathBolt(field2, field2, "/eSearchResult/IdList/Id");
+		builder.setBolt("getStudiesId", getStudiesId, 1).shuffleGrouping("searchStudies");
 		
 		Config conf = new Config();
 		conf.setDebug(true);
