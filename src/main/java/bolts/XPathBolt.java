@@ -50,7 +50,7 @@ public class XPathBolt extends BaseBolt {
 		        Document document = builder.parse( new InputSource( new StringReader( xmlString ) ) ); 
 		        NodeList nl = (NodeList) expr.evaluate(document, XPathConstants.NODESET);
 		        for(int i=0; i<nl.getLength() ; i++) {
-		        	//System.out.println(nl.item(i).getTextContent());
+		        	System.out.println(nl.item(i).toString() + nl.item(i).getTextContent());
 		        	String nodeContent = nl.item(i).getTextContent();
 		        	List<Object> emitTuple = new ArrayList<Object>();
 		        	for (String string : outputFields) {

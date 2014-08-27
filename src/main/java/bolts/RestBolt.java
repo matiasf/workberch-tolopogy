@@ -71,7 +71,7 @@ public class RestBolt extends BaseBolt{
 			StringBuilder sb = new StringBuilder();
 			while ((output = br.readLine()) != null) {
 				sb.append(output);
-				System.out.println(output);
+				//System.out.println(output);
 			}
 
 			conn.disconnect();

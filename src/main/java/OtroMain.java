@@ -31,10 +31,6 @@ public class OtroMain {
 		field2.add("B");
 		//builder.setSpout("2", new SpoutTrucho(field2));
 		
-		/*
-		List<String> field3 = new ArrayList<String>();
-		field3.add("A");
-		field3.add("B");*/
 		
 		String url = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db={db}&term={term}&retmax={retmax}&usehistory=y";
 		BaseBolt searchStudies = new RestBolt(field1, field2, url, "GET", "text/xml");
@@ -56,6 +52,12 @@ public class OtroMain {
 		BaseBolt downloadExperiments = new RestBolt(downloadExperimentsFields, field2, url, "GET", "text/xml");
 		BoltDeclarer bd = builder.setBolt("downloadExperiments", downloadExperiments, 1).allGrouping("getStudiesId");
 		bd.allGrouping("1");
+		
+		
+		List<String> getRunAccessionsIdsOut = new ArrayList<String>();
+		getRunAccessionsIdsOut.add("runAccessionsId");
+		BaseBolt getRunAccessions = new XPathBolt(field2, getRunAccessionsIdsOut, "/EXPERIMENT_PACKAGE_SET/EXPERIMENT_PACKAGE/RUN_SET/RUN/@accession");
+		builder.setBolt("getRunAccessions", getRunAccessions, 1).shuffleGrouping("downloadExperiments");
 		
 		
 		Config conf = new Config();

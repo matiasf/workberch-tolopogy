@@ -73,8 +73,8 @@ public abstract class BaseBolt extends BaseBasicBolt {
 		
 		List<String> inputFields = input.getFields().toList(); 
 		
-		System.out.println("Llego " + inputFields.toString());
-		System.out.println("Hay " + executedInputs.toString());
+		//System.out.println("Llego " + inputFields.toString());
+		//System.out.println("Hay " + executedInputs.toString());
 		
 		BaseTuple baseTuple = new BaseTuple();
 		for (String inputField : inputFields) {
