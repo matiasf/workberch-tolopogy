@@ -56,10 +56,15 @@ public abstract class BaseBolt extends BaseBasicBolt {
 		
 	}
 	
-	protected void addExecutedValues(BaseTuple tuple) {
+	protected void addExecutedValues(BaseTuple tuple, Set<String> remainingFields ) {
 		for (String string : tuple.getValues().keySet()) {
-			List<Object> values = this.executedInputs.get(string);
-			values.add(tuple.getValues().get(string));
+			if (!remainingFields.contains(string)) {
+				List<Object> values = this.executedInputs.get(string);
+				if (values != null) {
+					values.add(tuple.getValues().get(string));
+				}
+			}
+			
 		}
 	}
 	
@@ -68,21 +73,22 @@ public abstract class BaseBolt extends BaseBasicBolt {
 		
 		List<String> inputFields = input.getFields().toList(); 
 		
+		System.out.println("Llego " + inputFields.toString());
+		System.out.println("Hay " + executedInputs.toString());
+		
 		BaseTuple baseTuple = new BaseTuple();
 		for (String inputField : inputFields) {
 			baseTuple.getValues().put(inputField, input.getValueByField(inputField));
 		}
-		
+		Set<String> remainingFields = new HashSet<String>();
+		remainingFields.addAll(this.executedInputs.keySet());
+		remainingFields.removeAll(inputFields);
 		if (this.canExecuteLogic(inputFields)) {
-			
-			Set<String> remainingFields = new HashSet<String>();
-			remainingFields.addAll(this.executedInputs.keySet());
-			remainingFields.removeAll(inputFields);
 
 			this.createTuples(new ArrayList<String>(remainingFields), collector, baseTuple);
 			
 		}
-		this.addExecutedValues(baseTuple);
+		this.addExecutedValues(baseTuple, remainingFields);
 	
 	}
 	

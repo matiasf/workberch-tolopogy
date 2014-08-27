@@ -2,6 +2,7 @@ package main.java.bolts;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -49,7 +50,13 @@ public class XPathBolt extends BaseBolt {
 		        Document document = builder.parse( new InputSource( new StringReader( xmlString ) ) ); 
 		        NodeList nl = (NodeList) expr.evaluate(document, XPathConstants.NODESET);
 		        for(int i=0; i<nl.getLength() ; i++) {
-		        	System.out.println(nl.item(i).getTextContent());
+		        	//System.out.println(nl.item(i).getTextContent());
+		        	String nodeContent = nl.item(i).getTextContent();
+		        	List<Object> emitTuple = new ArrayList<Object>();
+		        	for (String string : outputFields) {
+						emitTuple.add(nodeContent);
+					}
+		        	collector.emit(emitTuple);
 		        }
 			}
 			

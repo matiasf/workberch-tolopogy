@@ -42,8 +42,21 @@ public class OtroMain {
 		//BoltDeclarer bolt = builder.setBolt("3", basebolt, 1).allGrouping("1").shuffleGrouping("2");
 		BoltDeclarer bolt = builder.setBolt("searchStudies", searchStudies, 1).shuffleGrouping("1");
 		
-		BaseBolt getStudiesId = new XPathBolt(field2, field2, "/eSearchResult/IdList/Id");
+		List<String> getStudiesOut = new ArrayList<String>();
+		getStudiesOut.add("id");
+		BaseBolt getStudiesId = new XPathBolt(field2, getStudiesOut, "/eSearchResult/IdList/Id");
 		builder.setBolt("getStudiesId", getStudiesId, 1).shuffleGrouping("searchStudies");
+		
+		List<String> downloadExperimentsFields = new ArrayList<String>();
+		downloadExperimentsFields.add("db");
+		downloadExperimentsFields.add("id");
+		
+		
+		url = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db={db}&id={id}";
+		BaseBolt downloadExperiments = new RestBolt(downloadExperimentsFields, field2, url, "GET", "text/xml");
+		BoltDeclarer bd = builder.setBolt("downloadExperiments", downloadExperiments, 1).allGrouping("getStudiesId");
+		bd.allGrouping("1");
+		
 		
 		Config conf = new Config();
 		conf.setDebug(true);

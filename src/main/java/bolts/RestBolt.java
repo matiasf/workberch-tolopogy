@@ -56,6 +56,7 @@ public class RestBolt extends BaseBolt{
 			conn.setRequestProperty(ACCEPT_PROP, accetpHeader);
 
 			if (conn.getResponseCode() != 200) {
+				System.out.println("Se fallo en la url " + localAddress);
 				throw new RuntimeException(
 						"Falló el la conexion en REST Bolt : HTTP error code : "
 								+ conn.getResponseCode());
@@ -70,7 +71,7 @@ public class RestBolt extends BaseBolt{
 			StringBuilder sb = new StringBuilder();
 			while ((output = br.readLine()) != null) {
 				sb.append(output);
-				//System.out.println(output);
+				System.out.println(output);
 			}
 
 			conn.disconnect();
