@@ -1,20 +1,25 @@
 package main.java.utils;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
 
 public class WorkberchTuple {
 
-    private List<Values> values;
+    private Map<String, Object> values = new HashMap<String, Object>();
 
-    public List<Values> getValues() {
-	return values;
+    public WorkberchTuple(Tuple input) {
+	List<String> inputFields = input.getFields().toList();
+	for (String inputField : inputFields) {
+	    values.put(inputField, input.getValueByField(inputField));
+	}
     }
 
-    public void setValues(List<Values> values) {
-	this.values = values;
+    public Map<String, Object> getValues() {
+	return values;
     }
 
 }
