@@ -15,13 +15,12 @@ import backtype.storm.utils.Utils;
 public class WorkberchGenericSpout extends BaseRichSpout {
 
     private List<String> spoutFields;
-    private String streamId;
     private SpoutOutputCollector collector;
     private Random rand;
+    private boolean oneTime = true;
 
-    public WorkberchGenericSpout(final String streamId, final List<String> fields) {
+    public WorkberchGenericSpout(final List<String> fields) {
 	spoutFields = fields;
-	this.streamId = streamId;
     }
 
     @Override
@@ -32,15 +31,11 @@ public class WorkberchGenericSpout extends BaseRichSpout {
 
     @Override
     public void nextTuple() {
-	Utils.sleep(5000);
-	Values values = new Values(streamId, rand.nextInt(10));
-	System.out.print("Emitiendo tupla: ");
-	for (Object value : values) {
-	    System.out.print(value.toString());
-	    System.out.print("-");
+	if (oneTime) {
+	    Values values = new Values("150");
+	    collector.emit(values);
 	}
-	System.out.println();
-	collector.emit(values);
+	oneTime = false;
     }
 
     @Override

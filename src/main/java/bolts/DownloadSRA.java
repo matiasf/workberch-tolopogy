@@ -15,9 +15,10 @@ import java.util.List;
 import java.util.Map;
 
 import main.java.utils.BaseTuple;
+import main.java.utils.WorkberchTuple;
 import backtype.storm.topology.BasicOutputCollector;
 
-public class DownloadSRA extends BaseBolt{
+public class DownloadSRA extends WorkberchGenericBolt{
 	
 	final static String FILE_PATH = "/home/proyecto/Downloads/";
 	final static String FINAL_PATH = "/home/proyecto/Documents/";
@@ -28,7 +29,7 @@ public class DownloadSRA extends BaseBolt{
 	}
 
 	@Override
-	public void executeLogic(BasicOutputCollector collector, BaseTuple tuple) {
+	public void executeLogic(WorkberchTuple tuple, BasicOutputCollector collector) {
 		Map<String, Object> values = tuple.getValues();
 		String runAccessionID = (String) values.get("runAccessionID");
 		String ftpURLInput = (String) values.get("ftpURLInput");

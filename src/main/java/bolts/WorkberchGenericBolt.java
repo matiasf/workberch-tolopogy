@@ -1,10 +1,7 @@
 package main.java.bolts;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -12,87 +9,82 @@ import main.java.utils.WorkberchTuple;
 import backtype.storm.topology.BasicOutputCollector;
 import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseBasicBolt;
+import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
-import backtype.storm.tuple.Values;
 
 abstract public class WorkberchGenericBolt extends BaseBasicBolt {
 
-    private Map<String, List<Object>> streamsValues = new HashMap<String, List<Object>>();
+    private Map<String, List<Object>> executedInputs = new HashMap<String, List<Object>>();
 
-    private List<String> streamsKeysOrdered = new ArrayList<String>();
+    private List<String> outputFields = new ArrayList<String>();
 
     private boolean uncompleteTuples = true;
 
-    private void createTuples(String streamId, Tuple input, List<String> streamsKeys, BasicOutputCollector collector,
-	    List<Object> currentTuple) {
-	if (streamsKeys.isEmpty()) {
-	    WorkberchTuple tuple = new WorkberchTuple();
-	    List<Values> values = new ArrayList<Values>();
-	    for (Object value : currentTuple) {
-		values.addAll((List<Values>) value);
-	    }
-	    tuple.setValues(values);
-	    executeLogic(tuple, collector);
+    private void createTuples(List<String> remainingFields, WorkberchTuple baseTuple, BasicOutputCollector collector) {
+	if (remainingFields.isEmpty()) {
+	    this.executeLogic(baseTuple, collector);
 	} else {
-	    String firstStream = streamsKeys.get(0);
-	    if (firstStream.equals(streamId)) {
-		currentTuple.add(input.getValues().subList(1, input.getValues().size()));
-		List<String> subKeys = new ArrayList<String>(streamsKeys.size());
-		for (String key : streamsKeys) {
-		    subKeys.add(key);
-		}
-		subKeys = subKeys.subList(1, subKeys.size());
-		createTuples(streamId, input, subKeys, collector, currentTuple);
-		currentTuple.remove(currentTuple.size() - 1);
-	    } else {
-		for (Object streamValue : streamsValues.get(streamsKeys.get(0))) {
-		    Tuple tuple = (Tuple) streamValue;
-		    currentTuple.add(tuple.getValues().subList(1, tuple.getValues().size()));
-		    List<String> subKeys = new ArrayList<String>(streamsKeys.size());
-		    for (String key : streamsKeys) {
-			subKeys.add(key);
-		    }
-		    subKeys = subKeys.subList(1, subKeys.size());
-		    createTuples(streamId, input, subKeys, collector, currentTuple);
-		    currentTuple.remove(currentTuple.size() - 1);
+	    String nextField = remainingFields.get(0);
+	    remainingFields.remove(0);
+	    for (Object value : executedInputs.get(nextField)) {
+		baseTuple.getValues().put(nextField, value);
+		this.createTuples(remainingFields, baseTuple, collector);
+	    }
+	}
+    }
+
+    private void addExecutedValues(WorkberchTuple tuple, List<String> remainingFields) {
+	for (String string : tuple.getValues().keySet()) {
+	    if (!remainingFields.contains(string)) {
+		List<Object> values = this.executedInputs.get(string);
+		if (values != null) {
+		    values.add(tuple.getValues().get(string));
 		}
 	    }
 	}
     }
 
-    public WorkberchGenericBolt(List<String> streams) {
-	for (Iterator<String> iterator = streams.iterator(); iterator.hasNext();) {
-	    final String stream = iterator.next();
-	    streamsValues.put(stream, new ArrayList<Object>());
-	    streamsKeysOrdered.add(stream);
+    protected List<String> getOutputFields() {
+	return outputFields;
+    }
+
+    public WorkberchGenericBolt(final List<String> inputFields, final List<String> outputFields) {
+	this.outputFields = outputFields;
+	for (String inputField : inputFields) {
+	    this.executedInputs.put(inputField, new ArrayList<Object>());
 	}
     }
 
     @Override
     public void execute(Tuple input, BasicOutputCollector collector) {
-	String streamId = (String) input.getValueByField("stream");
-	
-	List<Object> values = streamsValues.get(streamId);
-	values.add(input);
+	List<String> inputFields = input.getFields().toList();
 
+	WorkberchTuple baseTuple = new WorkberchTuple(input);
+
+	List<String> remainingFields = new ArrayList<String>();
+	remainingFields.addAll(this.executedInputs.keySet());
+	remainingFields.removeAll(inputFields);
+
+	addExecutedValues(baseTuple, remainingFields);
+	
 	if (uncompleteTuples) {
 	    boolean notAllValues = false;
-	    for (String key : streamsValues.keySet()) {
-		notAllValues |= streamsValues.get(key).isEmpty();
+	    for (String key : executedInputs.keySet()) {
+		notAllValues |= executedInputs.get(key).isEmpty();
 	    }
 	    uncompleteTuples &= notAllValues;
 	}
 
 	if (!uncompleteTuples) {
-	    createTuples(streamId, input, streamsKeysOrdered, collector, new ArrayList<Object>());
-	}	
+	    createTuples(remainingFields, baseTuple, collector);
+	}
     };
-
-    public abstract void executeLogic(WorkberchTuple input, BasicOutputCollector collector);
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer declarer) {
-	// TODO Auto-generated method stub
+	declarer.declare(new Fields(outputFields));
     }
+
+    public abstract void executeLogic(WorkberchTuple input, BasicOutputCollector collector);
 
 }

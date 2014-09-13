@@ -12,95 +12,87 @@ import java.util.ArrayList;
 import java.util.List;
 
 import main.java.utils.BaseTuple;
+import main.java.utils.WorkberchTuple;
 import backtype.storm.topology.BasicOutputCollector;
 
-public class RestBolt extends BaseBolt{
+public class RestBolt extends WorkberchGenericBolt {
 
-	String address;
-	String requestMethod;
-	String accetpHeader;
-	
-	final String ACCEPT_PROP = "Accept";
-	
-	public RestBolt(List<String> inputFields, 
-			List<String> outputFields, 
-			String address, 
-			String requestMethod, 
-			String accetpHeader) {
-		
-		super(inputFields, outputFields);
-			
-		this.address = address;
-		this.requestMethod = requestMethod;
-		this.accetpHeader = accetpHeader;
-			
-		
+    String address;
+    String requestMethod;
+    String accetpHeader;
 
+    final String ACCEPT_PROP = "Accept";
+
+    public RestBolt(List<String> inputFields, List<String> outputFields, String address, String requestMethod,
+	    String accetpHeader) {
+
+	super(inputFields, outputFields);
+
+	this.address = address;
+	this.requestMethod = requestMethod;
+	this.accetpHeader = accetpHeader;
+
+    }
+
+    @Override
+    public void executeLogic(WorkberchTuple tuple, BasicOutputCollector collector) {
+
+	String localAddress = this.address;
+
+	for (String param : tuple.getValues().keySet()) {
+	    localAddress = localAddress.replace("{" + param + "}", tuple.getValues().get(param).toString());
 	}
 
-	@Override
-	public void executeLogic(BasicOutputCollector collector, BaseTuple tuple) {
-		
-		String localAddress = this.address;
-		
-		for (String param : tuple.getValues().keySet()) {
-			localAddress = localAddress.replace("{" + param + "}", tuple.getValues().get(param).toString());
-		}
-		
-		try {
-			
-			URL url = new URL(localAddress);
+	try {
 
-			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-			conn.setRequestMethod(requestMethod);
-			conn.setRequestProperty(ACCEPT_PROP, accetpHeader);
+	    URL url = new URL(localAddress);
 
-			if (conn.getResponseCode() != 200) {
-				System.out.println("Se fallo en la url " + localAddress);
-				throw new RuntimeException(
-						"Falló el la conexion en REST Bolt : HTTP error code : "
-								+ conn.getResponseCode());
-			}
+	    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+	    conn.setRequestMethod(requestMethod);
+	    conn.setRequestProperty(ACCEPT_PROP, accetpHeader);
 
-			BufferedReader br = new BufferedReader(new InputStreamReader(
-					(conn.getInputStream())));
+	    if (conn.getResponseCode() != 200) {
+		System.out.println("Se fallo en la url " + localAddress);
+		throw new RuntimeException("Falló el la conexion en REST Bolt : HTTP error code : "
+			+ conn.getResponseCode());
+	    }
 
-			String output;
-			
-			
-			StringBuilder sb = new StringBuilder();
-			while ((output = br.readLine()) != null) {
-				sb.append(output);
-				//System.out.println(output);
-			}
+	    BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream())));
 
-			conn.disconnect();
-			
-			String outputValue = sb.toString();
-			
-			List<Object> outputValues = new ArrayList<Object>();
-			
-			for (String string : outputFields) {
-				outputValues.add(outputValue);
-			}
-			
-			collector.emit(outputValues);
+	    String output;
+	    System.out.println("Output from Server .... \n");
 
-		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+	    StringBuilder sb = new StringBuilder();
+	    while ((output = br.readLine()) != null) {
+		sb.append(output);
+		// System.out.println(output);
+	    }
 
-		}
-		catch (ProtocolException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+	    conn.disconnect();
 
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	    String outputValue = sb.toString();
 
+	    List<Object> outputValues = new ArrayList<Object>();
+
+	    for (String string : getOutputFields()) {
+		outputValues.add(outputValue);
+	    }
+
+	    collector.emit(outputValues);
+
+	} catch (MalformedURLException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+
+	} catch (ProtocolException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+
+	} catch (IOException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
 	}
-	
+
+    }
 
 }
