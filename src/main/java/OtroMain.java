@@ -5,6 +5,7 @@ import java.util.List;
 
 import main.java.bolts.BaseBolt;
 import main.java.bolts.CreateFTPURLsBolt;
+import main.java.bolts.DownloadSRA;
 import main.java.bolts.RestBolt;
 import main.java.bolts.XPathBolt;
 import main.java.spouts.SpoutTrucho;
@@ -46,7 +47,7 @@ public class OtroMain {
 		List<String> getStudiesOut = new ArrayList<String>();
 		getStudiesOut.add("id");
 		BaseBolt getStudiesId = new XPathBolt(field2, getStudiesOut, "/eSearchResult/IdList/Id");
-		builder.setBolt("getStudiesId", getStudiesId, 1).shuffleGrouping("searchStudies");
+		builder.setBolt("getStudiesId", getStudiesId, 3).shuffleGrouping("searchStudies");
 		
 		List<String> downloadExperimentsFields = new ArrayList<String>();
 		downloadExperimentsFields.add("db");
@@ -55,16 +56,16 @@ public class OtroMain {
 		
 		url = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db={db}&id={id}";
 		BaseBolt downloadExperiments = new RestBolt(downloadExperimentsFields, field2, url, "GET", "text/xml");
-		BoltDeclarer bd = builder.setBolt("downloadExperiments", downloadExperiments, 1).allGrouping("getStudiesId");
+		BoltDeclarer bd = builder.setBolt("downloadExperiments", downloadExperiments, 3).shuffleGrouping("getStudiesId");
 		bd.allGrouping("1");
 		
 		
 		List<String> getRunAccessionsIdsOut = new ArrayList<String>();
 		getRunAccessionsIdsOut.add("runAccessionID");
 		BaseBolt getRunAccessions = new XPathBolt(field2, getRunAccessionsIdsOut, "/EXPERIMENT_PACKAGE_SET/EXPERIMENT_PACKAGE/RUN_SET/RUN/@accession");
-		builder.setBolt("getRunAccessions", getRunAccessions, 1).shuffleGrouping("downloadExperiments");
+		builder.setBolt("getRunAccessions", getRunAccessions, 3).shuffleGrouping("downloadExperiments");
 		
-		List<String> createFtpUrlsInput = new ArrayList<>();
+		/*List<String> createFtpUrlsInput = new ArrayList<>();
 		createFtpUrlsInput.add("runAccessionID");
 		createFtpUrlsInput.add("ftpURLInput");
 		
@@ -72,11 +73,11 @@ public class OtroMain {
 		createFtpUrlsOutput.add("runAccessionID");
 		createFtpUrlsOutput.add("ftpURLInput");
 		
-		BaseBolt createFTPUrls = new CreateFTPURLsBolt(createFtpUrlsInput, createFtpUrlsOutput);
-		builder.setBolt("createFTPUrls", createFTPUrls).globalGrouping("1").shuffleGrouping("getRunAccessions");
+		BaseBolt createFTPUrls = new DownloadSRA(createFtpUrlsInput, createFtpUrlsOutput);
+		builder.setBolt("createFTPUrls", createFTPUrls).globalGrouping("1").shuffleGrouping("getRunAccessions");*/
 		
 		
-		
+		/*
 		
 		List<String> getExperimentAccessionOut = new ArrayList<String>();
 		getExperimentAccessionOut.add("experimentAccessionID");
@@ -87,13 +88,13 @@ public class OtroMain {
 		getStudyRefIdOut.add("studyRedId");
 		BaseBolt getStudyRefId = new XPathBolt(field2, getStudyRefIdOut, "/EXPERIMENT_PACKAGE_SET/EXPERIMENT_PACKAGE/STUDY/@accession");
 		builder.setBolt("getStudyRefId", getStudyRefId, 1).shuffleGrouping("downloadExperiments");
-		
+		*/
 		
 		
 		
 		Config conf = new Config();
-		conf.setDebug(true);
-		conf.setMaxTaskParallelism(1);
+		conf.setDebug(false);
+		conf.setMaxTaskParallelism(3);
 		
 		LocalCluster cluster = new LocalCluster();
 		cluster.submitTopology("workberch", conf, builder.createTopology());

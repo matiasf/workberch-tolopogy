@@ -66,7 +66,7 @@ public class RestBolt extends BaseBolt{
 					(conn.getInputStream())));
 
 			String output;
-			System.out.println("Output from Server .... \n");
+			
 			
 			StringBuilder sb = new StringBuilder();
 			while ((output = br.readLine()) != null) {
