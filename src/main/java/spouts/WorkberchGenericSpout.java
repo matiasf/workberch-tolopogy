@@ -31,11 +31,11 @@ public class WorkberchGenericSpout extends BaseRichSpout {
 
     @Override
     public void nextTuple() {
-	if (oneTime) {
-	    Values values = new Values("150");
+	//if (oneTime) {
+	    Values values = new Values("2000");
 	    collector.emit(values);
-	}
-	oneTime = false;
+	//}
+	//oneTime = false;
     }
 
     @Override

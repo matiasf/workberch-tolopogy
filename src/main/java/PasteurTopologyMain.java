@@ -62,11 +62,11 @@ public class PasteurTopologyMain {
 		"/EXPERIMENT_PACKAGE_SET/EXPERIMENT_PACKAGE/RUN_SET/RUN/@accession");
 	builder.setBolt("getRunAccessions", getRunAccessions, 1).shuffleGrouping("downloadExperiments");
 
-	List<String> createFtpUrlsInput = new ArrayList<>();
+	List<String> createFtpUrlsInput = new ArrayList<String>();
 	createFtpUrlsInput.add("runAccessionID");
 	createFtpUrlsInput.add("ftpURLInput");
 
-	List<String> createFtpUrlsOutput = new ArrayList<>();
+	List<String> createFtpUrlsOutput = new ArrayList<String>();
 	createFtpUrlsOutput.add("runAccessionID");
 	createFtpUrlsOutput.add("ftpURLInput");
 

@@ -1,5 +1,10 @@
 package main.java;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,12 +13,15 @@ import main.java.spouts.WorkberchGenericSpout;
 import main.java.utils.WorkberchTuple;
 import backtype.storm.Config;
 import backtype.storm.LocalCluster;
+import backtype.storm.StormSubmitter;
+import backtype.storm.generated.AlreadyAliveException;
+import backtype.storm.generated.InvalidTopologyException;
 import backtype.storm.topology.BasicOutputCollector;
 import backtype.storm.topology.TopologyBuilder;
 
 public class WorkberchTopologyMain {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws AlreadyAliveException, InvalidTopologyException {
 	TopologyBuilder builder = new TopologyBuilder();
 
 	List<String> outputFieldInput = new ArrayList<String>();
@@ -28,10 +36,10 @@ public class WorkberchTopologyMain {
 	List<String> outputField2YYY = new ArrayList<String>();
 	outputField2YYY.add("string2");
 
-	builder.setSpout("input", new WorkberchGenericSpout(outputFieldInput));
-	builder.setSpout("boo", new WorkberchGenericSpout(outputFieldBoo));
-	builder.setSpout("xxx", new WorkberchGenericSpout(outputField2XXX));
-	builder.setSpout("yyy", new WorkberchGenericSpout(outputField2YYY));
+	builder.setSpout("input", new WorkberchGenericSpout(outputFieldInput), 1);
+	builder.setSpout("boo", new WorkberchGenericSpout(outputFieldBoo), 1);
+	builder.setSpout("xxx", new WorkberchGenericSpout(outputField2XXX), 1);
+	builder.setSpout("yyy", new WorkberchGenericSpout(outputField2YYY), 1);
 
 	List<String> inputFieldsListEmitter = new ArrayList<String>();
 	inputFieldsListEmitter.add("count");
@@ -80,7 +88,7 @@ public class WorkberchTopologyMain {
 		collector.emit(outputValues);
 	    }
 
-	}).shuffleGrouping("List_Emitter");
+	}, 2).shuffleGrouping("List_Emitter");
 
 	List<String> inputFieldsConcatTS = new ArrayList<String>();
 	inputFieldsConcatTS.add("string1");
@@ -105,7 +113,7 @@ public class WorkberchTopologyMain {
 		collector.emit(outputValues);
 	    }
 
-	}).allGrouping("boo").shuffleGrouping("Concat");
+	}, 2).allGrouping("boo").shuffleGrouping("Concat");
 
 	List<String> inputFieldsConcatTS2 = new ArrayList<String>();
 	inputFieldsConcatTS2.add("string1");
@@ -124,14 +132,15 @@ public class WorkberchTopologyMain {
 			String string1 = (String) input.getValues().get("string1");
 			String string2 = (String) input.getValues().get("string2");
 			String output = string1 + string2;
-			System.out.println("Concatenate_two_strings_2 recive tuple with value " + string1 + " and " + string2);
+			System.out.println("Concatenate_two_strings_2 recive tuple with value " + string1 + " and "
+				+ string2);
 			System.out.println("Concatenate_two_strings_2 emit tuple with value " + output);
 			List<Object> outputValues = new ArrayList<Object>();
 			outputValues.add(output);
 			collector.emit(outputValues);
 		    }
 
-		}).allGrouping("xxx").shuffleGrouping("Concatenate_two_strings");
+		}, 2).allGrouping("xxx").shuffleGrouping("Concatenate_two_strings");
 
 	List<String> inputFieldsConcatTS3 = new ArrayList<String>();
 	inputFieldsConcatTS3.add("string1");
@@ -150,14 +159,15 @@ public class WorkberchTopologyMain {
 			String string1 = (String) input.getValues().get("string1");
 			String string2 = (String) input.getValues().get("string2");
 			String output = string1 + string2;
-			System.out.println("Concatenate_two_strings_3 recive tuple with value " + string1 + " and " + string2);
+			System.out.println("Concatenate_two_strings_3 recive tuple with value " + string1 + " and "
+				+ string2);
 			System.out.println("Concatenate_two_strings_3 emit tuple with value " + output);
 			List<Object> outputValues = new ArrayList<Object>();
 			outputValues.add(output);
 			collector.emit(outputValues);
 		    }
 
-		}).allGrouping("yyy").shuffleGrouping("Concatenate_two_strings_2");
+		}, 2).allGrouping("yyy").shuffleGrouping("Concatenate_two_strings_2");
 
 	List<String> inputFieldsConcatOutput = new ArrayList<String>();
 	inputFieldsConcatOutput.add("out");
@@ -168,17 +178,29 @@ public class WorkberchTopologyMain {
 
 	    @Override
 	    public void executeLogic(WorkberchTuple input, BasicOutputCollector collector) {
-		System.out.println("--Tupla Llego--");
+		try {
+		    File tempOutput = new File("/tmp/peteco");
+		    if (tempOutput.canWrite()) {
+			BufferedWriter output;
+			output = new BufferedWriter(new FileWriter(tempOutput));
+			output.write("Valor" + input.getValues().get("out") + "\n");
+			output.close();
+		    }
+		} catch (IOException e) {
+		    // TODO Auto-generated catch block
+		    e.printStackTrace();
+		}
 	    }
+	}
 
-	}).shuffleGrouping("Concatenate_two_strings_3");
+	, 1).shuffleGrouping("Concatenate_two_strings_3");
 
 	Config conf = new Config();
-	conf.setDebug(false);
-	conf.setMaxTaskParallelism(1);
+	conf.setDebug(true);
 
-	LocalCluster cluster = new LocalCluster();
-	cluster.submitTopology("workberch", conf, builder.createTopology());
+	StormSubmitter.submitTopology("workberch", conf, builder.createTopology());
+	// LocalCluster cluster = new LocalCluster();
+	// cluster.submitTopology("workberch", conf, builder.createTopology());
     }
 
 }
