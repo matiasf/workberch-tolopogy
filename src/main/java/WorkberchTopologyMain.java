@@ -74,7 +74,7 @@ public class WorkberchTopologyMain {
 	List<String> outputFieldsConcat = new ArrayList<String>();
 	outputFieldsConcat.add("string1");
 
-	builder.setBolt("Concat", new WorkberchGenericBolt(outputFieldsConcat) {
+	builder.setBolt("Concat", new WorkberchGenericBolt(inputFieldsConcat, outputFieldsConcat) {
 
 	    private static final long serialVersionUID = 1L;
 
@@ -100,7 +100,7 @@ public class WorkberchTopologyMain {
 
 	builder.setBolt("Concatenate_two_strings_cartesian", new WorkberchCartesianBolt(inputFieldsConcatTS)).allGrouping("boo").shuffleGrouping("Concat");
 	
-	builder.setBolt("Concatenate_two_strings", new WorkberchGenericBolt(outputFieldsConcatTS) {
+	builder.setBolt("Concatenate_two_strings", new WorkberchGenericBolt(inputFieldsConcatTS, outputFieldsConcatTS) {
 
 	    private static final long serialVersionUID = 1L;
 
@@ -128,7 +128,7 @@ public class WorkberchTopologyMain {
 	builder.setBolt("Concatenate_two_strings_2_cartesian", new WorkberchCartesianBolt(inputFieldsConcatTS2)).allGrouping("xxx").shuffleGrouping("Concatenate_two_strings");
 
 	builder.setBolt("Concatenate_two_strings_2",
-		new WorkberchGenericBolt(outputFieldsConcatTS2) {
+		new WorkberchGenericBolt(inputFieldsConcatTS2, outputFieldsConcatTS2) {
 
 		    private static final long serialVersionUID = 1L;
 
@@ -157,7 +157,7 @@ public class WorkberchTopologyMain {
 	builder.setBolt("Concatenate_two_strings_3_cartesian", new WorkberchCartesianBolt(inputFieldsConcatTS3)).allGrouping("yyy").shuffleGrouping("Concatenate_two_strings_2");
 
 	builder.setBolt("Concatenate_two_strings_3",
-		new WorkberchGenericBolt(outputFieldsConcatTS3) {
+		new WorkberchGenericBolt(inputFieldsConcatTS3, outputFieldsConcatTS3) {
 
 		    private static final long serialVersionUID = 1L;
 
@@ -179,7 +179,7 @@ public class WorkberchTopologyMain {
 	List<String> inputFieldsConcatOutput = new ArrayList<String>();
 	inputFieldsConcatOutput.add("out");
 
-	builder.setBolt("output", new WorkberchGenericBolt(new ArrayList<String>()) {
+	builder.setBolt("output", new WorkberchGenericBolt(inputFieldsConcatOutput, new ArrayList<String>()) {
 
 	    private static final long serialVersionUID = 1L;
 
