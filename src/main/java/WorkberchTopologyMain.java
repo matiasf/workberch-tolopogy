@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import main.java.bolts.WorkberchCartesianBolt;
 import main.java.bolts.WorkberchGenericBolt;
 import main.java.spouts.WorkberchGenericSpout;
 import main.java.utils.WorkberchTuple;
@@ -73,7 +74,7 @@ public class WorkberchTopologyMain {
 	List<String> outputFieldsConcat = new ArrayList<String>();
 	outputFieldsConcat.add("string1");
 
-	builder.setBolt("Concat", new WorkberchGenericBolt(inputFieldsConcat, outputFieldsConcat) {
+	builder.setBolt("Concat", new WorkberchGenericBolt(outputFieldsConcat) {
 
 	    private static final long serialVersionUID = 1L;
 
@@ -97,7 +98,9 @@ public class WorkberchTopologyMain {
 	List<String> outputFieldsConcatTS = new ArrayList<String>();
 	outputFieldsConcatTS.add("string1");
 
-	builder.setBolt("Concatenate_two_strings", new WorkberchGenericBolt(inputFieldsConcatTS, outputFieldsConcatTS) {
+	builder.setBolt("Concatenate_two_strings_cartesian", new WorkberchCartesianBolt(inputFieldsConcatTS)).allGrouping("boo").shuffleGrouping("Concat");
+	
+	builder.setBolt("Concatenate_two_strings", new WorkberchGenericBolt(outputFieldsConcatTS) {
 
 	    private static final long serialVersionUID = 1L;
 
@@ -113,7 +116,7 @@ public class WorkberchTopologyMain {
 		collector.emit(outputValues);
 	    }
 
-	}, 2).allGrouping("boo").shuffleGrouping("Concat");
+	}, 2).shuffleGrouping("Concatenate_two_strings_cartesian");
 
 	List<String> inputFieldsConcatTS2 = new ArrayList<String>();
 	inputFieldsConcatTS2.add("string1");
@@ -121,9 +124,11 @@ public class WorkberchTopologyMain {
 
 	List<String> outputFieldsConcatTS2 = new ArrayList<String>();
 	outputFieldsConcatTS2.add("string1");
+	
+	builder.setBolt("Concatenate_two_strings_2_cartesian", new WorkberchCartesianBolt(inputFieldsConcatTS2)).allGrouping("xxx").shuffleGrouping("Concatenate_two_strings");
 
 	builder.setBolt("Concatenate_two_strings_2",
-		new WorkberchGenericBolt(inputFieldsConcatTS2, outputFieldsConcatTS2) {
+		new WorkberchGenericBolt(outputFieldsConcatTS2) {
 
 		    private static final long serialVersionUID = 1L;
 
@@ -140,7 +145,7 @@ public class WorkberchTopologyMain {
 			collector.emit(outputValues);
 		    }
 
-		}, 2).allGrouping("xxx").shuffleGrouping("Concatenate_two_strings");
+		}, 2).shuffleGrouping("Concatenate_two_strings_2_cartesian");
 
 	List<String> inputFieldsConcatTS3 = new ArrayList<String>();
 	inputFieldsConcatTS3.add("string1");
@@ -148,9 +153,11 @@ public class WorkberchTopologyMain {
 
 	List<String> outputFieldsConcatTS3 = new ArrayList<String>();
 	outputFieldsConcatTS3.add("out");
+	
+	builder.setBolt("Concatenate_two_strings_3_cartesian", new WorkberchCartesianBolt(inputFieldsConcatTS3)).allGrouping("yyy").shuffleGrouping("Concatenate_two_strings_2");
 
 	builder.setBolt("Concatenate_two_strings_3",
-		new WorkberchGenericBolt(inputFieldsConcatTS3, outputFieldsConcatTS3) {
+		new WorkberchGenericBolt(outputFieldsConcatTS3) {
 
 		    private static final long serialVersionUID = 1L;
 
@@ -167,29 +174,18 @@ public class WorkberchTopologyMain {
 			collector.emit(outputValues);
 		    }
 
-		}, 2).allGrouping("yyy").shuffleGrouping("Concatenate_two_strings_2");
+		}, 2).shuffleGrouping("Concatenate_two_strings_3_cartesian");
 
 	List<String> inputFieldsConcatOutput = new ArrayList<String>();
 	inputFieldsConcatOutput.add("out");
 
-	builder.setBolt("output", new WorkberchGenericBolt(inputFieldsConcatOutput, new ArrayList<String>()) {
+	builder.setBolt("output", new WorkberchGenericBolt(new ArrayList<String>()) {
 
 	    private static final long serialVersionUID = 1L;
 
 	    @Override
 	    public void executeLogic(WorkberchTuple input, BasicOutputCollector collector) {
-		try {
-		    File tempOutput = new File("/tmp/peteco");
-		    if (tempOutput.canWrite()) {
-			BufferedWriter output;
-			output = new BufferedWriter(new FileWriter(tempOutput));
-			output.write("Valor" + input.getValues().get("out") + "\n");
-			output.close();
-		    }
-		} catch (IOException e) {
-		    // TODO Auto-generated catch block
-		    e.printStackTrace();
-		}
+		System.out.println("Valor" + input.getValues().get("out"));
 	    }
 	}
 
@@ -198,9 +194,9 @@ public class WorkberchTopologyMain {
 	Config conf = new Config();
 	conf.setDebug(true);
 
-	StormSubmitter.submitTopology("workberch", conf, builder.createTopology());
-	// LocalCluster cluster = new LocalCluster();
-	// cluster.submitTopology("workberch", conf, builder.createTopology());
+	//StormSubmitter.submitTopology("workberch", conf, builder.createTopology());
+	LocalCluster cluster = new LocalCluster();
+	cluster.submitTopology("workberch", conf, builder.createTopology());
     }
 
 }

@@ -13,71 +13,21 @@ import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 
 abstract public class WorkberchGenericBolt extends BaseBasicBolt {
-
-    private Map<String, List<Object>> executedInputs = new HashMap<String, List<Object>>();
-
-    private List<String> outputFields = new ArrayList<String>();
-
-    private boolean uncompleteTuples = true;
-
-    private void createTuples(List<String> remainingFields, WorkberchTuple baseTuple, BasicOutputCollector collector) {
-	if (remainingFields.isEmpty()) {
-	    this.executeLogic(baseTuple, collector);
-	} else {
-	    String nextField = remainingFields.get(0);
-	    remainingFields.remove(0);
-	    for (Object value : executedInputs.get(nextField)) {
-		baseTuple.getValues().put(nextField, value);
-		this.createTuples(remainingFields, baseTuple, collector);
-	    }
-	}
-    }
-
-    private void addExecutedValues(WorkberchTuple tuple, List<String> remainingFields) {
-	for (String string : tuple.getValues().keySet()) {
-	    if (!remainingFields.contains(string)) {
-		List<Object> values = this.executedInputs.get(string);
-		if (values != null) {
-		    values.add(tuple.getValues().get(string));
-		}
-	    }
-	}
-    }
-
+    
+    private List<String> outputFields;
+    
     protected List<String> getOutputFields() {
 	return outputFields;
     }
 
     public WorkberchGenericBolt(final List<String> inputFields, final List<String> outputFields) {
 	this.outputFields = outputFields;
-	for (String inputField : inputFields) {
-	    this.executedInputs.put(inputField, new ArrayList<Object>());
-	}
     }
 
     @Override
     public void execute(Tuple input, BasicOutputCollector collector) {
-	List<String> inputFields = input.getFields().toList();
-
-	WorkberchTuple baseTuple = new WorkberchTuple(input);
-
-	List<String> remainingFields = new ArrayList<String>();
-	remainingFields.addAll(this.executedInputs.keySet());
-	remainingFields.removeAll(inputFields);
-
-	addExecutedValues(baseTuple, remainingFields);
-	
-	if (uncompleteTuples) {
-	    boolean notAllValues = false;
-	    for (String key : executedInputs.keySet()) {
-		notAllValues |= executedInputs.get(key).isEmpty();
-	    }
-	    uncompleteTuples &= notAllValues;
-	}
-
-	if (!uncompleteTuples) {
-	    createTuples(remainingFields, baseTuple, collector);
-	}
+	WorkberchTuple baseTuple = new WorkberchTuple(input);	
+	executeLogic(baseTuple, collector);
     };
 
     @Override
