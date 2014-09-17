@@ -23,7 +23,7 @@ public class WorkberchGenericSpout extends BaseRichSpout {
 
     public WorkberchGenericSpout(final List<String> fields) {
 	fields.add(INDEX_FIELD);
-	spoutFields = fields;
+	this.spoutFields = fields;
     }
 
     @Override
@@ -34,10 +34,8 @@ public class WorkberchGenericSpout extends BaseRichSpout {
 
     @Override
     public void nextTuple() {
-	if (oneTime) {
-	    Values values = new Values("2000", index++);
+	    Values values = new Values("2000" + index, index++);
 	    collector.emit(values);
-	}
 	oneTime = false;
     }
 
