@@ -197,6 +197,7 @@ public class WorkberchTopologyMain {
 	//StormSubmitter.submitTopology("workberch", conf, builder.createTopology());
 	LocalCluster cluster = new LocalCluster();
 	cluster.submitTopology("workberch", conf, builder.createTopology());
+	
     }
 
 }
