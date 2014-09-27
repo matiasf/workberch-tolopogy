@@ -11,27 +11,33 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 import main.java.utils.BaseTuple;
 import main.java.utils.WorkberchTuple;
 import backtype.storm.topology.BasicOutputCollector;
 
-public class RestBolt extends WorkberchGenericBolt {
+public class RestBolt extends WorkberchTavernaProcessor {
 
     String address;
     String requestMethod;
     String accetpHeader;
 
-    final String ACCEPT_PROP = "Accept";
-
+    final String ACCEPT_PROP = "Accept";    
+    
     public RestBolt(List<String> inputFields, List<String> outputFields, String address, String requestMethod,
 	    String accetpHeader) {
 
-	super(inputFields, outputFields);
+		super(inputFields, outputFields);
+	
+		this.address = address;
+		this.requestMethod = requestMethod;
+		this.accetpHeader = accetpHeader;
 
-	this.address = address;
-	this.requestMethod = requestMethod;
-	this.accetpHeader = accetpHeader;
-
+    }
+    
+    public RestBolt(List<String> inputFields, List<String> outputFields, JsonNode node) {
+    	super(inputFields, outputFields, node);
     }
 
     @Override
@@ -94,5 +100,20 @@ public class RestBolt extends WorkberchGenericBolt {
 	}
 
     }
+
+	@Override
+	protected void initFromJsonNode(JsonNode jsonNode) {
+		
+		JsonNode requestNode = jsonNode.get("request");
+		
+		this.requestMethod = requestNode.get("httpMethod").asText();
+		this.address = requestNode.get("absoluteURITemplate").asText();
+		
+		//TODO Hay que ver que se con los demas headers
+		JsonNode header = requestNode.get("headers").get(0);
+		
+		this.accetpHeader = header.get("value").asText();
+		
+	}
 
 }

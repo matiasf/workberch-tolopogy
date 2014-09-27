@@ -19,17 +19,24 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 import main.java.utils.BaseTuple;
 import main.java.utils.WorkberchTuple;
 import backtype.storm.topology.BasicOutputCollector;
 
-public class XPathBolt extends WorkberchGenericBolt {
+public class XPathBolt extends WorkberchTavernaProcessor {
 
     String xPathExpression;
 
     public XPathBolt(List<String> inputFields, List<String> outputFields, String xPathExpression) {
-	super(inputFields, outputFields);
-	this.xPathExpression = xPathExpression;
+		super(inputFields, outputFields);
+		this.xPathExpression = xPathExpression;
+    }
+    
+    public XPathBolt(List<String> inputFields, List<String> outputFields, JsonNode node) {
+    	super(inputFields, outputFields, node);
+    	
     }
 
     @Override
@@ -75,5 +82,11 @@ public class XPathBolt extends WorkberchGenericBolt {
 	}
 
     }
+
+	@Override
+	protected void initFromJsonNode(JsonNode jsonNode) {
+		this.xPathExpression = jsonNode.get("xpathExpression").asText();
+		
+	}
 
 }
