@@ -27,7 +27,9 @@ public class WorkberchSpoutBuilder {
 		
 		switch (processorType) {
 			case WorkberchTaverna.TAVERNA_TEXT_CONSTANT_TYPE:
-				ret = new TextConstantSpout(outputFields, config.getJson().get("string").asText());
+				List<String> outputFieldsTrucho = new ArrayList<String>();
+				outputFieldsTrucho.add(processor.getName());
+				ret = new TextConstantSpout(outputFieldsTrucho, config.getJson().get("string").asText());
 				break;
 			default:
 				throw new WrongMethodTypeException("No se ha implementado el tipo de processor de taverna: " + processorType);

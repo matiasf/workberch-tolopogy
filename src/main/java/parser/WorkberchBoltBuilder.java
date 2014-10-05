@@ -35,8 +35,11 @@ public class WorkberchBoltBuilder {
 			outputFields.add(outputPort.getName());
 		}
 		
+		outputFields = new ArrayList<String>();
+		outputFields.add(processor.getName());
 		switch (processorType) {
 			case WorkberchTaverna.TAVERNA_XPATH_TYPE:
+				
 				ret = new XPathBolt(inputFields, outputFields, config.getJson());
 				break;
 			case WorkberchTaverna.TAVERNA_REST_TYPE:

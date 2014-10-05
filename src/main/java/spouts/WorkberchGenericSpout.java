@@ -53,7 +53,7 @@ abstract public class WorkberchGenericSpout extends BaseRichSpout implements Tav
 		if (init) {
 			for (int i = 0; i < 10; i++) {
 				RedisHandeler.increseEmitedState(boltId);
-				final Values values = new Values(String.valueOf(i+1), index++);
+				final Values values = new Values(index++);
 				if (i == 10) {
 					RedisHandeler.setStateFinished(boltId);
 				}

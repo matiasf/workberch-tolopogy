@@ -17,12 +17,12 @@ public class WorkberchDotBolt extends WorkberchGenericBolt {
 	private final Map<Long, Map<String, Object>> vectorsMap = new HashMap<Long, Map<String, Object>>();
 	
 	public WorkberchDotBolt(final List<String> outputFields) {
-		super(outputFields);
+		super(new ArrayList<String>(outputFields));
 	}
 	
 	@Override
 	public void executeLogic(final WorkberchTuple input, final BasicOutputCollector collector) {
-		final Long index = (Long) input.getValues().get(INDEX_FIELD);
+		final Long index = Long.valueOf(input.getValues().get(INDEX_FIELD).toString());
 		final Map<String, Object> value = vectorsMap.containsKey(index) ? vectorsMap.get(index) : new HashMap<String, Object>();
 
 		final List<String> notPresentFields = new ArrayList<String>();

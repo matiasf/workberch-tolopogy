@@ -1,5 +1,7 @@
 package main.java.bolts;
 
+import static main.java.utils.WorkberchConstants.INDEX_FIELD;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -77,13 +79,12 @@ public class RestBolt extends WorkberchTavernaProcessorBolt {
 
 	    final String outputValue = sb.toString();
 
-	    final List<Object> outputValues = new ArrayList<Object>();
+	    ArrayList<Object> values = new ArrayList<Object>();
+	    values.add(outputValue);
+	    values.add(tuple.getValues().get(INDEX_FIELD));
+	    emitTuple(values, collector);	    
 
-	    for (final String string : getOutputFields()) {
-		outputValues.add(outputValue);
-	    }
-
-	    collector.emit(outputValues);
+	    
 
 	} catch (final MalformedURLException e) {
 	    // TODO Auto-generated catch block

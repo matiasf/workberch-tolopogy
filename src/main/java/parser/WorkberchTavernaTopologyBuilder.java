@@ -1,5 +1,7 @@
 package main.java.parser;
 
+import static main.java.utils.WorkberchConstants.INDEX_FIELD;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -10,7 +12,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import main.java.bolts.OutputBolt;
 import main.java.bolts.WorkberchCartesianBolt;
+import main.java.bolts.WorkberchDotBolt;
 import main.java.bolts.WorkberchGenericBolt;
 import main.java.spouts.WorkberchGenericSpout;
 import main.java.utils.TavernaProcessor;
@@ -39,6 +43,7 @@ import backtype.storm.topology.BoltDeclarer;
 import backtype.storm.topology.SpoutDeclarer;
 import backtype.storm.topology.TopologyBuilder;
 import backtype.storm.topology.base.BaseBasicBolt;
+import backtype.storm.tuple.Fields;
 
 public class WorkberchTavernaTopologyBuilder {
 	
@@ -126,12 +131,72 @@ public class WorkberchTavernaTopologyBuilder {
 		if (destProcessor != null) {
 			//TODO aca hay que hacer algo con el iteration strategy y encajar los bolts previos			
 			IterationStrategyStack iterationStrategy = destProcessor.getIterationStrategyStack();
+			
 		}
 		
 		
 		//TODO este allGrouping en determinado caso dependiendo del iter strategy puede ser un shuffleGrouping
 		boltDeclarer.allGrouping(sourceName);
 		
+	}
+	
+	private Set<DataLink> getIncomingDataLinksFromProcessor(Processor processor, Set<DataLink> set) {
+		Set<DataLink> ret = new HashSet<DataLink>();
+		
+		for (DataLink dataLink : set) {
+			
+			if (dataLink.getSendsTo() instanceof InputProcessorPort) {
+				InputProcessorPort port = (InputProcessorPort)dataLink.getSendsTo();
+				if (processor == port.getParent()) {
+					ret.add(dataLink);
+				}
+			}
+		}
+		
+		return ret;
+	}
+	
+	private void addProcessorDeclarerDataLinks(BoltDeclarer destBolt, Processor destProcessor, Set<DataLink> incomnigLinks) {
+		List<String> incomingNodes = new ArrayList<String>();
+		for (DataLink dataLink : incomnigLinks) {
+			String name = getSourceNameFromDataLink(dataLink);
+			incomingNodes.add(name);
+		}
+		WorkberchDotBolt dotBolt = new WorkberchDotBolt(incomingNodes);
+		String bdName =  "DOT_" + destProcessor.getName();
+		BoltDeclarer bd = tBuilder.setBolt(bdName, dotBolt);
+		for (String string : incomingNodes) {
+			bd.fieldsGrouping(string, new Fields(INDEX_FIELD));
+		}
+		destBolt.shuffleGrouping(bdName);
+	}
+	
+	private void addOutputDataLink(BoltDeclarer bd, String output, Set<DataLink> dataLinks) {
+		String parentName = "";
+		for (DataLink dataLink : dataLinks) {
+			if (dataLink.getSendsTo() instanceof OutputWorkflowPort) {
+				OutputWorkflowPort port = (OutputWorkflowPort) dataLink.getSendsTo();
+				if (output == port.getName()) {
+					if (dataLink.getReceivesFrom() instanceof OutputProcessorPort) {
+						OutputProcessorPort processorPort = (OutputProcessorPort) dataLink.getReceivesFrom();
+						parentName = processorPort.getParent().getName();
+					}
+					else {
+						parentName = dataLink.getReceivesFrom().getName();
+						
+					}
+					break;
+						
+				}
+			}
+			
+		}
+		
+		OutputBolt ob = new OutputBolt(true);
+		String boltName = "OB_" + output; 
+		BoltDeclarer boltDeclarer = tBuilder.setBolt(boltName, ob);
+		boltDeclarer.shuffleGrouping(parentName);
+		bd.shuffleGrouping(boltName);
 	}
 		
 	private void processTavernaGraph(Workflow wf, Profile profile) {
@@ -140,11 +205,21 @@ public class WorkberchTavernaTopologyBuilder {
 		this.addProcessors(wf, profile);
 		this.addOutputPorts(wf);
 		
-		for (DataLink dataLink : wf.getDataLinks()) {
-			String destName = getDestNameDataLink(dataLink);			
-			String sourceName = getSourceNameFromDataLink(dataLink);
-			this.addStormLink(sourceName, destName);
+		
+		for (String name : boltsDeclarers.keySet()) {
+			BoltDeclarer bd = boltsDeclarers.get(name);
+			Processor pr = addedProcessors.get(name);
+			if (pr !=  null)
+				this.addProcessorDeclarerDataLinks(bd, pr, getIncomingDataLinksFromProcessor(pr, wf.getDataLinks()));
+			else
+				addOutputDataLink(bd, name, wf.getDataLinks());
 		}
+		
+//		for (DataLink dataLink : wf.getDataLinks()) {
+//			String destName = getDestNameDataLink(dataLink);			
+//			String sourceName = getSourceNameFromDataLink(dataLink);
+//			this.addStormLink(sourceName, destName);
+//		}
 		
 	}
 	

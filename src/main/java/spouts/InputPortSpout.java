@@ -29,7 +29,9 @@ public class InputPortSpout extends WorkberchGenericSpout {
 	public void emitNextTuple(final Values values) {
 		if (!runDefault || runDefault && !executed) {
 			executed = true;
-			collector.emit(new Values(getValue()));
+			values.add(0, getValue());
+			
+			collector.emit(values);
 		}
 	}
 

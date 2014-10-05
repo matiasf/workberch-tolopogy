@@ -1,5 +1,7 @@
 package main.java.bolts;
 
+import static main.java.utils.WorkberchConstants.INDEX_FIELD;
+
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -36,37 +38,47 @@ public class XPathBolt extends WorkberchTavernaProcessorBolt {
     public XPathBolt(List<String> inputFields, List<String> outputFields, JsonNode node) {
     	super(inputFields, outputFields, node);
     	
-    }
+	}
 
-    @Override
-    public void executeLogic(WorkberchTuple tuple, BasicOutputCollector collector) {
+	@Override
+	public void executeLogic(WorkberchTuple tuple,
+			BasicOutputCollector collector) {
 
-	try {
+		try {
 
-	    XPathFactory xPathfactory = XPathFactory.newInstance();
-	    XPath xpath = xPathfactory.newXPath();
-	    XPathExpression expr = xpath.compile(xPathExpression);
+			XPathFactory xPathfactory = XPathFactory.newInstance();
+			XPath xpath = xPathfactory.newXPath();
+			XPathExpression expr = xpath.compile(xPathExpression);
 
-	    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-	    DocumentBuilder builder;
-	    for (Object value : tuple.getValues().values()) {
-		String xmlString = value.toString();
+			DocumentBuilderFactory factory = DocumentBuilderFactory
+					.newInstance();
+			DocumentBuilder builder;
+			
+			Object value = tuple.getValues().values().iterator().next();
+			String xmlString = value.toString();
 
-		builder = factory.newDocumentBuilder();
-		Document document = builder.parse(new InputSource(new StringReader(xmlString)));
-		NodeList nl = (NodeList) expr.evaluate(document, XPathConstants.NODESET);
-		for (int i = 0; i < nl.getLength(); i++) {
-		    System.out.println(nl.item(i).toString() + nl.item(i).getTextContent());
-		    String nodeContent = nl.item(i).getTextContent();
-		    List<Object> emitTuple = new ArrayList<Object>();
-		    for (String string : getOutputFields()) {
-			emitTuple.add(nodeContent);
-		    }
-		    collector.emit(emitTuple);
-		}
-	    }
+			builder = factory.newDocumentBuilder();
+			Document document = builder.parse(new InputSource(
+					new StringReader(xmlString)));
+			NodeList nl = (NodeList) expr.evaluate(document,
+					XPathConstants.NODESET);
+			
+			List<Object> emitTuple = new ArrayList<Object>();
+			
+			for (int i = 0; i < nl.getLength(); i++) {
+				System.out.println(nl.item(i).toString()
+						+ nl.item(i).getTextContent());
+				String nodeContent = nl.item(i).getTextContent();
+				emitTuple.add(nodeContent);
+			    	
+			}
+			List<Object> salida = new ArrayList<Object>();
+			salida.add(emitTuple);
+			salida.add(tuple.getValues().get(INDEX_FIELD));
+		    emitTuple(salida, collector);
+			
 
-	} catch (XPathExpressionException e) {
+		} catch (XPathExpressionException e) {
 	    // TODO Auto-generated catch block
 	    e.printStackTrace();
 	} catch (ParserConfigurationException e) {

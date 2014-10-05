@@ -25,9 +25,10 @@ public class TextConstantSpout extends WorkberchGenericSpout {
 
 	@Override
 	public void emitNextTuple(final Values values) {
-		if (emitedValue) {
+		if (!emitedValue) {
 			emitedValue = true;
-			collector.emit(new Values(textConstant));
+			values.add(0, textConstant);
+			collector.emit(values);
 		}		
 	}
 
