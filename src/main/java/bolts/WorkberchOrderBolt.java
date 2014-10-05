@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import main.java.utils.RedisHandeler;
 import main.java.utils.WorkberchTuple;
 import backtype.storm.topology.BasicOutputCollector;
 
@@ -38,7 +39,10 @@ abstract public class WorkberchOrderBolt extends WorkberchGenericBolt {
 				} while (indexMap.containsKey(++lastIndex));
 			}
 		} else {
-			// Arbol
+			// FIXME: Arbol
+		}
+		if (RedisHandeler.getStateFinished(getBoltId())) {
+			System.out.print("Workflow terminado");
 		}
 	}
 

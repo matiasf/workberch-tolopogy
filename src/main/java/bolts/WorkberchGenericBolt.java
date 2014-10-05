@@ -31,6 +31,10 @@ abstract public class WorkberchGenericBolt extends BaseBasicBolt {
 		RedisHandeler.increseEmitedState(boltId);
 		collector.emit(tuple);
 	}
+	
+	protected String getBoltId() {
+		return boltId;
+	}
 
 	public WorkberchGenericBolt(final List<String> outputFields) {
 		this.outputFields = outputFields;
