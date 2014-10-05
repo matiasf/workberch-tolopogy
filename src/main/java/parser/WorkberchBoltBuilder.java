@@ -54,9 +54,7 @@ public class WorkberchBoltBuilder {
 	
 	static public WorkberchGenericBolt buildOutputPort(OutputPort outputPort) {
 		
-		List<String> inputs = new ArrayList<String>();
-		inputs.add(outputPort.getName());
-		WorkberchGenericBolt ret = new OutputBoltTruecho(inputs, new ArrayList<String>());
+		WorkberchGenericBolt ret = new OutputBoltTruecho(new ArrayList<String>());
 		return ret;
 	}
 	

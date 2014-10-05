@@ -1,5 +1,7 @@
 package main.java;
 
+import static main.java.utils.WorkberchConstants.INDEX_FIELD;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -42,10 +44,11 @@ public class WorkberchTopologyMain {
 		final List<String> outputField2YYY = new ArrayList<String>();
 		outputField2YYY.add("string2");
 
-		builder.setSpout("input", new WorkberchGenericSpout(outputFieldInput), 1);
-		builder.setSpout("boo", new WorkberchGenericSpout(outputFieldBoo), 1);
-		builder.setSpout("xxx", new WorkberchGenericSpout(outputField2XXX), 1);
-		builder.setSpout("yyy", new WorkberchGenericSpout(outputField2YYY), 1);
+//		
+//		builder.setSpout("input", new WorkberchGenericSpout(outputFieldInput), 1);
+//		builder.setSpout("boo", new WorkberchGenericSpout(outputFieldBoo), 1);
+//		builder.setSpout("xxx", new WorkberchGenericSpout(outputField2XXX), 1);
+//		builder.setSpout("yyy", new WorkberchGenericSpout(outputField2YYY), 1);
 
 		final List<String> outputFieldsListEmitter = new ArrayList<String>();
 		outputFieldsListEmitter.add("input");

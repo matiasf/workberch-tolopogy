@@ -13,13 +13,10 @@ import java.util.List;
 import main.java.utils.WorkberchTuple;
 import backtype.storm.topology.BasicOutputCollector;
 
-<<<<<<< HEAD
-public class RestBolt extends WorkberchTavernaProcessorBolt {
-=======
 import com.fasterxml.jackson.databind.JsonNode;
 
-public class RestBolt extends WorkberchTavernaProcessor {
->>>>>>> c6badcd24c15517eb0d844be52c904a885b4a610
+public class RestBolt extends WorkberchTavernaProcessorBolt {
+
 
     String address;
     String requestMethod;
@@ -27,10 +24,10 @@ public class RestBolt extends WorkberchTavernaProcessor {
 
     final String ACCEPT_PROP = "Accept";    
     
-    public RestBolt(final List<String> inputFields, final List<String> outputFields, final String address, final String requestMethod,
+    public RestBolt(final List<String> outputFields, final String address, final String requestMethod,
 	    final String accetpHeader) {
 
-		super(inputFields, outputFields);
+		super(outputFields);
 	
 		this.address = address;
 		this.requestMethod = requestMethod;

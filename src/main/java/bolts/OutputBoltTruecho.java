@@ -8,8 +8,8 @@ import backtype.storm.topology.BasicOutputCollector;
 
 public class OutputBoltTruecho extends WorkberchGenericBolt {
 
-	public OutputBoltTruecho(List<String> inputFields, List<String> outputFields) {
-		super(inputFields, new ArrayList<String>());
+	public OutputBoltTruecho(List<String> outputFields) {
+		super(new ArrayList<String>());
 	}
 
 	@Override

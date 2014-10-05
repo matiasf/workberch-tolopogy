@@ -8,9 +8,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 public abstract class WorkberchTavernaProcessorBolt extends WorkberchGenericBolt implements TavernaProcessor{
 	
-	public WorkberchTavernaProcessorBolt(List<String> inputFields,
-			List<String> outputFields) {
-		super(inputFields, outputFields);
+	public WorkberchTavernaProcessorBolt(List<String> outputFields) {
+		super(outputFields);
 	}
 		
 	
@@ -18,7 +17,7 @@ public abstract class WorkberchTavernaProcessorBolt extends WorkberchGenericBolt
 			List<String> outputFields,
 			JsonNode node) {
 		
-		super(inputFields, outputFields);
+		super(outputFields);
 		this.initFromJsonNode(node);
 		
 	}

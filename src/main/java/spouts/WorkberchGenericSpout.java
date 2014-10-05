@@ -15,12 +15,12 @@ import backtype.storm.topology.base.BaseRichSpout;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Values;
 
-public abstract class WorkberchGenericSpout extends BaseRichSpout implements TavernaProcessor {
+abstract public class WorkberchGenericSpout extends BaseRichSpout implements TavernaProcessor {
 
 	private static final long serialVersionUID = 1L;
 
 	private final List<String> spoutFields;
-	private SpoutOutputCollector collector;
+	protected SpoutOutputCollector collector;
 	private long index = 0L;
 	private String boltId;
 	private boolean init = true;
@@ -37,20 +37,21 @@ public abstract class WorkberchGenericSpout extends BaseRichSpout implements Tav
 		boltId = context.getThisComponentId();
 	}
 
-	@Override
-	public void nextTuple() {
-		if (init) {
-			for (int i = 0; i < 10; i++) {
-				RedisHandeler.increseEmitedState(boltId);
-				final Values values = new Values(String.valueOf(i+1), index++);
-				if (i == 10) {
-					RedisHandeler.setStateFinished(boltId);
-				}
-				collector.emit(values);
-			}
-		}
-		init = false;
-	}
+	abstract public void nextTuple();
+//	@Override
+//	public void nextTuple() {
+//		if (init) {
+//			for (int i = 0; i < 10; i++) {
+//				RedisHandeler.increseEmitedState(boltId);
+//				final Values values = new Values(String.valueOf(i+1), index++);
+//				if (i == 10) {
+//					RedisHandeler.setStateFinished(boltId);
+//				}
+//				collector.emit(values);
+//			}
+//		}
+//		init = false;
+//	}
 
 	@Override
 	public void declareOutputFields(final OutputFieldsDeclarer declarer) {
