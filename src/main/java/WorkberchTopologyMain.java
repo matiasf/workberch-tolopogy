@@ -5,9 +5,9 @@ import static main.java.utils.WorkberchConstants.INDEX_FIELD;
 import java.util.ArrayList;
 import java.util.List;
 
+import main.java.bolts.OutputBolt;
 import main.java.bolts.WorkberchDotBolt;
 import main.java.bolts.WorkberchGenericBolt;
-import main.java.bolts.WorkberchOrderBolt;
 import main.java.spouts.ConcatWorkflowSpout;
 import main.java.utils.WorkberchTuple;
 
@@ -186,17 +186,7 @@ public class WorkberchTopologyMain {
 		final List<String> inputFieldsConcatOutput = new ArrayList<String>();
 		inputFieldsConcatOutput.add("out");
 
-		builder.setBolt("output", new WorkberchOrderBolt(new ArrayList<String>(), Boolean.TRUE) {
-
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void executeOrdered(final WorkberchTuple input, final BasicOutputCollector collector) {
-				System.out.println("Valor" + input.getValues().get("out"));
-			}
-		}
-
-		, 1).shuffleGrouping("Concatenate_two_strings_3");
+		builder.setBolt("output", new OutputBolt(Boolean.TRUE), 1).shuffleGrouping("Concatenate_two_strings_3");
 
 		final Config conf = new Config();
 		conf.setDebug(true);
