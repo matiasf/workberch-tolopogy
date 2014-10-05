@@ -5,33 +5,32 @@ import java.util.List;
 import backtype.storm.tuple.Values;
 
 public class InputPortSpout extends WorkberchGenericSpout {
-	
-	private String defaultValue;
-	
-	private boolean runDefault;
-	private boolean executed;
-	
 
-	public InputPortSpout(List<String> fields, String defaultValue, boolean runDefault) {
+	private static final long serialVersionUID = 1L;
+
+	private final String defaultValue;
+	private final boolean runDefault;
+	private boolean executed;
+
+	public InputPortSpout(final List<String> fields, final String defaultValue, final boolean runDefault) {
 		super(fields);
 		this.defaultValue = defaultValue;
 		this.runDefault = runDefault;
 
 	}
-	
+
 	private String getValue() {
-		//TODO hay que implementar sacar los datos del archivo si no es runDefault
+		// TODO hay que implementar sacar los datos del archivo si no es
+		// runDefault
 		return defaultValue;
 	}
 
 	@Override
-	public void nextTuple() {
-
-		if (!runDefault || (runDefault && !executed)) {
+	public void emitNextTuple(final Values values) {
+		if (!runDefault || runDefault && !executed) {
 			executed = true;
-			this.collector.emit(new Values(this.getValue()));
+			collector.emit(new Values(getValue()));
 		}
-
 	}
 
 }

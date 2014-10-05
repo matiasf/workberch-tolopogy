@@ -20,44 +20,17 @@ abstract public class WorkberchGenericSpout extends BaseRichSpout implements Tav
 	private static final long serialVersionUID = 1L;
 
 	private final List<String> spoutFields;
-	protected SpoutOutputCollector collector;
-	private long index = 0L;
 	private String boltId;
+	private long index = 0L;
 	private boolean init = true;
-
+	
+	protected SpoutOutputCollector collector;
+	
 	public WorkberchGenericSpout(final List<String> fields) {
 		fields.add(INDEX_FIELD);
 		spoutFields = fields;
 	}
-
-	@Override
-	@SuppressWarnings("rawtypes")
-	public void open(final Map conf, final TopologyContext context, final SpoutOutputCollector collector) {
-		this.collector = collector;
-		boltId = context.getThisComponentId();
-	}
-
-	abstract public void nextTuple();
-//	@Override
-//	public void nextTuple() {
-//		if (init) {
-//			for (int i = 0; i < 10; i++) {
-//				RedisHandeler.increseEmitedState(boltId);
-//				final Values values = new Values(String.valueOf(i+1), index++);
-//				if (i == 10) {
-//					RedisHandeler.setStateFinished(boltId);
-//				}
-//				collector.emit(values);
-//			}
-//		}
-//		init = false;
-//	}
-
-	@Override
-	public void declareOutputFields(final OutputFieldsDeclarer declarer) {
-		declarer.declare(new Fields(spoutFields));
-	}
-
+	
     @Override
     public List<String> getInputPorts() {
     	return new ArrayList<String>();
@@ -67,5 +40,34 @@ abstract public class WorkberchGenericSpout extends BaseRichSpout implements Tav
 	public List<String> getOutputPorts() {
     	return spoutFields;
     }
+
+	@Override
+	@SuppressWarnings("rawtypes")
+	public void open(final Map conf, final TopologyContext context, final SpoutOutputCollector collector) {
+		this.collector = collector;
+		boltId = context.getThisComponentId();
+	}
+
+	@Override
+	public void nextTuple() {
+		if (init) {
+			for (int i = 0; i < 10; i++) {
+				RedisHandeler.increseEmitedState(boltId);
+				final Values values = new Values(String.valueOf(i+1), index++);
+				if (i == 10) {
+					RedisHandeler.setStateFinished(boltId);
+				}
+				emitNextTuple(values);
+			}
+		}
+		init = false;
+	}
+
+	@Override
+	public void declareOutputFields(final OutputFieldsDeclarer declarer) {
+		declarer.declare(new Fields(spoutFields));
+	}
+	
+	abstract public void emitNextTuple(final Values values);
 
 }
