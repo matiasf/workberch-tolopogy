@@ -1,7 +1,5 @@
 package main.java.utils;
 
-import static main.java.utils.WorkberchConstants.INDEX_FIELD;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -20,7 +18,6 @@ public class WorkberchTuple {
 			values.put(inputField, input.getValueByField(inputField));
 		}
 		fields.addAll(input.getFields().toList());
-		fields.add(INDEX_FIELD);
 	}
 
 	public Map<String, Object> getValues() {
