@@ -7,17 +7,19 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.fasterxml.jackson.databind.JsonNode;
-
-import main.java.utils.BaseTuple;
 import main.java.utils.WorkberchTuple;
 import backtype.storm.topology.BasicOutputCollector;
 
+<<<<<<< HEAD
 public class RestBolt extends WorkberchTavernaProcessorBolt {
+=======
+import com.fasterxml.jackson.databind.JsonNode;
+
+public class RestBolt extends WorkberchTavernaProcessor {
+>>>>>>> c6badcd24c15517eb0d844be52c904a885b4a610
 
     String address;
     String requestMethod;
@@ -25,8 +27,8 @@ public class RestBolt extends WorkberchTavernaProcessorBolt {
 
     final String ACCEPT_PROP = "Accept";    
     
-    public RestBolt(List<String> inputFields, List<String> outputFields, String address, String requestMethod,
-	    String accetpHeader) {
+    public RestBolt(final List<String> inputFields, final List<String> outputFields, final String address, final String requestMethod,
+	    final String accetpHeader) {
 
 		super(inputFields, outputFields);
 	
@@ -36,24 +38,24 @@ public class RestBolt extends WorkberchTavernaProcessorBolt {
 
     }
     
-    public RestBolt(List<String> inputFields, List<String> outputFields, JsonNode node) {
+    public RestBolt(final List<String> inputFields, final List<String> outputFields, final JsonNode node) {
     	super(inputFields, outputFields, node);
     }
 
     @Override
-    public void executeLogic(WorkberchTuple tuple, BasicOutputCollector collector) {
+    public void executeLogic(final WorkberchTuple tuple, final BasicOutputCollector collector) {
 
-	String localAddress = this.address;
+	String localAddress = address;
 
-	for (String param : tuple.getValues().keySet()) {
+	for (final String param : tuple.getValues().keySet()) {
 	    localAddress = localAddress.replace("{" + param + "}", tuple.getValues().get(param).toString());
 	}
 
 	try {
 
-	    URL url = new URL(localAddress);
+	    final URL url = new URL(localAddress);
 
-	    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+	    final HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 	    conn.setRequestMethod(requestMethod);
 	    conn.setRequestProperty(ACCEPT_PROP, accetpHeader);
 
@@ -63,12 +65,12 @@ public class RestBolt extends WorkberchTavernaProcessorBolt {
 			+ conn.getResponseCode());
 	    }
 
-	    BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream())));
+	    final BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
 
 	    String output;
 	    System.out.println("Output from Server .... \n");
 
-	    StringBuilder sb = new StringBuilder();
+	    final StringBuilder sb = new StringBuilder();
 	    while ((output = br.readLine()) != null) {
 		sb.append(output);
 		// System.out.println(output);
@@ -76,25 +78,25 @@ public class RestBolt extends WorkberchTavernaProcessorBolt {
 
 	    conn.disconnect();
 
-	    String outputValue = sb.toString();
+	    final String outputValue = sb.toString();
 
-	    List<Object> outputValues = new ArrayList<Object>();
+	    final List<Object> outputValues = new ArrayList<Object>();
 
-	    for (String string : getOutputFields()) {
+	    for (final String string : getOutputFields()) {
 		outputValues.add(outputValue);
 	    }
 
 	    collector.emit(outputValues);
 
-	} catch (MalformedURLException e) {
+	} catch (final MalformedURLException e) {
 	    // TODO Auto-generated catch block
 	    e.printStackTrace();
 
-	} catch (ProtocolException e) {
+	} catch (final ProtocolException e) {
 	    // TODO Auto-generated catch block
 	    e.printStackTrace();
 
-	} catch (IOException e) {
+	} catch (final IOException e) {
 	    // TODO Auto-generated catch block
 	    e.printStackTrace();
 	}
@@ -102,17 +104,17 @@ public class RestBolt extends WorkberchTavernaProcessorBolt {
     }
 
 	@Override
-	protected void initFromJsonNode(JsonNode jsonNode) {
+	protected void initFromJsonNode(final JsonNode jsonNode) {
 		
-		JsonNode requestNode = jsonNode.get("request");
+		final JsonNode requestNode = jsonNode.get("request");
 		
-		this.requestMethod = requestNode.get("httpMethod").asText();
-		this.address = requestNode.get("absoluteURITemplate").asText();
+		requestMethod = requestNode.get("httpMethod").asText();
+		address = requestNode.get("absoluteURITemplate").asText();
 		
 		//TODO Hay que ver que se con los demas headers
-		JsonNode header = requestNode.get("headers").get(0);
+		final JsonNode header = requestNode.get("headers").get(0);
 		
-		this.accetpHeader = header.get("value").asText();
+		accetpHeader = header.get("value").asText();
 		
 	}
 
