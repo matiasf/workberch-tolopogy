@@ -2,22 +2,23 @@ package main.java.spouts;
 
 import static main.java.utils.WorkberchConstants.INDEX_FIELD;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import main.java.utils.TavernaProcessor;
 import backtype.storm.spout.SpoutOutputCollector;
 import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseRichSpout;
 import backtype.storm.tuple.Fields;
-import backtype.storm.tuple.Values;
 
-public class WorkberchGenericSpout extends BaseRichSpout {
+public abstract class WorkberchGenericSpout extends BaseRichSpout implements TavernaProcessor {
 
     private static final long serialVersionUID = 1L;
     
     private List<String> spoutFields;
-    private SpoutOutputCollector collector;
+    protected SpoutOutputCollector collector;
     private boolean oneTime = true;
     private long index = 0L;
 
@@ -32,16 +33,20 @@ public class WorkberchGenericSpout extends BaseRichSpout {
 	this.collector = collector;
     }
 
-    @Override
-    public void nextTuple() {
-	    Values values = new Values("2000" + index, index++);
-	    collector.emit(values);
-	oneTime = false;
-    }
 
     @Override
     public void declareOutputFields(final OutputFieldsDeclarer declarer) {
 	declarer.declare(new Fields(spoutFields));
+    }
+    
+    @Override
+    public List<String> getInputPorts() {
+    	return new ArrayList<String>();
+    }
+	
+    @Override
+	public List<String> getOutputPorts() {
+    	return spoutFields;
     }
 
 }

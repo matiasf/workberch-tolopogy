@@ -25,7 +25,7 @@ import main.java.utils.BaseTuple;
 import main.java.utils.WorkberchTuple;
 import backtype.storm.topology.BasicOutputCollector;
 
-public class XPathBolt extends WorkberchTavernaProcessor {
+public class XPathBolt extends WorkberchTavernaProcessorBolt {
 
     String xPathExpression;
 

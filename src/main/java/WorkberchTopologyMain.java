@@ -10,7 +10,7 @@ import java.util.List;
 
 import main.java.bolts.WorkberchCartesianBolt;
 import main.java.bolts.WorkberchGenericBolt;
-import main.java.spouts.WorkberchGenericSpout;
+
 import main.java.utils.WorkberchTuple;
 import backtype.storm.Config;
 import backtype.storm.LocalCluster;
@@ -37,10 +37,10 @@ public class WorkberchTopologyMain {
 	List<String> outputField2YYY = new ArrayList<String>();
 	outputField2YYY.add("string2");
 
-	builder.setSpout("input", new WorkberchGenericSpout(outputFieldInput), 1);
-	builder.setSpout("boo", new WorkberchGenericSpout(outputFieldBoo), 1);
-	builder.setSpout("xxx", new WorkberchGenericSpout(outputField2XXX), 1);
-	builder.setSpout("yyy", new WorkberchGenericSpout(outputField2YYY), 1);
+//	builder.setSpout("input", new WorkberchGenericSpout(outputFieldInput), 1);
+//	builder.setSpout("boo", new WorkberchGenericSpout(outputFieldBoo), 1);
+//	builder.setSpout("xxx", new WorkberchGenericSpout(outputField2XXX), 1);
+//	builder.setSpout("yyy", new WorkberchGenericSpout(outputField2YYY), 1);
 
 	List<String> inputFieldsListEmitter = new ArrayList<String>();
 	inputFieldsListEmitter.add("count");

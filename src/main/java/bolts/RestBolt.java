@@ -17,7 +17,7 @@ import main.java.utils.BaseTuple;
 import main.java.utils.WorkberchTuple;
 import backtype.storm.topology.BasicOutputCollector;
 
-public class RestBolt extends WorkberchTavernaProcessor {
+public class RestBolt extends WorkberchTavernaProcessorBolt {
 
     String address;
     String requestMethod;
