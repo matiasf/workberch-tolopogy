@@ -1,20 +1,21 @@
 package main.java;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.IOException;
+import static main.java.utils.WorkberchConstants.INDEX_FIELD;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import main.java.bolts.WorkberchCartesianBolt;
+import main.java.bolts.WorkberchDotBolt;
 import main.java.bolts.WorkberchGenericBolt;
+import main.java.bolts.WorkberchOrderBolt;
 import main.java.spouts.WorkberchGenericSpout;
 import main.java.utils.WorkberchTuple;
+
+import org.apache.commons.lang.StringUtils;
+
+import redis.clients.jedis.Jedis;
 import backtype.storm.Config;
 import backtype.storm.LocalCluster;
-import backtype.storm.StormSubmitter;
 import backtype.storm.generated.AlreadyAliveException;
 import backtype.storm.generated.InvalidTopologyException;
 import backtype.storm.topology.BasicOutputCollector;
@@ -22,182 +23,192 @@ import backtype.storm.topology.TopologyBuilder;
 
 public class WorkberchTopologyMain {
 
-    public static void main(String[] args) throws AlreadyAliveException, InvalidTopologyException {
-	TopologyBuilder builder = new TopologyBuilder();
+	public static void main(final String[] args) throws AlreadyAliveException, InvalidTopologyException {
+		final TopologyBuilder builder = new TopologyBuilder();
 
-	List<String> outputFieldInput = new ArrayList<String>();
-	outputFieldInput.add("count");
+		final List<String> outputFieldInput = new ArrayList<String>();
+		outputFieldInput.add("count");
 
-	List<String> outputFieldBoo = new ArrayList<String>();
-	outputFieldBoo.add("string2");
+		final List<String> outputFieldBoo = new ArrayList<String>();
+		outputFieldBoo.add("string2");
 
-	List<String> outputField2XXX = new ArrayList<String>();
-	outputField2XXX.add("string2");
+		final List<String> outputField2XXX = new ArrayList<String>();
+		outputField2XXX.add("string2");
 
-	List<String> outputField2YYY = new ArrayList<String>();
-	outputField2YYY.add("string2");
+		final List<String> outputField2YYY = new ArrayList<String>();
+		outputField2YYY.add("string2");
 
-	builder.setSpout("input", new WorkberchGenericSpout(outputFieldInput), 1);
-	builder.setSpout("boo", new WorkberchGenericSpout(outputFieldBoo), 1);
-	builder.setSpout("xxx", new WorkberchGenericSpout(outputField2XXX), 1);
-	builder.setSpout("yyy", new WorkberchGenericSpout(outputField2YYY), 1);
+		builder.setSpout("input", new WorkberchGenericSpout(outputFieldInput), 1);
+		builder.setSpout("boo", new WorkberchGenericSpout(outputFieldBoo), 1);
+		builder.setSpout("xxx", new WorkberchGenericSpout(outputField2XXX), 1);
+		builder.setSpout("yyy", new WorkberchGenericSpout(outputField2YYY), 1);
 
-	List<String> inputFieldsListEmitter = new ArrayList<String>();
-	inputFieldsListEmitter.add("count");
+		final List<String> outputFieldsListEmitter = new ArrayList<String>();
+		outputFieldsListEmitter.add("input");
 
-	List<String> outputFieldsListEmitter = new ArrayList<String>();
-	outputFieldsListEmitter.add("input");
+		builder.setBolt("List_Emitter", new WorkberchGenericBolt(outputFieldsListEmitter) {
 
-	builder.setBolt("List_Emitter", new WorkberchGenericBolt(inputFieldsListEmitter, outputFieldsListEmitter) {
+			private static final long serialVersionUID = 1L;
 
-	    private static final long serialVersionUID = 1L;
+			@Override
+			public void executeLogic(final WorkberchTuple input, final BasicOutputCollector collector) {
+				final String count = (String) input.getValues().get("count");;
+				final int icount = Integer.parseInt(count);
+				System.out.println("ListEmitter is going to emit" + icount);
 
-	    @Override
-	    public void executeLogic(WorkberchTuple input, BasicOutputCollector collector) {
-		String count = (String) input.getValues().get("count");
-		System.out.println("ListEmitter recive tuple with value " + count);
-		List list = new ArrayList();
-		int icount = Integer.parseInt(count);
+				final List<Object> values = new ArrayList<Object>();
+				final List<String> listValue = new ArrayList<String>();
+				for (int i = 0; i < icount; i++) {
+					listValue.add(String.valueOf(icount));
+				}
+				values.add(listValue);
+				values.add(input.getValues().get(INDEX_FIELD));
+				emitTuple(values, collector);
+			}
 
-		for (int i = 0; i < icount; i++) {
-		    List<Object> values = new ArrayList<Object>();
-		    values.add(String.valueOf(icount));
-		    collector.emit(values);
+		}, 2).shuffleGrouping("input");
+
+		final List<String> inputFieldsConcat = new ArrayList<String>();
+		inputFieldsConcat.add("input");
+
+		final List<String> outputFieldsConcat = new ArrayList<String>();
+		outputFieldsConcat.add("string1");
+
+		builder.setBolt("Concat", new WorkberchGenericBolt(outputFieldsConcat) {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void executeLogic(final WorkberchTuple input, final BasicOutputCollector collector) {
+				final List<String> input2 = (List<String>) input.getValues().get("input");
+				String concatValue = StringUtils.EMPTY;
+				for (final String unitValue : input2) {
+					concatValue += unitValue;
+				}
+				final String output = concatValue + "XXX";
+				System.out.println("Concate recive tuple with value " + concatValue);
+				System.out.println("Concate emit tuple with value " + output);
+				final List<Object> outputValues = new ArrayList<Object>();
+				outputValues.add(output);
+				outputValues.add(input.getValues().get(INDEX_FIELD));
+				emitTuple(outputValues, collector);
+			}
+
+		}, 2).shuffleGrouping("List_Emitter");
+
+		final List<String> inputFieldsConcatTS = new ArrayList<String>();
+		inputFieldsConcatTS.add("string1");
+		inputFieldsConcatTS.add("string2");
+
+		final List<String> outputFieldsConcatTS = new ArrayList<String>();
+		outputFieldsConcatTS.add("string1");
+
+		builder.setBolt("Concatenate_two_strings_dot", new WorkberchDotBolt(inputFieldsConcatTS), 2).allGrouping("boo").shuffleGrouping("Concat");
+
+		builder.setBolt("Concatenate_two_strings", new WorkberchGenericBolt(outputFieldsConcatTS) {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void executeLogic(final WorkberchTuple input, final BasicOutputCollector collector) {
+				final String string1 = (String) input.getValues().get("string1");
+				final String string2 = (String) input.getValues().get("string2");
+				final String output = string1 + string2;
+				System.out.println("Concatenate_two_strings recive tuple with value " + string1 + " and " + string2);
+				System.out.println("Concatenate_two_strings emit tuple with value " + output);
+				final List<Object> outputValues = new ArrayList<Object>();
+				outputValues.add(output);
+				outputValues.add(input.getValues().get(INDEX_FIELD));
+				emitTuple(outputValues, collector);
+			}
+
+		}, 2).shuffleGrouping("Concatenate_two_strings_dot");
+
+		final List<String> inputFieldsConcatTS2 = new ArrayList<String>();
+		inputFieldsConcatTS2.add("string1");
+		inputFieldsConcatTS2.add("string2");
+
+		final List<String> outputFieldsConcatTS2 = new ArrayList<String>();
+		outputFieldsConcatTS2.add("string1");
+
+		builder.setBolt("Concatenate_two_strings_2_dot", new WorkberchDotBolt(inputFieldsConcatTS2), 2).allGrouping("xxx")
+				.shuffleGrouping("Concatenate_two_strings");
+
+		builder.setBolt("Concatenate_two_strings_2", new WorkberchGenericBolt(outputFieldsConcatTS2) {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void executeLogic(final WorkberchTuple input, final BasicOutputCollector collector) {
+				final String string1 = (String) input.getValues().get("string1");
+				final String string2 = (String) input.getValues().get("string2");
+				final String output = string1 + string2;
+				System.out.println("Concatenate_two_strings_2 recive tuple with value " + string1 + " and " + string2);
+				System.out.println("Concatenate_two_strings_2 emit tuple with value " + output);
+				final List<Object> outputValues = new ArrayList<Object>();
+				outputValues.add(output);
+				outputValues.add(input.getValues().get(INDEX_FIELD));
+				emitTuple(outputValues, collector);
+			}
+
+		}, 2).shuffleGrouping("Concatenate_two_strings_2_dot");
+
+		final List<String> inputFieldsConcatTS3 = new ArrayList<String>();
+		inputFieldsConcatTS3.add("string1");
+		inputFieldsConcatTS3.add("string2");
+
+		final List<String> outputFieldsConcatTS3 = new ArrayList<String>();
+		outputFieldsConcatTS3.add("out");
+
+		builder.setBolt("Concatenate_two_strings_3_dot", new WorkberchDotBolt(inputFieldsConcatTS3), 2).allGrouping("yyy")
+				.shuffleGrouping("Concatenate_two_strings_2");
+
+		builder.setBolt("Concatenate_two_strings_3", new WorkberchGenericBolt(outputFieldsConcatTS3) {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void executeLogic(final WorkberchTuple input, final BasicOutputCollector collector) {
+				final String string1 = (String) input.getValues().get("string1");
+				final String string2 = (String) input.getValues().get("string2");
+				final String output = string1 + string2;
+				System.out.println("Concatenate_two_strings_3 recive tuple with value " + string1 + " and " + string2);
+				System.out.println("Concatenate_two_strings_3 emit tuple with value " + output);
+				final List<Object> outputValues = new ArrayList<Object>();
+				outputValues.add(output);
+				outputValues.add(input.getValues().get(INDEX_FIELD));
+				emitTuple(outputValues, collector);
+			}
+
+		}, 2).shuffleGrouping("Concatenate_two_strings_3_dot");
+
+		final List<String> inputFieldsConcatOutput = new ArrayList<String>();
+		inputFieldsConcatOutput.add("out");
+
+		builder.setBolt("output", new WorkberchOrderBolt(new ArrayList<String>(), Boolean.TRUE) {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void executeOrdered(final WorkberchTuple input, final BasicOutputCollector collector) {
+				System.out.println("Valor" + input.getValues().get("out"));
+			}
 		}
-	    }
 
-	}).shuffleGrouping("input");
+		, 1).shuffleGrouping("Concatenate_two_strings_3");
 
-	List<String> inputFieldsConcat = new ArrayList<String>();
-	inputFieldsConcat.add("input");
+		final Config conf = new Config();
+		conf.setDebug(true);
+		
+		final Jedis jedis = new Jedis("localhost");
+		jedis.flushAll();
+		jedis.close();
 
-	List<String> outputFieldsConcat = new ArrayList<String>();
-	outputFieldsConcat.add("string1");
+		// StormSubmitter.submitTopology("workberch", conf,
+		// builder.createTopology());
+		final LocalCluster cluster = new LocalCluster();
+		cluster.submitTopology("workberch", conf, builder.createTopology());
 
-	builder.setBolt("Concat", new WorkberchGenericBolt(inputFieldsConcat, outputFieldsConcat) {
-
-	    private static final long serialVersionUID = 1L;
-
-	    @Override
-	    public void executeLogic(WorkberchTuple input, BasicOutputCollector collector) {
-		String input2 = (String) input.getValues().get("input");
-		String output = input2 + "XXX";
-		System.out.println("Concate recive tuple with value " + input2);
-		System.out.println("Concate emit tuple with value " + output);
-		List<Object> outputValues = new ArrayList<Object>();
-		outputValues.add(output);
-		collector.emit(outputValues);
-	    }
-
-	}, 2).shuffleGrouping("List_Emitter");
-
-	List<String> inputFieldsConcatTS = new ArrayList<String>();
-	inputFieldsConcatTS.add("string1");
-	inputFieldsConcatTS.add("string2");
-
-	List<String> outputFieldsConcatTS = new ArrayList<String>();
-	outputFieldsConcatTS.add("string1");
-
-	builder.setBolt("Concatenate_two_strings_cartesian", new WorkberchCartesianBolt(inputFieldsConcatTS)).allGrouping("boo").shuffleGrouping("Concat");
-	
-	builder.setBolt("Concatenate_two_strings", new WorkberchGenericBolt(inputFieldsConcatTS, outputFieldsConcatTS) {
-
-	    private static final long serialVersionUID = 1L;
-
-	    @Override
-	    public void executeLogic(WorkberchTuple input, BasicOutputCollector collector) {
-		String string1 = (String) input.getValues().get("string1");
-		String string2 = (String) input.getValues().get("string2");
-		String output = string1 + string2;
-		System.out.println("Concatenate_two_strings recive tuple with value " + string1 + " and " + string2);
-		System.out.println("Concatenate_two_strings emit tuple with value " + output);
-		List<Object> outputValues = new ArrayList<Object>();
-		outputValues.add(output);
-		collector.emit(outputValues);
-	    }
-
-	}, 2).shuffleGrouping("Concatenate_two_strings_cartesian");
-
-	List<String> inputFieldsConcatTS2 = new ArrayList<String>();
-	inputFieldsConcatTS2.add("string1");
-	inputFieldsConcatTS2.add("string2");
-
-	List<String> outputFieldsConcatTS2 = new ArrayList<String>();
-	outputFieldsConcatTS2.add("string1");
-	
-	builder.setBolt("Concatenate_two_strings_2_cartesian", new WorkberchCartesianBolt(inputFieldsConcatTS2)).allGrouping("xxx").shuffleGrouping("Concatenate_two_strings");
-
-	builder.setBolt("Concatenate_two_strings_2",
-		new WorkberchGenericBolt(inputFieldsConcatTS2, outputFieldsConcatTS2) {
-
-		    private static final long serialVersionUID = 1L;
-
-		    @Override
-		    public void executeLogic(WorkberchTuple input, BasicOutputCollector collector) {
-			String string1 = (String) input.getValues().get("string1");
-			String string2 = (String) input.getValues().get("string2");
-			String output = string1 + string2;
-			System.out.println("Concatenate_two_strings_2 recive tuple with value " + string1 + " and "
-				+ string2);
-			System.out.println("Concatenate_two_strings_2 emit tuple with value " + output);
-			List<Object> outputValues = new ArrayList<Object>();
-			outputValues.add(output);
-			collector.emit(outputValues);
-		    }
-
-		}, 2).shuffleGrouping("Concatenate_two_strings_2_cartesian");
-
-	List<String> inputFieldsConcatTS3 = new ArrayList<String>();
-	inputFieldsConcatTS3.add("string1");
-	inputFieldsConcatTS3.add("string2");
-
-	List<String> outputFieldsConcatTS3 = new ArrayList<String>();
-	outputFieldsConcatTS3.add("out");
-	
-	builder.setBolt("Concatenate_two_strings_3_cartesian", new WorkberchCartesianBolt(inputFieldsConcatTS3)).allGrouping("yyy").shuffleGrouping("Concatenate_two_strings_2");
-
-	builder.setBolt("Concatenate_two_strings_3",
-		new WorkberchGenericBolt(inputFieldsConcatTS3, outputFieldsConcatTS3) {
-
-		    private static final long serialVersionUID = 1L;
-
-		    @Override
-		    public void executeLogic(WorkberchTuple input, BasicOutputCollector collector) {
-			String string1 = (String) input.getValues().get("string1");
-			String string2 = (String) input.getValues().get("string2");
-			String output = string1 + string2;
-			System.out.println("Concatenate_two_strings_3 recive tuple with value " + string1 + " and "
-				+ string2);
-			System.out.println("Concatenate_two_strings_3 emit tuple with value " + output);
-			List<Object> outputValues = new ArrayList<Object>();
-			outputValues.add(output);
-			collector.emit(outputValues);
-		    }
-
-		}, 2).shuffleGrouping("Concatenate_two_strings_3_cartesian");
-
-	List<String> inputFieldsConcatOutput = new ArrayList<String>();
-	inputFieldsConcatOutput.add("out");
-
-	builder.setBolt("output", new WorkberchGenericBolt(inputFieldsConcatOutput, new ArrayList<String>()) {
-
-	    private static final long serialVersionUID = 1L;
-
-	    @Override
-	    public void executeLogic(WorkberchTuple input, BasicOutputCollector collector) {
-		System.out.println("Valor" + input.getValues().get("out"));
-	    }
 	}
-
-	, 1).shuffleGrouping("Concatenate_two_strings_3");
-
-	Config conf = new Config();
-	conf.setDebug(true);
-
-	//StormSubmitter.submitTopology("workberch", conf, builder.createTopology());
-	LocalCluster cluster = new LocalCluster();
-	cluster.submitTopology("workberch", conf, builder.createTopology());
-	
-    }
 
 }
