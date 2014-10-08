@@ -1,6 +1,6 @@
 package main.java.bolts;
 
-import static main.java.utils.WorkberchConstants.INDEX_FIELD;
+import static main.java.utils.constants.WorkberchConstants.INDEX_FIELD;
 
 import java.io.BufferedReader;
 import java.io.IOException;

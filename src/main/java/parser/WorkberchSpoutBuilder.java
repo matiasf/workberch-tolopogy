@@ -7,6 +7,7 @@ import java.util.List;
 import main.java.spouts.InputPortSpout;
 import main.java.spouts.TextConstantSpout;
 import main.java.spouts.WorkberchGenericSpout;
+import main.java.utils.constants.TavernaNodeType;
 import uk.org.taverna.scufl2.api.configurations.Configuration;
 import uk.org.taverna.scufl2.api.core.Processor;
 import uk.org.taverna.scufl2.api.port.InputPort;
@@ -14,20 +15,20 @@ import uk.org.taverna.scufl2.api.port.OutputProcessorPort;
 
 public class WorkberchSpoutBuilder {
 	
-	static public WorkberchGenericSpout buildProcessor(Processor processor, Configuration config) {
+	static public WorkberchGenericSpout buildProcessor(final Processor processor, final Configuration config) {
 		WorkberchGenericSpout ret;
 		
-		String processorType = config.getType().toString();
+		final String processorType = config.getType().toString();
 		
-		List<String> outputFields = new ArrayList<String>();
+		final List<String> outputFields = new ArrayList<String>();
 		
-		for (OutputProcessorPort outputPort : processor.getOutputPorts()) {
+		for (final OutputProcessorPort outputPort : processor.getOutputPorts()) {
 			outputFields.add(outputPort.getName());
 		}
 		
-		switch (processorType) {
-			case WorkberchTaverna.TAVERNA_TEXT_CONSTANT_TYPE:
-				List<String> outputFieldsTrucho = new ArrayList<String>();
+		switch (TavernaNodeType.valueOf(processorType)) {
+			case TEXT_CONSTANT :
+				final List<String> outputFieldsTrucho = new ArrayList<String>();
 				outputFieldsTrucho.add(processor.getName());
 				ret = new TextConstantSpout(outputFieldsTrucho, config.getJson().get("string").asText());
 				break;
@@ -38,11 +39,11 @@ public class WorkberchSpoutBuilder {
 		return ret;
 	}
 	
-	static public WorkberchGenericSpout buildInputPort(InputPort inputPort) {
-		List<String> outputFields = new ArrayList<String>();
+	static public WorkberchGenericSpout buildInputPort(final InputPort inputPort) {
+		final List<String> outputFields = new ArrayList<String>();
 		outputFields.add(inputPort.getName());
 		
-		InputPortSpout ret = new InputPortSpout(outputFields, "stem cells", true);
+		final InputPortSpout ret = new InputPortSpout(outputFields, "stem cells", true);
 		return ret;
 	}
 

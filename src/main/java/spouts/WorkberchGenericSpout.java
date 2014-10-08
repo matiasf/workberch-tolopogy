@@ -1,6 +1,6 @@
 package main.java.spouts;
 
-import static main.java.utils.WorkberchConstants.INDEX_FIELD;
+import static main.java.utils.constants.WorkberchConstants.INDEX_FIELD;
 
 import java.util.ArrayList;
 import java.util.List;

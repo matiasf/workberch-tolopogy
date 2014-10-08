@@ -23,17 +23,22 @@
 
 	<repositories>
 
-		<!-- Repository where we can found the storm dependencies -->
+		<!-- Repository for Apache Storm dependencies -->
 		<repository>
 			<id>clojars.org</id>
 			<url>http://clojars.org/repo</url>
 		</repository>
 
+		<!-- Repository for Scufl API dependencies -->
 		<repository>
 			<id>mygrid-repository</id>
-
 			<url>http://www.mygrid.org.uk/maven/repository</url>
-
+		</repository>
+		
+		<!-- Repository for	Mockito dependencies -->
+		<repository>
+  			<id>mockito</id>
+  			<url>http://repo.springsource.org/libs-release-remote</url>
 		</repository>
 
 	</repositories>
@@ -71,6 +76,13 @@
 			<version>2.6.0</version>
 			<type>jar</type>
 			<scope>compile</scope>
+		</dependency>
+		
+		<!-- Mockito dependencies -->
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-core</artifactId>
+			<version>1.10.0</version>
 		</dependency>
 
 	</dependencies>
