@@ -8,7 +8,6 @@ import java.util.List;
 import main.java.bolts.OutputBolt;
 import main.java.bolts.WorkberchDotBolt;
 import main.java.bolts.WorkberchGenericBolt;
-import main.java.spouts.ConcatWorkflowSpout;
 import main.java.utils.WorkberchTuple;
 
 import org.apache.commons.lang.StringUtils;
@@ -38,11 +37,11 @@ public class WorkberchTopologyMain {
 		final List<String> outputField2YYY = new ArrayList<String>();
 		outputField2YYY.add("string2");
 
-		
-		builder.setSpout("input", new ConcatWorkflowSpout(outputFieldInput), 1);
-		builder.setSpout("boo", new ConcatWorkflowSpout(outputFieldBoo), 1);
-		builder.setSpout("xxx", new ConcatWorkflowSpout(outputField2XXX), 1);
-		builder.setSpout("yyy", new ConcatWorkflowSpout(outputField2YYY), 1);
+		//FIXME
+		//builder.setSpout("input", new ConcatWorkflowSpout(outputFieldInput), 1);
+		//builder.setSpout("boo", new ConcatWorkflowSpout(outputFieldBoo), 1);
+		//builder.setSpout("xxx", new ConcatWorkflowSpout(outputField2XXX), 1);
+		//builder.setSpout("yyy", new ConcatWorkflowSpout(outputField2YYY), 1);
 
 		final List<String> outputFieldsListEmitter = new ArrayList<String>();
 		outputFieldsListEmitter.add("input");

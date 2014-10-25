@@ -3,11 +3,12 @@ package main.java.spouts;
 import static main.java.utils.constants.WorkberchConstants.INDEX_FIELD;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import main.java.utils.RedisHandeler;
 import main.java.utils.TavernaProcessor;
+import main.java.utils.redis.RedisHandeler;
 import backtype.storm.spout.SpoutOutputCollector;
 import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.OutputFieldsDeclarer;
@@ -21,25 +22,25 @@ abstract public class WorkberchGenericSpout extends BaseRichSpout implements Tav
 
 	private final List<String> spoutFields;
 	private String boltId;
-	private long index = 0L;
 	private boolean init = true;
-	
+	private long indexSpout = 0L;
+
 	protected SpoutOutputCollector collector;
-	
+
 	public WorkberchGenericSpout(final List<String> fields) {
 		fields.add(INDEX_FIELD);
 		spoutFields = fields;
 	}
-	
-    @Override
-    public List<String> getInputPorts() {
-    	return new ArrayList<String>();
-    }
-	
-    @Override
+
+	@Override
+	public List<String> getInputPorts() {
+		return new ArrayList<String>();
+	}
+
+	@Override
 	public List<String> getOutputPorts() {
-    	return spoutFields;
-    }
+		return spoutFields;
+	}
 
 	@Override
 	@SuppressWarnings("rawtypes")
@@ -51,13 +52,16 @@ abstract public class WorkberchGenericSpout extends BaseRichSpout implements Tav
 	@Override
 	public void nextTuple() {
 		if (init) {
-			for (int i = 0; i < 10; i++) {
+			final Iterator<Values> iterValues = getValues().iterator();
+			while (iterValues.hasNext()) {
 				RedisHandeler.increseEmitedState(boltId);
-				final Values values = new Values(index++);
-				if (i == 10) {
+				final Values value = iterValues.next();
+				value.add(indexSpout++);
+				if (!iterValues.hasNext()) {
+					System.out.println("Finish node " + boltId + " on spout");
 					RedisHandeler.setStateFinished(boltId);
 				}
-				emitNextTuple(values);
+				emitNextTuple(value);
 			}
 		}
 		init = false;
@@ -67,7 +71,9 @@ abstract public class WorkberchGenericSpout extends BaseRichSpout implements Tav
 	public void declareOutputFields(final OutputFieldsDeclarer declarer) {
 		declarer.declare(new Fields(spoutFields));
 	}
-	
+
+	abstract public List<Values> getValues();
+
 	abstract public void emitNextTuple(final Values values);
 
 }

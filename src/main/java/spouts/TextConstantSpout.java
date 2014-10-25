@@ -32,4 +32,10 @@ public class TextConstantSpout extends WorkberchGenericSpout {
 		}		
 	}
 
+	@Override
+	public List<Values> getValues() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

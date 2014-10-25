@@ -19,6 +19,7 @@
 				</configuration>
 			</plugin>
 		</plugins>
+		<testSourceDirectory>test</testSourceDirectory>
 	</build>
 
 	<repositories>
@@ -34,11 +35,11 @@
 			<id>mygrid-repository</id>
 			<url>http://www.mygrid.org.uk/maven/repository</url>
 		</repository>
-		
-		<!-- Repository for	Mockito dependencies -->
+
+		<!-- Repository for Mockito dependencies -->
 		<repository>
-  			<id>mockito</id>
-  			<url>http://repo.springsource.org/libs-release-remote</url>
+			<id>mockito</id>
+			<url>http://repo.springsource.org/libs-release-remote</url>
 		</repository>
 
 	</repositories>
@@ -68,8 +69,8 @@
 			<artifactId>scufl2-t2flow</artifactId>
 			<version>0.14.0</version>
 		</dependency>
-		
-		<!-- Redis Dependency -->
+
+		<!-- Redis dependency -->
 		<dependency>
 			<groupId>redis.clients</groupId>
 			<artifactId>jedis</artifactId>
@@ -77,12 +78,26 @@
 			<type>jar</type>
 			<scope>compile</scope>
 		</dependency>
-		
-		<!-- Mockito dependencies -->
+
+		<!-- PowerMock dependencies -->
 		<dependency>
-			<groupId>org.mockito</groupId>
-			<artifactId>mockito-core</artifactId>
-			<version>1.10.0</version>
+			<groupId>org.powermock</groupId>
+			<artifactId>powermock-module-junit4</artifactId>
+			<version>1.5.6</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.powermock</groupId>
+			<artifactId>powermock-api-mockito</artifactId>
+			<version>1.5.6</version>
+			<scope>test</scope>
+		</dependency>
+
+		<!-- Embedded Redis server for testing dependencies -->
+		<dependency>
+			<groupId>redis.embedded</groupId>
+			<artifactId>embedded-redis</artifactId>
+			<version>0.3</version>
 		</dependency>
 
 	</dependencies>

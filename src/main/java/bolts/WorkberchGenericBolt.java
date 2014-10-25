@@ -6,8 +6,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import main.java.utils.RedisHandeler;
 import main.java.utils.WorkberchTuple;
+import main.java.utils.redis.RedisHandeler;
+import backtype.storm.generated.GlobalStreamId;
 import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.BasicOutputCollector;
 import backtype.storm.topology.OutputFieldsDeclarer;
@@ -17,7 +18,7 @@ import backtype.storm.tuple.Tuple;
 
 abstract public class WorkberchGenericBolt extends BaseBasicBolt {
 
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1656859471059135768L;
 
 	private final List<String> runningNodes = new ArrayList<String>();
 	private final List<String> outputFields;
@@ -31,13 +32,13 @@ abstract public class WorkberchGenericBolt extends BaseBasicBolt {
 		RedisHandeler.increseEmitedState(boltId);
 		collector.emit(tuple);
 	}
-	
+
 	protected String getBoltId() {
 		return boltId;
 	}
 
 	public WorkberchGenericBolt(final List<String> outputFields) {
-		this.outputFields = outputFields;
+		this.outputFields = new ArrayList<String>(outputFields);
 		this.outputFields.add(INDEX_FIELD);
 	}
 
@@ -45,20 +46,24 @@ abstract public class WorkberchGenericBolt extends BaseBasicBolt {
 	@SuppressWarnings("rawtypes")
 	public void prepare(final Map stormConf, final TopologyContext context) {
 		boltId = context.getThisComponentId();
+		for (final GlobalStreamId globalStreamId : context.getThisSources().keySet()) {
+			runningNodes.add(globalStreamId.get_componentId());
+		}
 	}
 
 	@Override
 	public void execute(final Tuple input, final BasicOutputCollector collector) {
 		int runningNodesCount = 0;
-		input.getSourceComponent();
+		final long incState = RedisHandeler.increseRecivedState(boltId + "-" + input.getSourceComponent());
 		for (final String node : runningNodes) {
-			if (!(RedisHandeler.getStateFinished(node) && RedisHandeler.increseRecivedState(boltId + "-" + node) == RedisHandeler
+			if (!(RedisHandeler.getFinishedState(node) && incState == RedisHandeler
 					.getEmitedState(node))) {
 				runningNodesCount++;
 			}
 		}
 
 		if (runningNodesCount == 0) {
+			System.out.println("Finishing " + boltId);
 			RedisHandeler.setStateFinished(boltId);
 		}
 
@@ -71,6 +76,6 @@ abstract public class WorkberchGenericBolt extends BaseBasicBolt {
 		declarer.declare(new Fields(outputFields));
 	}
 
-	public abstract void executeLogic(WorkberchTuple input, BasicOutputCollector collector);
+	abstract public void executeLogic(WorkberchTuple input, BasicOutputCollector collector);
 
 }
