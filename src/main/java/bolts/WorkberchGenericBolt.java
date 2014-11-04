@@ -28,8 +28,12 @@ abstract public class WorkberchGenericBolt extends BaseBasicBolt {
 		return outputFields;
 	}
 
-	protected void emitTuple(final List<Object> tuple, final BasicOutputCollector collector) {
+	protected void emitTuple(final List<Object> tuple, final BasicOutputCollector collector, final boolean lastValue) {
 		RedisHandeler.increseEmitedState(boltId);
+		if (lastValue) {
+			System.out.println("Finishing: " + boltId);
+			RedisHandeler.setStateFinished(boltId);
+		}
 		collector.emit(tuple);
 	}
 
@@ -56,19 +60,23 @@ abstract public class WorkberchGenericBolt extends BaseBasicBolt {
 		int runningNodesCount = 0;
 		final long incState = RedisHandeler.increseRecivedState(boltId + "-" + input.getSourceComponent());
 		for (final String node : runningNodes) {
-			if (!(RedisHandeler.getFinishedState(node) && incState == RedisHandeler
-					.getEmitedState(node))) {
+			if (!(RedisHandeler.getFinishedState(node) && incState == RedisHandeler.getEmitedState(node))) {
 				runningNodesCount++;
+				if (RedisHandeler.getFinishedState(node)) {
+					System.out.println("Node finished: " + node);
+				}
 			}
+			System.out.println("Inc value on " + getBoltId() + ": " + incState);
+			System.out.println("Emited state on " + getBoltId() + " for node " + node + ": " + RedisHandeler.getEmitedState(node));
 		}
 
-		if (runningNodesCount == 0) {
-			System.out.println("Finishing " + boltId);
-			RedisHandeler.setStateFinished(boltId);
-		}
-
+		System.out.println("Running nodes on " + getBoltId() + " " + runningNodes.size());
+		System.out.println("Running nodes counted on " + getBoltId() + " " + runningNodesCount);
 		final WorkberchTuple baseTuple = new WorkberchTuple(input);
-		executeLogic(baseTuple, collector);
+		if (runningNodesCount == 0) {
+			System.out.println("Last value for node " + getBoltId());
+		}
+		executeLogic(baseTuple, collector, runningNodesCount == 0);
 	};
 
 	@Override
@@ -76,6 +84,6 @@ abstract public class WorkberchGenericBolt extends BaseBasicBolt {
 		declarer.declare(new Fields(outputFields));
 	}
 
-	abstract public void executeLogic(WorkberchTuple input, BasicOutputCollector collector);
+	abstract public void executeLogic(WorkberchTuple input, BasicOutputCollector collector, boolean lastValues);
 
 }

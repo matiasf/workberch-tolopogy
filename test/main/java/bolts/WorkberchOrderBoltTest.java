@@ -92,14 +92,14 @@ public class WorkberchOrderBoltTest {
 		final WorkberchTuple workberchTuple4 = new WorkberchTuple(stormTuple4);
 		final WorkberchTuple workberchTuple5 = new WorkberchTuple(stormTuple5);
 
-		orderedBolt.executeLogic(workberchTuple5, mockCollector);
-		orderedBolt.executeLogic(workberchTuple3, mockCollector);
-		orderedBolt.executeLogic(workberchTuple2, mockCollector);
-		orderedBolt.executeLogic(workberchTuple4, mockCollector);
+		orderedBolt.executeLogic(workberchTuple5, mockCollector, false);
+		orderedBolt.executeLogic(workberchTuple3, mockCollector, false);
+		orderedBolt.executeLogic(workberchTuple2, mockCollector, false);
+		orderedBolt.executeLogic(workberchTuple4, mockCollector, false);
 
 		verify(orderedBolt, never()).executeOrdered(any(WorkberchTuple.class), any(BasicOutputCollector.class));
 
-		orderedBolt.executeLogic(workberchTuple1, mockCollector);
+		orderedBolt.executeLogic(workberchTuple1, mockCollector, false);
 
 		final InOrder inOrder = inOrder(orderedBolt);
 		inOrder.verify(orderedBolt).executeOrdered(eq(workberchTuple1), any(BasicOutputCollector.class));
@@ -176,15 +176,15 @@ public class WorkberchOrderBoltTest {
 		indexMap.put(index23, workberchTuple6);
 		PowerMockito.when(RedisHandeler.loadCartesianIndexObjects(anyString())).thenReturn(indexMap);
 
-		orderedBolt.executeLogic(workberchTuple5, mockCollector);
-		orderedBolt.executeLogic(workberchTuple3, mockCollector);
-		orderedBolt.executeLogic(workberchTuple2, mockCollector);
-		orderedBolt.executeLogic(workberchTuple4, mockCollector);
-		orderedBolt.executeLogic(workberchTuple6, mockCollector);
+		orderedBolt.executeLogic(workberchTuple5, mockCollector, false);
+		orderedBolt.executeLogic(workberchTuple3, mockCollector, false);
+		orderedBolt.executeLogic(workberchTuple2, mockCollector, false);
+		orderedBolt.executeLogic(workberchTuple4, mockCollector, false);
+		orderedBolt.executeLogic(workberchTuple6, mockCollector, false);
 
 		verify(orderedBolt, never()).executeOrdered(any(WorkberchTuple.class), any(BasicOutputCollector.class));
 
-		orderedBolt.executeLogic(workberchTuple1, mockCollector);
+		orderedBolt.executeLogic(workberchTuple1, mockCollector, true);
 
 		final InOrder inOrder = inOrder(orderedBolt);
 		inOrder.verify(orderedBolt).executeOrdered(eq(workberchTuple1), any(BasicOutputCollector.class));
@@ -281,17 +281,17 @@ public class WorkberchOrderBoltTest {
 		indexMap.put(index222, workberchTuple8);
 		PowerMockito.when(RedisHandeler.loadCartesianIndexObjects(anyString())).thenReturn(indexMap);
 
-		orderedBolt.executeLogic(workberchTuple5, mockCollector);
-		orderedBolt.executeLogic(workberchTuple3, mockCollector);
-		orderedBolt.executeLogic(workberchTuple2, mockCollector);
-		orderedBolt.executeLogic(workberchTuple4, mockCollector);
-		orderedBolt.executeLogic(workberchTuple6, mockCollector);
-		orderedBolt.executeLogic(workberchTuple7, mockCollector);
-		orderedBolt.executeLogic(workberchTuple8, mockCollector);
+		orderedBolt.executeLogic(workberchTuple5, mockCollector, false);
+		orderedBolt.executeLogic(workberchTuple3, mockCollector, false);
+		orderedBolt.executeLogic(workberchTuple2, mockCollector, false);
+		orderedBolt.executeLogic(workberchTuple4, mockCollector, false);
+		orderedBolt.executeLogic(workberchTuple6, mockCollector, false);
+		orderedBolt.executeLogic(workberchTuple7, mockCollector, false);
+		orderedBolt.executeLogic(workberchTuple8, mockCollector, false);
 
 		verify(orderedBolt, never()).executeOrdered(any(WorkberchTuple.class), any(BasicOutputCollector.class));
 
-		orderedBolt.executeLogic(workberchTuple1, mockCollector);
+		orderedBolt.executeLogic(workberchTuple1, mockCollector, false);
 
 		final InOrder inOrder = inOrder(orderedBolt);
 		inOrder.verify(orderedBolt).executeOrdered(eq(workberchTuple1), any(BasicOutputCollector.class));

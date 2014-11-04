@@ -16,88 +16,83 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import main.java.utils.WorkberchTuple;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import com.fasterxml.jackson.databind.JsonNode;
-
-import main.java.utils.WorkberchTuple;
 import backtype.storm.topology.BasicOutputCollector;
+
+import com.fasterxml.jackson.databind.JsonNode;
 
 public class XPathBolt extends WorkberchTavernaProcessorBolt {
 
-    String xPathExpression;
+	String xPathExpression;
 
-    public XPathBolt(List<String> outputFields, String xPathExpression) {
+	public XPathBolt(final List<String> outputFields, final String xPathExpression) {
 		super(outputFields);
 		this.xPathExpression = xPathExpression;
-    }
-    
-    public XPathBolt(List<String> inputFields, List<String> outputFields, JsonNode node) {
-    	super(inputFields, outputFields, node);
-    	
+	}
+
+	public XPathBolt(final List<String> inputFields, final List<String> outputFields, final JsonNode node) {
+		super(inputFields, outputFields, node);
+
 	}
 
 	@Override
-	public void executeLogic(WorkberchTuple tuple,
-			BasicOutputCollector collector) {
+	public void executeLogic(final WorkberchTuple tuple, final BasicOutputCollector collector, final boolean lastValue) {
 
 		try {
 
-			XPathFactory xPathfactory = XPathFactory.newInstance();
-			XPath xpath = xPathfactory.newXPath();
-			XPathExpression expr = xpath.compile(xPathExpression);
+			final XPathFactory xPathfactory = XPathFactory.newInstance();
+			final XPath xpath = xPathfactory.newXPath();
+			final XPathExpression expr = xpath.compile(xPathExpression);
 
-			DocumentBuilderFactory factory = DocumentBuilderFactory
-					.newInstance();
+			final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder builder;
-			
-			Object value = tuple.getValues().values().iterator().next();
-			String xmlString = value.toString();
+
+			final Object value = tuple.getValues().values().iterator().next();
+			final String xmlString = value.toString();
 
 			builder = factory.newDocumentBuilder();
-			Document document = builder.parse(new InputSource(
-					new StringReader(xmlString)));
-			NodeList nl = (NodeList) expr.evaluate(document,
-					XPathConstants.NODESET);
-			
-			List<Object> emitTuple = new ArrayList<Object>();
-			
+			final Document document = builder.parse(new InputSource(new StringReader(xmlString)));
+			final NodeList nl = (NodeList) expr.evaluate(document, XPathConstants.NODESET);
+
+			final List<Object> emitTuple = new ArrayList<Object>();
+
 			for (int i = 0; i < nl.getLength(); i++) {
-				System.out.println(nl.item(i).toString()
-						+ nl.item(i).getTextContent());
-				String nodeContent = nl.item(i).getTextContent();
+				System.out.println(nl.item(i).toString() + nl.item(i).getTextContent());
+				final String nodeContent = nl.item(i).getTextContent();
 				emitTuple.add(nodeContent);
-			    	
+
 			}
-			List<Object> salida = new ArrayList<Object>();
+			final List<Object> salida = new ArrayList<Object>();
 			salida.add(emitTuple);
 			salida.add(tuple.getValues().get(INDEX_FIELD));
-		    emitTuple(salida, collector);
-			
+			emitTuple(salida, collector, lastValue);
 
-		} catch (XPathExpressionException e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
-	} catch (ParserConfigurationException e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
-	} catch (SAXException e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
-	} catch (IOException e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
+		} catch (final XPathExpressionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (final ParserConfigurationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (final SAXException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (final IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 	}
 
-    }
-
 	@Override
-	protected void initFromJsonNode(JsonNode jsonNode) {
-		this.xPathExpression = jsonNode.get("xpathExpression").asText();
-		
+	protected void initFromJsonNode(final JsonNode jsonNode) {
+		xPathExpression = jsonNode.get("xpathExpression").asText();
+
 	}
 
 }

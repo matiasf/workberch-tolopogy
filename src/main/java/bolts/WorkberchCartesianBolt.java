@@ -43,19 +43,19 @@ public class WorkberchCartesianBolt extends WorkberchGenericBolt {
 		return realValues;
 	}
 
-	private void createTuples(final List<String> remainingFields, final WorkberchTuple baseTuple, final BasicOutputCollector collector) {
+	private void createTuples(final List<String> remainingFields, final WorkberchTuple baseTuple, final List<List<Object>> valuesToEmit) {
 		if (remainingFields.isEmpty()) {
 			final List<Object> tupleToEmit = new ArrayList<Object>();
 			for (final String field : getOutputFields()) {
 				tupleToEmit.add(baseTuple.getValues().get(field));
 			}
-			emitTuple(uniteIndexOnCartesianIndex(tupleToEmit), collector);
+			valuesToEmit.add(uniteIndexOnCartesianIndex(tupleToEmit));
 		} else {
 			final String nextField = remainingFields.get(0);
 			remainingFields.remove(0);
 			for (final Object value : executedInputs.get(nextField)) {
 				baseTuple.getValues().put(nextField, value);
-				createTuples(remainingFields, baseTuple, collector);
+				createTuples(remainingFields, baseTuple, valuesToEmit);
 			}
 		}
 	}
@@ -79,7 +79,7 @@ public class WorkberchCartesianBolt extends WorkberchGenericBolt {
 	}
 
 	@Override
-	public void executeLogic(final WorkberchTuple input, final BasicOutputCollector collector) {
+	public void executeLogic(final WorkberchTuple input, final BasicOutputCollector collector, final boolean lastValues) {
 		final List<String> remainingFields = new ArrayList<String>();
 		remainingFields.addAll(executedInputs.keySet());
 		remainingFields.removeAll(input.getFields());
@@ -95,7 +95,12 @@ public class WorkberchCartesianBolt extends WorkberchGenericBolt {
 		}
 
 		if (!uncompleteTuples) {
-			createTuples(remainingFields, input, collector);
+			final List<List<Object>> valuesToEmit = new ArrayList<List<Object>>();
+			createTuples(remainingFields, input, valuesToEmit);
+			final Iterator<List<Object>> iterValue = valuesToEmit.iterator();
+			while (iterValue.hasNext()) {
+				emitTuple(iterValue.next(), collector, lastValues && !iterValue.hasNext());
+			}
 		}
 	}
 

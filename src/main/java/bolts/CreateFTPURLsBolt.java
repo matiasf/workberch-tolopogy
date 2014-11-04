@@ -14,7 +14,7 @@ public class CreateFTPURLsBolt extends WorkberchGenericBolt {
 	}
 
 	@Override
-	public void executeLogic(final WorkberchTuple tuple, final BasicOutputCollector collector) {
+	public void executeLogic(final WorkberchTuple tuple, final BasicOutputCollector collector, final boolean lastValue) {
 		final Map<String, Object> values = tuple.getValues();
 		final String runAccessionID = (String) values.get("runAccessionID");
 		final String ftpURLInput = (String) values.get("ftpURLInput");

@@ -56,7 +56,7 @@ public class CartesianPlainTopologyMain {
 		}).shuffleGrouping("cartesianTestBolt");
 
 		final Config conf = new Config();
-		conf.setDebug(true);
+		conf.setDebug(false);
 
 		final LocalCluster cluster = new LocalCluster();
 		cluster.submitTopology("cartesianTopology", conf, builder.createTopology());

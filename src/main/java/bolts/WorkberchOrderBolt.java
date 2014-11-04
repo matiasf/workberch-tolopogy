@@ -142,7 +142,8 @@ abstract public class WorkberchOrderBolt extends WorkberchGenericBolt {
 		}
 	}
 
-	private void emitAllSavedTuplesInOrder(final CartesianIndex templateIndex, final BasicOutputCollector collector) {
+	private void emitAllSavedTuplesInOrder(final CartesianIndex templateIndex, final BasicOutputCollector collector, final boolean lastValues) {
+		//FIXME Something to do with lastValues
 		try {
 			final Map<CartesianIndex, WorkberchTuple> cartesianIndex = RedisHandeler.loadCartesianIndexObjects(getBoltId());
 
@@ -157,6 +158,7 @@ abstract public class WorkberchOrderBolt extends WorkberchGenericBolt {
 				tuple.setPlainIndex(lastIndex);
 				executeOrdered(tuple, collector);
 			} while (indexMap.containsKey(++lastIndex));
+			System.out.println("Workflow terminado.");
 		} catch (final RedisException e) {
 			Throwables.propagate(e);
 		}
@@ -185,8 +187,11 @@ abstract public class WorkberchOrderBolt extends WorkberchGenericBolt {
 		}
 	}
 
-	private void processReceivedTuple(final WorkberchTuple input, final BasicOutputCollector collector) {
+	private void processReceivedTuple(final WorkberchTuple input, final BasicOutputCollector collector, final boolean lastValues) {
 		if (ordered) {
+			if (lastValues) {
+				RedisHandeler.setStateFinished(getBoltId());
+			}
 			processReceivedTupleCommingInOrder(input, collector);
 		} else {
 			proccessReceivedTupleCommingWithoutOrder(input);
@@ -199,14 +204,12 @@ abstract public class WorkberchOrderBolt extends WorkberchGenericBolt {
 	}
 
 	@Override
-	public void executeLogic(final WorkberchTuple input, final BasicOutputCollector collector) {
-		processReceivedTuple(input, collector);
+	public void executeLogic(final WorkberchTuple input, final BasicOutputCollector collector, final boolean lastValues) {
+		processReceivedTuple(input, collector, lastValues);
 
-		if (RedisHandeler.getFinishedState(getBoltId())) {
-			if (!ordered) {
-				emitAllSavedTuplesInOrder((CartesianIndex) input.getValues().get(INDEX_FIELD), collector);
-			}
-			System.out.println("---Workflow terminado----");
+		if (lastValues && !ordered) {
+			RedisHandeler.setStateFinished(getBoltId());
+			emitAllSavedTuplesInOrder((CartesianIndex) input.getValues().get(INDEX_FIELD), collector, lastValues);
 		}
 	}
 

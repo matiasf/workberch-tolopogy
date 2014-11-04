@@ -51,7 +51,7 @@ public class WorkberchTopologyMain {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public void executeLogic(final WorkberchTuple input, final BasicOutputCollector collector) {
+			public void executeLogic(final WorkberchTuple input, final BasicOutputCollector collector, final boolean lastValue) {
 				final String count = (String) input.getValues().get("count");;
 				final int icount = Integer.parseInt(count);
 				System.out.println("ListEmitter is going to emit" + icount);
@@ -63,7 +63,7 @@ public class WorkberchTopologyMain {
 				}
 				values.add(listValue);
 				values.add(input.getValues().get(INDEX_FIELD));
-				emitTuple(values, collector);
+				emitTuple(values, collector, lastValue);
 			}
 
 		}, 2).shuffleGrouping("input");
@@ -79,7 +79,7 @@ public class WorkberchTopologyMain {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public void executeLogic(final WorkberchTuple input, final BasicOutputCollector collector) {
+			public void executeLogic(final WorkberchTuple input, final BasicOutputCollector collector, final boolean lastValue) {
 				final List<String> input2 = (List<String>) input.getValues().get("input");
 				String concatValue = StringUtils.EMPTY;
 				for (final String unitValue : input2) {
@@ -91,7 +91,7 @@ public class WorkberchTopologyMain {
 				final List<Object> outputValues = new ArrayList<Object>();
 				outputValues.add(output);
 				outputValues.add(input.getValues().get(INDEX_FIELD));
-				emitTuple(outputValues, collector);
+				emitTuple(outputValues, collector, lastValue);
 			}
 
 		}, 2).shuffleGrouping("List_Emitter");
@@ -110,7 +110,7 @@ public class WorkberchTopologyMain {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public void executeLogic(final WorkberchTuple input, final BasicOutputCollector collector) {
+			public void executeLogic(final WorkberchTuple input, final BasicOutputCollector collector, final boolean lastValue) {
 				final String string1 = (String) input.getValues().get("string1");
 				final String string2 = (String) input.getValues().get("string2");
 				final String output = string1 + string2;
@@ -119,7 +119,7 @@ public class WorkberchTopologyMain {
 				final List<Object> outputValues = new ArrayList<Object>();
 				outputValues.add(output);
 				outputValues.add(input.getValues().get(INDEX_FIELD));
-				emitTuple(outputValues, collector);
+				emitTuple(outputValues, collector, lastValue);
 			}
 
 		}, 2).shuffleGrouping("Concatenate_two_strings_dot");
@@ -139,7 +139,7 @@ public class WorkberchTopologyMain {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public void executeLogic(final WorkberchTuple input, final BasicOutputCollector collector) {
+			public void executeLogic(final WorkberchTuple input, final BasicOutputCollector collector, final boolean lastValue) {
 				final String string1 = (String) input.getValues().get("string1");
 				final String string2 = (String) input.getValues().get("string2");
 				final String output = string1 + string2;
@@ -148,7 +148,7 @@ public class WorkberchTopologyMain {
 				final List<Object> outputValues = new ArrayList<Object>();
 				outputValues.add(output);
 				outputValues.add(input.getValues().get(INDEX_FIELD));
-				emitTuple(outputValues, collector);
+				emitTuple(outputValues, collector, lastValue);
 			}
 
 		}, 2).shuffleGrouping("Concatenate_two_strings_2_dot");
@@ -168,7 +168,7 @@ public class WorkberchTopologyMain {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public void executeLogic(final WorkberchTuple input, final BasicOutputCollector collector) {
+			public void executeLogic(final WorkberchTuple input, final BasicOutputCollector collector, final boolean lastValue) {
 				final String string1 = (String) input.getValues().get("string1");
 				final String string2 = (String) input.getValues().get("string2");
 				final String output = string1 + string2;
@@ -177,7 +177,7 @@ public class WorkberchTopologyMain {
 				final List<Object> outputValues = new ArrayList<Object>();
 				outputValues.add(output);
 				outputValues.add(input.getValues().get(INDEX_FIELD));
-				emitTuple(outputValues, collector);
+				emitTuple(outputValues, collector, lastValue);
 			}
 
 		}, 2).shuffleGrouping("Concatenate_two_strings_3_dot");

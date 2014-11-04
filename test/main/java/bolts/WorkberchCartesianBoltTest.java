@@ -3,6 +3,7 @@ package main.java.bolts;
 import static main.java.utils.constants.WorkberchConstants.INDEX_FIELD;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.argThat;
@@ -124,7 +125,7 @@ public class WorkberchCartesianBoltTest {
 
 		cartesianBolt.execute(stormTuple1, mock(BasicOutputCollector.class));
 
-		verify(cartesianBolt, never()).emitTuple(anyListOf(Object.class), any(BasicOutputCollector.class));
+		verify(cartesianBolt, never()).emitTuple(anyListOf(Object.class), any(BasicOutputCollector.class), anyBoolean());
 		
 		verifyStatic();
         RedisHandeler.increseRecivedState(anyString());
@@ -136,7 +137,7 @@ public class WorkberchCartesianBoltTest {
 		verifyStatic(times(2));
         RedisHandeler.increseRecivedState(anyString());
 
-		verify(cartesianBolt).emitTuple(argThat(new IndexMatcher(index)), any(BasicOutputCollector.class));
+		verify(cartesianBolt).emitTuple(argThat(new IndexMatcher(index)), any(BasicOutputCollector.class), anyBoolean());
 	}
 
 }
