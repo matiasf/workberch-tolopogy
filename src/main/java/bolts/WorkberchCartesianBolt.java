@@ -99,7 +99,8 @@ public class WorkberchCartesianBolt extends WorkberchGenericBolt {
 			createTuples(remainingFields, input, valuesToEmit);
 			final Iterator<List<Object>> iterValue = valuesToEmit.iterator();
 			while (iterValue.hasNext()) {
-				emitTuple(iterValue.next(), collector, lastValues && !iterValue.hasNext());
+				List<Object> values = iterValue.next();
+				emitTuple(values, collector, lastValues && !iterValue.hasNext());
 			}
 		}
 	}

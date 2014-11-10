@@ -87,21 +87,17 @@ public class RedisHandeler {
 		final Map<CartesianIndex, WorkberchTuple> cartesianMap = new HashMap<CartesianIndex, WorkberchTuple>();
 		final Jedis jedis = new Jedis(REDIS_SERVER);
 		try {
-			byte[] serializedCartesianIndex = jedis.lpop((boltId + "_tuples").getBytes());
-			int dimentions = 0;
-			while (serializedCartesianIndex != null && serializedCartesianIndex.length != 0) {
-				final ByteArrayInputStream streamByteSerialize = new ByteArrayInputStream(serializedCartesianIndex);
+			byte[] serializedTuple = jedis.lpop((boltId + "_tuples").getBytes());
+			while (serializedTuple != null && serializedTuple.length != 0) {
+				final ByteArrayInputStream streamByteSerialize = new ByteArrayInputStream(serializedTuple);
 				final ObjectInputStream streamObjectSerialize = new ObjectInputStream(streamByteSerialize);
 				final WorkberchTuple tuple = (WorkberchTuple) streamObjectSerialize.readObject();
 
 				final CartesianIndex index = (CartesianIndex) tuple.getValues().get(INDEX_FIELD);
-				if (dimentions == 0) {
-					dimentions = index.getNodes().size();
-				}
 				cartesianMap.put(index, tuple);
 
 				streamObjectSerialize.close();
-				serializedCartesianIndex = jedis.lpop((boltId + "_tuples").getBytes());
+				serializedTuple = jedis.lpop((boltId + "_tuples").getBytes());
 			}
 		} catch (final IOException e) {
 			throw new RedisException(e);
