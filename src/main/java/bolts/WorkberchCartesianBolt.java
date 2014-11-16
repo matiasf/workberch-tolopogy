@@ -76,7 +76,7 @@ public class WorkberchCartesianBolt extends WorkberchGenericBolt {
 
 	private void addExecutedValues(final WorkberchTuple tuple, final List<String> remainingFields) {
 		for (final String field : tuple.getFields()) {
-			if (!remainingFields.contains(field)) {
+			if (!remainingFields.contains(field) && !field.equals(INDEX_FIELD)) {
 				final List<ExecutedValue> values = executedInputs.get(field);
 				if (values != null) {
 					final ExecutedValue valueExec = new ExecutedValue(tuple.getValues().get(field), INDEX_FIELD + tuple.getSource(), tuple
@@ -90,7 +90,9 @@ public class WorkberchCartesianBolt extends WorkberchGenericBolt {
 	public WorkberchCartesianBolt(final List<String> outputFields) {
 		super(outputFields);
 		for (final String inputField : outputFields) {
-			executedInputs.put(inputField, new ArrayList<ExecutedValue>());
+			if (!inputField.equals(INDEX_FIELD)) {
+				executedInputs.put(inputField, new ArrayList<ExecutedValue>());
+			}
 		}
 	}
 

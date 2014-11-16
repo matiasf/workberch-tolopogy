@@ -7,7 +7,6 @@ import static main.java.utils.constants.WorkberchConstants.INDEX_FIELD;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +34,7 @@ public class RedisHandelerTest {
 
 	@Before
 	public void before() throws IOException {
-		server = new RedisServer(new File("/home/vectorns/Desarrollo/redis-2.8.17/src/redis-server"), 6379);
+		server = new RedisServer(6379);
 		server.start();
 	}
 

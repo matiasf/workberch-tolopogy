@@ -77,7 +77,6 @@ public class WorkberchCartesianBoltTest {
 		final List<String> recivedFields = new ArrayList<String>();
 		recivedFields.add("dummyField1");
 		recivedFields.add("dummyField2");
-		recivedFields.add(INDEX_FIELD);
 
 		final WorkberchCartesianBolt cartesianBolt = spy(new WorkberchCartesianBolt(recivedFields));
 
@@ -92,6 +91,9 @@ public class WorkberchCartesianBoltTest {
 
 		given(stormTuple1.getValueByField("dummyField1")).willReturn("dummyValue1");
 		given(stormTuple2.getValueByField("dummyField2")).willReturn("dummyValue2");
+
+		given(stormTuple1.getSourceComponent()).willReturn("dummySource1");
+		given(stormTuple2.getSourceComponent()).willReturn("dummySource2");
 
 		final CartesianIndex leaf1 = new CartesianLeaf(0L);
 		final CartesianIndex leaf2 = new CartesianLeaf(0L);
