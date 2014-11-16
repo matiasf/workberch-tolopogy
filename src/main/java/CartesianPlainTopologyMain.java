@@ -44,7 +44,7 @@ public class CartesianPlainTopologyMain {
 		cartesianFields.add("dummyField1");
 		cartesianFields.add("dummyField2");
 
-		builder.setBolt("cartesianTestBolt", new WorkberchCartesianBolt(cartesianFields), 2).allGrouping("input1").shuffleGrouping("input2");
+		builder.setBolt("cartesianTestBolt", new WorkberchCartesianBolt(cartesianFields), 3).allGrouping("input1").shuffleGrouping("input2");
 
 		builder.setBolt("orderTestBolt", new WorkberchOrderBolt(cartesianFields, Boolean.FALSE) {
 			private static final long serialVersionUID = 1L;
@@ -53,7 +53,7 @@ public class CartesianPlainTopologyMain {
 			public void executeOrdered(final WorkberchTuple input, final BasicOutputCollector collector) {
 				System.out.println("Index value: " + input.getValues().get(INDEX_FIELD));
 			}
-		}).shuffleGrouping("cartesianTestBolt");
+		}, 1).shuffleGrouping("cartesianTestBolt");
 
 		final Config conf = new Config();
 		conf.setDebug(false);

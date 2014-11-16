@@ -16,8 +16,10 @@ public class WorkberchTuple implements Serializable {
 
 	private final Map<String, Object> values = new HashMap<String, Object>();
 	private final List<String> fields = new ArrayList<String>();
-
+	private final String source;
+	
 	public WorkberchTuple(final Tuple input) {
+		source = input.getSourceComponent();
 		final List<String> inputFields = input.getFields().toList();
 		for (final String inputField : inputFields) {
 			values.put(inputField, input.getValueByField(inputField));
@@ -31,6 +33,10 @@ public class WorkberchTuple implements Serializable {
 	
 	public List<String> getFields() {
 		return fields;
+	}
+	
+	public String getSource() {
+		return source;
 	}
 	
 	public void setPlainIndex(final Long newIndex) {
