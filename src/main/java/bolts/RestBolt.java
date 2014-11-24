@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import main.java.utils.WorkberchTuple;
+import main.java.utils.constants.WorkberchConstants;
 import backtype.storm.topology.BasicOutputCollector;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -45,7 +46,10 @@ public class RestBolt extends WorkberchTavernaProcessorBolt {
 		String localAddress = address;
 
 		for (final String param : tuple.getValues().keySet()) {
-			localAddress = localAddress.replace("{" + param + "}", tuple.getValues().get(param).toString());
+			if (!param.equals(WorkberchConstants.INDEX_FIELD)) {
+				final String localParam = param.split("\\" + WorkberchConstants.NAME_DELIMITER)[1];
+				localAddress = localAddress.replace("{" + localParam + "}", tuple.getValues().get(param).toString());
+			}
 		}
 
 		try {
@@ -77,6 +81,7 @@ public class RestBolt extends WorkberchTavernaProcessorBolt {
 			final String outputValue = sb.toString();
 
 			final ArrayList<Object> values = new ArrayList<Object>();
+			
 			values.add(outputValue);
 			values.add(tuple.getValues().get(INDEX_FIELD));
 			emitTuple(values, collector, lastValue);

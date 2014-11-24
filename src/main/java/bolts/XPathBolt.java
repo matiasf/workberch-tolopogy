@@ -53,7 +53,8 @@ public class XPathBolt extends WorkberchTavernaProcessorBolt {
 			final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder builder;
 
-			final Object value = tuple.getValues().values().iterator().next();
+			final Object value = tuple.getValues().values().toArray()[1];
+			
 			final String xmlString = value.toString();
 
 			builder = factory.newDocumentBuilder();

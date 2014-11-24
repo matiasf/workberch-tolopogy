@@ -2,34 +2,32 @@ package main.java.bolts;
 
 import java.util.List;
 
-import main.java.utils.TavernaProcessor;
-
 import com.fasterxml.jackson.databind.JsonNode;
 
-public abstract class WorkberchTavernaProcessorBolt extends WorkberchGenericBolt implements TavernaProcessor{
+public abstract class WorkberchTavernaProcessorBolt extends WorkberchGenericBolt {
 	
-	public WorkberchTavernaProcessorBolt(List<String> outputFields) {
+	public WorkberchTavernaProcessorBolt(final List<String> outputFields) {
 		super(outputFields);
 	}
 		
 	
-	public WorkberchTavernaProcessorBolt(List<String> inputFields,
-			List<String> outputFields,
-			JsonNode node) {
+	public WorkberchTavernaProcessorBolt(final List<String> inputFields,
+			final List<String> outputFields,
+			final JsonNode node) {
 		
 		super(outputFields);
-		this.initFromJsonNode(node);
+		initFromJsonNode(node);
 		
 	}
 	
-	@Override
+	
 	public List<String> getInputPorts() {
-		return this.getInputPorts();
+		return getInputPorts();
 	}
 	
-	@Override
+	
 	public List<String> getOutputPorts() {
-		return this.getOutputPorts();
+		return getOutputPorts();
 	}
 
 	abstract protected void initFromJsonNode(JsonNode jsonNode);

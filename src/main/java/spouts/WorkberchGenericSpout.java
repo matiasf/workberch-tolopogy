@@ -7,7 +7,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import main.java.utils.TavernaProcessor;
 import main.java.utils.redis.RedisHandeler;
 import backtype.storm.spout.SpoutOutputCollector;
 import backtype.storm.task.TopologyContext;
@@ -16,7 +15,7 @@ import backtype.storm.topology.base.BaseRichSpout;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Values;
 
-abstract public class WorkberchGenericSpout extends BaseRichSpout implements TavernaProcessor {
+abstract public class WorkberchGenericSpout extends BaseRichSpout  {
 
 	private static final long serialVersionUID = 1L;
 
@@ -32,12 +31,12 @@ abstract public class WorkberchGenericSpout extends BaseRichSpout implements Tav
 		spoutFields = fields;
 	}
 
-	@Override
+	
 	public List<String> getInputPorts() {
 		return new ArrayList<String>();
 	}
 
-	@Override
+	
 	public List<String> getOutputPorts() {
 		return spoutFields;
 	}

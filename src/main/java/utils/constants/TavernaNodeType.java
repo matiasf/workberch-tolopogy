@@ -16,5 +16,17 @@ public enum TavernaNodeType {
 	public String getTypeUrl() {
 		return url;
 	}	
+	
+	public static TavernaNodeType fromString(final String value) {
+		if (value != null) {
+			for (final TavernaNodeType type : TavernaNodeType.values()) {
+				if (value.equalsIgnoreCase(type.getTypeUrl())) {
+					return type;
+				}
+			}
+		}
+		
+		return null;
+	}
 
 }
