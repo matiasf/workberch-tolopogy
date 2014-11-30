@@ -6,7 +6,6 @@ import main.java.parser.taverna.WorkberchTavernaParser;
 import uk.org.taverna.scufl2.api.io.ReaderException;
 import backtype.storm.Config;
 import backtype.storm.LocalCluster;
-import backtype.storm.generated.StormTopology;
 
 public class DynamicWorkberchTopologyMain {
 	
@@ -14,7 +13,7 @@ public class DynamicWorkberchTopologyMain {
 		
 		
 		final WorkberchTavernaParser parser = new WorkberchTavernaParser();
-		parser.setFilePath("C:\\Martin\\Proyecto\\rest_xpath_example - Copy.t2flow");
+		parser.setFilePath("C:\\Martin\\Proyecto\\pipelined_list_iteration.t2flow");
 		
 		
 		final Config conf = new Config();
@@ -23,15 +22,7 @@ public class DynamicWorkberchTopologyMain {
 
 		final LocalCluster cluster = new LocalCluster();
 		
-		final StormTopology topo = parser.parse();
 		
-		for(final String sput:topo.get_spouts().keySet()) {
-			System.out.println(sput);
-		}
-		
-		for(final String sput:topo.get_bolts().keySet()) {
-			System.out.println(sput);
-		}
 		
 		cluster.submitTopology("workberch", conf, parser.parse());
 		

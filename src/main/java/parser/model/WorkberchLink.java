@@ -10,7 +10,24 @@ public class WorkberchLink {
 	String destNode;
 	String destOutput;
 	
+	int sourceDepth;
+	int destDepth;
 	
+	
+	
+	
+	public int getSourceDepth() {
+		return sourceDepth;
+	}
+	public void setSourceDepth(final int sourceDepth) {
+		this.sourceDepth = sourceDepth;
+	}
+	public int getDestDepth() {
+		return destDepth;
+	}
+	public void setDestDepth(final int destDepth) {
+		this.destDepth = destDepth;
+	}
 	public String getSourceNode() {
 		return sourceNode;
 	}

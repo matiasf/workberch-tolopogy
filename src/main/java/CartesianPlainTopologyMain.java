@@ -50,7 +50,7 @@ public class CartesianPlainTopologyMain {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public void executeOrdered(final WorkberchTuple input, final BasicOutputCollector collector) {
+			public void executeOrdered(final WorkberchTuple input, final BasicOutputCollector collector, final boolean lastValues) {
 				System.out.println("Index value: " + input.getValues().get(INDEX_FIELD));
 			}
 		}, 1).shuffleGrouping("cartesianTestBolt");

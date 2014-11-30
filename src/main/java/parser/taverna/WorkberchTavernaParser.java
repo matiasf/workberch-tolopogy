@@ -55,7 +55,7 @@ public class WorkberchTavernaParser {
 			//Agrego puertos de entrada
 			final Set<InputWorkflowPort> wfInputPorts = workflow.getInputPorts();
 			for (final InputWorkflowPort inputWorkflowPort : wfInputPorts) {
-				final DataGenerator dg = new TextDataGenerator("stem cells");
+				final DataGenerator dg = new TextDataGenerator("4");
 				final WorkberchNodeInput inputNode = WorkberchTavernaFactory.inputPort2NodeInput(inputWorkflowPort, dg);
 				builder.addInputNode(inputNode);
 				

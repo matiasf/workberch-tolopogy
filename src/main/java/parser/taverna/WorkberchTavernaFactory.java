@@ -85,14 +85,40 @@ public class WorkberchTavernaFactory {
 		
 		link.setSourceNode(getSourceNameFromDataLink(dataLink));
 		link.setSourceOutput(dataLink.getReceivesFrom().getName());
+		link.setSourceDepth(getSourceDepth(dataLink));
+		
 		
 		link.setDestNode(getDestNameFromDataLink(dataLink));
 		link.setDestOutput(dataLink.getSendsTo().getName());
+		link.setDestDepth(getDestDepth(dataLink));
 		
 		return link;
 	}
 	
+	static private int getSourceDepth(final DataLink dataLink) {
+		final SenderPort senderPort = dataLink.getReceivesFrom();
+		int ret = 0;
+		
+		if(senderPort instanceof InputWorkflowPort) {
+			ret = ((InputWorkflowPort) senderPort).getDepth();
+		}
+		else if (senderPort instanceof OutputProcessorPort) {
+			ret = ((OutputProcessorPort) senderPort).getDepth();
+		}
+		
+		return ret;
+	}
 	
+	static private int getDestDepth(final DataLink dataLink) {
+		final ReceiverPort receiverPort = dataLink.getSendsTo();
+		int ret = 0;
+		
+		if(receiverPort instanceof InputProcessorPort) {
+			ret = ((InputProcessorPort) receiverPort ).getDepth();
+		}
+		
+		return ret;
+	}
 	
 	
 	static private String getDestNameFromDataLink(final DataLink dataLink) {

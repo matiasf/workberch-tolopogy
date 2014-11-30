@@ -3,6 +3,7 @@ package main.java.parser.taverna;
 import java.lang.invoke.WrongMethodTypeException;
 import java.util.List;
 
+import main.java.bolts.BeanshellBolt;
 import main.java.bolts.RestBolt;
 import main.java.bolts.WorkberchGenericBolt;
 import main.java.bolts.XPathBolt;
@@ -46,6 +47,9 @@ public class WorkberchTavernaNode extends WorkberchProcessorNode {
     			break;
     		case REST:
     			ret = new RestBolt(getInputs(), getOutputs(), config);
+    			break;
+    		case BEANSHELL:
+    			ret = new BeanshellBolt(getInputs(), getOutputs(), config);
     			break;
     		default:
     			

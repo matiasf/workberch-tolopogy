@@ -14,7 +14,7 @@ public class OutputBolt extends WorkberchOrderBolt {
 	}
 
 	@Override
-	public void executeOrdered(final WorkberchTuple input, final BasicOutputCollector collector) {
+	public void executeOrdered(final WorkberchTuple input, final BasicOutputCollector collector, final boolean lastValues) {
 		System.out.println("Valor" + input.getValues().get("out"));
 	}
 

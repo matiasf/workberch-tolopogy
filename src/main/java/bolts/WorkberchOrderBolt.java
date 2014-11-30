@@ -156,7 +156,7 @@ abstract public class WorkberchOrderBolt extends WorkberchGenericBolt {
 			do {
 				tuple = indexMap.get(lastIndex);
 				tuple.setPlainIndex(lastIndex);
-				executeOrdered(tuple, collector);
+				executeOrdered(tuple, collector, lastValues);
 			} while (indexMap.containsKey(++lastIndex));
 			System.out.println("Workflow terminado.");
 		} catch (final RedisException e) {
@@ -164,7 +164,7 @@ abstract public class WorkberchOrderBolt extends WorkberchGenericBolt {
 		}
 	}
 
-	private void processReceivedTupleCommingInOrder(final WorkberchTuple input, final BasicOutputCollector collector) {
+	private void processReceivedTupleCommingInOrder(final WorkberchTuple input, final BasicOutputCollector collector, final boolean lastValues) {
 		final Long currentLong = (Long) input.getValues().get(INDEX_FIELD);
 		final long currentIndex = currentLong.longValue();
 		if (currentIndex > lastIndex) {
@@ -174,7 +174,7 @@ abstract public class WorkberchOrderBolt extends WorkberchGenericBolt {
 			WorkberchTuple tuple;
 			do {
 				tuple = indexMap.get(lastIndex);
-				executeOrdered(tuple, collector);
+				executeOrdered(tuple, collector, lastValues);
 			} while (indexMap.containsKey(++lastIndex));
 		}
 	}
@@ -192,7 +192,7 @@ abstract public class WorkberchOrderBolt extends WorkberchGenericBolt {
 			if (lastValues) {
 				RedisHandeler.setStateFinished(getBoltId());
 			}
-			processReceivedTupleCommingInOrder(input, collector);
+			processReceivedTupleCommingInOrder(input, collector, lastValues);
 		} else {
 			proccessReceivedTupleCommingWithoutOrder(input);
 		}
@@ -213,6 +213,6 @@ abstract public class WorkberchOrderBolt extends WorkberchGenericBolt {
 		}
 	}
 
-	abstract public void executeOrdered(final WorkberchTuple input, final BasicOutputCollector collector);
+	abstract public void executeOrdered(final WorkberchTuple input, final BasicOutputCollector collector, final boolean lastValues);
 
 }

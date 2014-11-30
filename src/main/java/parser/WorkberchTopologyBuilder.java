@@ -8,6 +8,7 @@ import java.util.Map;
 import main.java.bolts.WorkberchDotBolt;
 import main.java.bolts.WorkberchGenericBolt;
 import main.java.bolts.WorkberchNameMaperBolt;
+import main.java.bolts.WorkberchNameMaperOrderedBolt;
 import main.java.parser.model.WorkberchLink;
 import main.java.parser.model.WorkberchNode;
 import main.java.parser.model.WorkberchProcessorNode;
@@ -36,38 +37,47 @@ public class WorkberchTopologyBuilder {
 	
 	public void addNode(final WorkberchProcessorNode node, final List<WorkberchLink> incomingLinks) {
 		
-		final List<String> inputAsOutputs = new ArrayList<String>();
+		final List<String> outputs = new ArrayList<String>();
+		
+		
+		final List<String> mapperNames = new ArrayList<String>();
+		
 		
 		for (final WorkberchLink incomingLink : incomingLinks) {
-			inputAsOutputs.add(incomingLink.getSourceNode() + WorkberchConstants.NAME_DELIMITER + incomingLink.getSourceOutput());
+			final String mapperName = MAPPER_PREFIX + incomingLink.getStormSourceField();
+			final List<String> inputs = new ArrayList<String>();
+			inputs.add(incomingLink.getStormDestField());
+			
+			if (incomingLink.getSourceDepth() > incomingLink.getDestDepth()) {
+				final WorkberchNameMaperOrderedBolt mapper = new WorkberchNameMaperOrderedBolt(inputs);
+				mapper.addLink(incomingLink.getStormSourceField(), incomingLink.getStormDestField());
+				tBuilder.setBolt(mapperName, mapper).shuffleGrouping(incomingLink.getSourceNode());
+				
+			}
+			else {
+				final WorkberchNameMaperBolt mapper = new WorkberchNameMaperBolt(inputs);
+				mapper.addLink(incomingLink.getStormSourceField(), incomingLink.getStormDestField());
+				tBuilder.setBolt(mapperName, mapper).shuffleGrouping(incomingLink.getSourceNode());
+				
+			}
+			mapperNames.add(mapperName);
+			outputs.add(incomingLink.getStormDestField());
+			
+			
 		}
 		
-		final WorkberchDotBolt dotBolt = new WorkberchDotBolt(inputAsOutputs);
+		final WorkberchDotBolt dotBolt = new WorkberchDotBolt(outputs);
 		
 		final String dotBoltName = DOT_PREFIX + node.getName();
 		
 		BoltDeclarer boltDeclarer = tBuilder.setBolt(dotBoltName, dotBolt);
 		
-		for (final WorkberchLink incomingLink : incomingLinks) {
-			boltDeclarer = boltDeclarer.fieldsGrouping(incomingLink.getSourceNode(), new Fields(WorkberchConstants.INDEX_FIELD));
+		for (final String mapperName: mapperNames) {
+			boltDeclarer = boltDeclarer.fieldsGrouping(mapperName, new Fields(WorkberchConstants.INDEX_FIELD));
 		}
-		
-		
-		final WorkberchNameMaperBolt mapper = new WorkberchNameMaperBolt(node.getInputs());
-		
-		final String mapperName = MAPPER_PREFIX + node.getName();
-		
-		
-		for (final WorkberchLink incomingLink : incomingLinks) {
-			mapper.addLink( incomingLink.getStormSourceField(), incomingLink.getStormDestField());
-		}
-		
-		boltDeclarer = tBuilder.setBolt(mapperName, mapper);
-		
-		boltDeclarer.shuffleGrouping(dotBoltName);
 		
 		final WorkberchGenericBolt bolt = node.buildBolt();
-		tBuilder.setBolt(node.getName(), bolt).shuffleGrouping(mapperName);
+		tBuilder.setBolt(node.getName(), bolt).shuffleGrouping(dotBoltName);
 		
 		nodes.put(node.getName(), node);
 	}
