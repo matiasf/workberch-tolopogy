@@ -13,7 +13,7 @@ public class DynamicWorkberchTopologyMain {
 		
 		
 		final WorkberchTavernaParser parser = new WorkberchTavernaParser();
-		parser.setFilePath("C:\\Martin\\Proyecto\\pipelined_list_iteration.t2flow");
+		parser.setFilePath("ejemlo_base.t2flow");
 		
 		
 		final Config conf = new Config();
