@@ -13,7 +13,11 @@ public class DynamicWorkberchTopologyMain {
 		
 		
 		final WorkberchTavernaParser parser = new WorkberchTavernaParser();
+<<<<<<< HEAD
+		parser.setFilePath("C:\\Martin\\Proyecto\\ejemlo_base.t2flow");
+=======
 		parser.setFilePath("ejemlo_base.t2flow");
+>>>>>>> 4165db84608e15e2cf6bf443dcb84ad582d18260
 		
 		
 		final Config conf = new Config();
