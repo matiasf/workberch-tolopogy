@@ -27,7 +27,27 @@ public class WorkberchTavernaParser {
 
 	private String filePath;
 	
+	private String inputPath;
+	
+	private String outputPath;
+	
 	private static String APP_TYPE_TAVERNA_WORKFLOW = "application/vnd.taverna.t2flow+xml"; 
+	
+	public String getInputPath() {
+		return inputPath;
+	}
+
+	public void setInputPath(final String inputPath) {
+		this.inputPath = inputPath;
+	}
+
+	public String getOutputPath() {
+		return outputPath;
+	}
+
+	public void setOutputPath(final String outputPath) {
+		this.outputPath = outputPath;
+	}	
 
 	public String getFilePath() {
 		return filePath;
