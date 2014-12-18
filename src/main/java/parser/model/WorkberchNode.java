@@ -8,4 +8,5 @@ public interface WorkberchNode {
 	String getName();
 
 	WorkberchGenericSpout buildSpout();
+	
 }

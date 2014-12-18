@@ -20,8 +20,28 @@ public class WorkberchTopologyBuilder {
 
 	private final TopologyBuilder tBuilder = new TopologyBuilder();
 	
-	Map<String, WorkberchNode> nodes = new HashMap<String, WorkberchNode>();
+	private String outputPath;
 	
+	private String inputPath;
+	
+	private final Map<String, WorkberchNode> nodes = new HashMap<String, WorkberchNode>();
+	
+	public String getOutputPath() {
+		return outputPath;
+	}
+
+	public void setOutputPath(final String outputPath) {
+		this.outputPath = outputPath;
+	}
+
+	public String getInputPath() {
+		return inputPath;
+	}
+
+	public void setInputPath(final String inputPath) {
+		this.inputPath = inputPath;
+	}
+
 	public void addInputNode(final WorkberchNode inputNode) {
 		final WorkberchGenericSpout spout = inputNode.buildSpout();
 		

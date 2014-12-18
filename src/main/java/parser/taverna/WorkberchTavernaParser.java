@@ -7,8 +7,7 @@ import java.util.List;
 import java.util.Set;
 
 import main.java.parser.WorkberchTopologyBuilder;
-import main.java.parser.model.DataGenerator;
-import main.java.parser.model.TextDataGenerator;
+import main.java.parser.model.FileDataGenerator;
 import main.java.parser.model.WorkberchLink;
 import main.java.parser.model.WorkberchNodeInput;
 import main.java.parser.model.WorkberchProcessorNode;
@@ -75,7 +74,8 @@ public class WorkberchTavernaParser {
 			//Agrego puertos de entrada
 			final Set<InputWorkflowPort> wfInputPorts = workflow.getInputPorts();
 			for (final InputWorkflowPort inputWorkflowPort : wfInputPorts) {
-				final DataGenerator dg = new TextDataGenerator("4");
+				final FileDataGenerator dg = new FileDataGenerator();
+				dg.setFilePath(inputPath + inputWorkflowPort.getName() + ".xml");
 				final WorkberchNodeInput inputNode = WorkberchTavernaFactory.inputPort2NodeInput(inputWorkflowPort, dg);
 				builder.addInputNode(inputNode);
 				
