@@ -35,6 +35,7 @@ public class WorkberchNodeInput implements WorkberchNode {
 		return new InputNodeSpout(outputs, dataGenerator);
 	}
 
+
 	
 	
 }

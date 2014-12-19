@@ -24,6 +24,8 @@ public class DynamicWorkberchTopologyMain {
 		
 		
 		
+		
+		parser.setInputPath("C:\\Martin\\Proyecto\\");
 		cluster.submitTopology("workberch", conf, parser.parse());
 		
 		System.out.println("Termino");
