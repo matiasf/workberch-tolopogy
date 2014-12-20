@@ -1,25 +1,23 @@
 package main.java;
 
-import static main.java.utils.constants.WorkberchConstants.INDEX_FIELD;
-
 import java.util.ArrayList;
 import java.util.List;
 
 import main.java.bolts.OutputBolt;
 import main.java.bolts.WorkberchCartesianBolt;
-import main.java.bolts.WorkberchOrderBolt;
 import main.java.spouts.SimpleSpout;
-import main.java.utils.WorkberchTuple;
 import redis.clients.jedis.Jedis;
 import backtype.storm.Config;
 import backtype.storm.LocalCluster;
-import backtype.storm.topology.BasicOutputCollector;
 import backtype.storm.topology.TopologyBuilder;
 import backtype.storm.tuple.Values;
 
 public class CartesianPlainTopologyMain {
 
 	public static void main(final String[] args) {
+		final String guid = args[0];
+		final String outputPath = args[2];
+		
 		final Jedis jedis = new Jedis("localhost");
 		jedis.flushAll();
 		jedis.close();
@@ -46,8 +44,10 @@ public class CartesianPlainTopologyMain {
 		cartesianFields.add("dummyField2");
 
 		builder.setBolt("cartesianTestBolt", new WorkberchCartesianBolt(cartesianFields), 3).allGrouping("input1").shuffleGrouping("input2");
-
-		builder.setBolt("orderTestBolt", new OutputBolt(false) , 1).shuffleGrouping("cartesianTestBolt");
+		
+		builder.setBolt("dummyField1", new OutputBolt(guid, outputPath, false) , 1).shuffleGrouping("cartesianTestBolt");
+		
+		builder.setBolt("dummyField2", new OutputBolt(guid, outputPath, false) , 1).shuffleGrouping("cartesianTestBolt");
 
 		final Config conf = new Config();
 		conf.setDebug(false);

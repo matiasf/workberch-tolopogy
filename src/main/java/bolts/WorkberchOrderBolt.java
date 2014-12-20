@@ -156,8 +156,8 @@ abstract public class WorkberchOrderBolt extends WorkberchGenericBolt {
 			do {
 				tuple = indexMap.get(lastIndex);
 				tuple.setPlainIndex(lastIndex);
-				executeOrdered(tuple, collector, lastValues);
-			} while (indexMap.containsKey(++lastIndex));
+				executeOrdered(tuple, collector, !indexMap.containsKey(++lastIndex));
+			} while (indexMap.containsKey(lastIndex));
 			System.out.println("Workflow terminado.");
 		} catch (final RedisException e) {
 			Throwables.propagate(e);
