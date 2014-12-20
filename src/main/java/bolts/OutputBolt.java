@@ -1,5 +1,7 @@
 package main.java.bolts;
 
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 
 import main.java.utils.WorkberchTuple;
@@ -15,7 +17,13 @@ public class OutputBolt extends WorkberchOrderBolt {
 
 	@Override
 	public void executeOrdered(final WorkberchTuple input, final BasicOutputCollector collector, final boolean lastValues) {
-		System.out.println("Valor" + input.getValues().get("out"));
+		try {
+			PrintWriter output = new PrintWriter("/home/proyecto/Code/workberch-server/Files/gid/out/out.xml");
+			output.write("Valor" + input.getValues().get("out"));
+			output.close();
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 }

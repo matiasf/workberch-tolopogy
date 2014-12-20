@@ -5,6 +5,7 @@ import static main.java.utils.constants.WorkberchConstants.INDEX_FIELD;
 import java.util.ArrayList;
 import java.util.List;
 
+import main.java.bolts.OutputBolt;
 import main.java.bolts.WorkberchCartesianBolt;
 import main.java.bolts.WorkberchOrderBolt;
 import main.java.spouts.SimpleSpout;
@@ -46,14 +47,7 @@ public class CartesianPlainTopologyMain {
 
 		builder.setBolt("cartesianTestBolt", new WorkberchCartesianBolt(cartesianFields), 3).allGrouping("input1").shuffleGrouping("input2");
 
-		builder.setBolt("orderTestBolt", new WorkberchOrderBolt(cartesianFields, Boolean.FALSE) {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void executeOrdered(final WorkberchTuple input, final BasicOutputCollector collector, final boolean lastValues) {
-				System.out.println("Index value: " + input.getValues().get(INDEX_FIELD));
-			}
-		}, 1).shuffleGrouping("cartesianTestBolt");
+		builder.setBolt("orderTestBolt", new OutputBolt(false) , 1).shuffleGrouping("cartesianTestBolt");
 
 		final Config conf = new Config();
 		conf.setDebug(false);
