@@ -54,7 +54,7 @@
 					<archive>
 						<manifest>
 							<addClasspath>true</addClasspath>
-							<mainClass>main.java.DynamicWorkberchTopologyMain</mainClass>
+							<mainClass>main.java.CartesianPlainTopologyMain</mainClass>
 							<classpathPrefix>lib/</classpathPrefix>
 						</manifest>
 					</archive>
@@ -167,7 +167,6 @@
 			<artifactId>bsh</artifactId>
 			<version>2.0b4</version>
 		</dependency>
-
 
 	</dependencies>
 

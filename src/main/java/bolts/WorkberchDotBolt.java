@@ -10,7 +10,7 @@ import java.util.Map;
 import main.java.utils.WorkberchTuple;
 import backtype.storm.topology.BasicOutputCollector;
 
-public class WorkberchDotBolt extends WorkberchGenericBolt {
+public class WorkberchDotBolt extends WorkberchProvenanceBolt {
 
 	private static final long serialVersionUID = 1L;
 

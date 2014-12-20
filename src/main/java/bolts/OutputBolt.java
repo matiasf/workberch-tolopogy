@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import main.java.utils.WorkberchTuple;
+import main.java.utils.constants.WorkberchConstants;
 import main.java.utils.redis.RedisHandeler;
 
 import org.apache.commons.io.FileUtils;
@@ -27,9 +28,9 @@ public class OutputBolt extends WorkberchOrderBolt {
 
 	private final List<WorkberchTuple> tuplesToWrite = new ArrayList<WorkberchTuple>();
 
-	public OutputBolt(final String guid, final String outputPath, final Boolean ordered) {
+	public OutputBolt(final Boolean ordered) {
 		super(new ArrayList<String>(), ordered);
-		OUTPUT_PATH = StringUtils.replace(outputPath, GUID_REPLACE, guid);
+		OUTPUT_PATH = StringUtils.replace(WorkberchConstants.OUTPUT_PATH, GUID_REPLACE, WorkberchConstants.GUID);
 
 		try {
 			FileUtils.deleteDirectory(new File(OUTPUT_PATH));

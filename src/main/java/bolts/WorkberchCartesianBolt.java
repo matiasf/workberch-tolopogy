@@ -18,7 +18,7 @@ import org.apache.commons.lang.StringUtils;
 
 import backtype.storm.topology.BasicOutputCollector;
 
-public class WorkberchCartesianBolt extends WorkberchGenericBolt {
+public class WorkberchCartesianBolt extends WorkberchProvenanceBolt {
 
 	private static final long serialVersionUID = 1L;
 	private final Map<String, List<ExecutedValue>> executedInputs = new HashMap<String, List<ExecutedValue>>();

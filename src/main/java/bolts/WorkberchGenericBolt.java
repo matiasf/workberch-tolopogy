@@ -69,7 +69,7 @@ abstract public class WorkberchGenericBolt extends BaseBasicBolt {
 		}
 
 		final WorkberchTuple baseTuple = new WorkberchTuple(input);
-		executeLogic(baseTuple, collector, runningNodesCount == 0);
+		executeProvenance(baseTuple, collector, runningNodesCount == 0);
 	};
 
 	@Override
@@ -77,6 +77,6 @@ abstract public class WorkberchGenericBolt extends BaseBasicBolt {
 		declarer.declare(new Fields(outputFields));
 	}
 
-	abstract public void executeLogic(WorkberchTuple input, BasicOutputCollector collector, boolean lastValues);
+	abstract public void executeProvenance(WorkberchTuple input, BasicOutputCollector collector, boolean lastValues);
 
 }

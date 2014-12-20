@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
-public abstract class WorkberchTavernaProcessorBolt extends WorkberchGenericBolt {
+public abstract class WorkberchTavernaProcessorBolt extends WorkberchProvenanceBolt {
 	
 	public WorkberchTavernaProcessorBolt(final List<String> outputFields) {
 		super(outputFields);

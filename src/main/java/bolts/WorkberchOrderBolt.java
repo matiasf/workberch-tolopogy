@@ -19,7 +19,7 @@ import backtype.storm.topology.BasicOutputCollector;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 
-abstract public class WorkberchOrderBolt extends WorkberchGenericBolt {
+abstract public class WorkberchOrderBolt extends WorkberchProvenanceBolt {
 
 	private static final long serialVersionUID = 1L;
 

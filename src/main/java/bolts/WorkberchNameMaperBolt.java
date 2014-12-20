@@ -12,7 +12,7 @@ import backtype.storm.topology.BasicOutputCollector;
 import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.tuple.Fields;
 
-public class WorkberchNameMaperBolt extends WorkberchGenericBolt {
+public class WorkberchNameMaperBolt extends WorkberchProvenanceBolt {
 
 	private static final long serialVersionUID = -755957444551948715L;
 	
