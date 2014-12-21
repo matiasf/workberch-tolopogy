@@ -11,6 +11,7 @@ import main.java.parser.model.WorkberchIterStgyLink;
 import main.java.parser.model.WorkberchIterStgyNode;
 import main.java.parser.model.WorkberchLink;
 import main.java.parser.model.WorkberchNode;
+import main.java.parser.model.WorkberchOutputNode;
 import main.java.parser.model.WorkberchProcessorNode;
 import main.java.spouts.WorkberchGenericSpout;
 import backtype.storm.generated.StormTopology;
@@ -73,6 +74,13 @@ public class WorkberchTopologyBuilder {
 		tBuilder.setBolt(node.getName(), bolt).shuffleGrouping(strat.getBoltName());
 		
 		nodes.put(node.getName(), node);
+	}
+	
+	public void addOutput(final WorkberchOutputNode node, final WorkberchLink incomingLink) {
+		final WorkberchGenericBolt bolt = node.buildBolt();
+		tBuilder.setBolt(node.getName(), bolt).shuffleGrouping(incomingLink.getSourceNode());
+		
+		//nodes.put(node.getName(), node);
 	}
 	
 	public StormTopology buildTopology() {

@@ -10,6 +10,7 @@ import main.java.parser.WorkberchTopologyBuilder;
 import main.java.parser.model.FileDataGenerator;
 import main.java.parser.model.WorkberchLink;
 import main.java.parser.model.WorkberchNodeInput;
+import main.java.parser.model.WorkberchOutputNode;
 import main.java.parser.model.WorkberchProcessorNode;
 import uk.org.taverna.scufl2.api.configurations.Configuration;
 import uk.org.taverna.scufl2.api.container.WorkflowBundle;
@@ -19,6 +20,7 @@ import uk.org.taverna.scufl2.api.core.Workflow;
 import uk.org.taverna.scufl2.api.io.ReaderException;
 import uk.org.taverna.scufl2.api.io.WorkflowBundleIO;
 import uk.org.taverna.scufl2.api.port.InputWorkflowPort;
+import uk.org.taverna.scufl2.api.port.OutputPort;
 import uk.org.taverna.scufl2.api.profiles.Profile;
 import backtype.storm.generated.StormTopology;
 
@@ -99,6 +101,22 @@ public class WorkberchTavernaParser {
 					}
 					builder.addNode(processorNode, incomingLinks);					
 				}
+			}
+			
+			
+			
+			for (final OutputPort outputPort: workflow.getOutputPorts()) {
+				final WorkberchOutputNode outputNode = new WorkberchOutputNode();
+				outputNode.setName(outputPort.getName());
+				
+				
+				final Set<DataLink> allDataLinks = workflow.getDataLinks();
+				final DataLink dataLink = WorkberchSCUFL2Utils.getIncomingDataLinksFromOutputPort(outputPort, allDataLinks);
+				/*final List<WorkberchLink> incomingLinks = new ArrayList<WorkberchLink>();
+				for (final DataLink dataLink : incomingDataLinks) {
+					incomingLinks.add(WorkberchTavernaFactory.dataLink2Link(dataLink));
+				}*/
+				builder.addOutput(outputNode, WorkberchTavernaFactory.dataLink2Link(dataLink));
 			}
 			
 			

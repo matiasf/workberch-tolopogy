@@ -17,7 +17,7 @@ public class WorkberchNameMaperOrderedBolt extends WorkberchOrderBolt {
 
 	private static final long serialVersionUID = -755957444551948715L;
 	private final Map<String, String> mapedInputs = new HashMap<String, String>();
-	private  int newIndex = 0;
+	private  Long newIndex = (long) 0;
 	
 	public WorkberchNameMaperOrderedBolt(final List<String> outputFields) {
 		super(outputFields, Boolean.TRUE);
