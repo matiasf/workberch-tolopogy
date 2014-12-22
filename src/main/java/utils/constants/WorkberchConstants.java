@@ -15,6 +15,7 @@ public class WorkberchConstants {
     public static String GUID;
     public static String OUTPUT_PATH;
     public static String INPUT_PATH;
+    public static String WORKFLOW_PATH;
 
     private WorkberchConstants() {
     };

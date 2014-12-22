@@ -7,6 +7,8 @@ import backtype.storm.tuple.Values;
 
 public class InputNodeSpout extends WorkberchGenericSpout {
 
+	private static final long serialVersionUID = 1L;
+	
 	DataGenerator dataGenerator;
 	
 	public InputNodeSpout(final List<String> fields, final DataGenerator dataGenerator) {
@@ -14,8 +16,6 @@ public class InputNodeSpout extends WorkberchGenericSpout {
 		
 		this.dataGenerator = dataGenerator;
 	}
-
-	private static final long serialVersionUID = 1L;
 
 	@Override
 	public List<Values> getValues() {

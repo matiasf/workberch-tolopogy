@@ -28,7 +28,7 @@
 				<configuration>
 					<archive>
 						<manifest>
-							<mainClass>main.java.CartesianPlainTopologyMain</mainClass>
+							<mainClass>main.java.DynamicWorkberchTopologyMain</mainClass>
 						</manifest>
 					</archive>
 					<descriptorRefs>
@@ -54,7 +54,7 @@
 					<archive>
 						<manifest>
 							<addClasspath>true</addClasspath>
-							<mainClass>main.java.CartesianPlainTopologyMain</mainClass>
+							<mainClass>main.java.DynamicWorkberchTopologyMain</mainClass>
 							<classpathPrefix>lib/</classpathPrefix>
 						</manifest>
 					</archive>
@@ -162,6 +162,7 @@
 			<version>0.3</version>
 		</dependency>
 
+		<!-- Bean shell execution libraries dependencies -->
 		<dependency>
 			<groupId>org.beanshell</groupId>
 			<artifactId>bsh</artifactId>

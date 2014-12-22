@@ -20,6 +20,8 @@ import org.apache.commons.lang.StringUtils;
 
 import backtype.storm.topology.BasicOutputCollector;
 
+import com.google.common.base.Throwables;
+
 public class OutputBolt extends WorkberchOrderBolt {
 
 	private static final long serialVersionUID = 1L;
@@ -35,13 +37,13 @@ public class OutputBolt extends WorkberchOrderBolt {
 		try {
 			FileUtils.deleteDirectory(new File(OUTPUT_PATH));
 		} catch (final IOException e) {
-			throw new RuntimeException("Se borra el directorio de salida atendido " + OUTPUT_PATH, e);
+			Throwables.propagate(e);
 		}
 
 		try {
 			FileUtils.forceMkdir(new File(OUTPUT_PATH));
 		} catch (final IOException e) {
-			throw new RuntimeException("No se puedo crear el directorio " + OUTPUT_PATH, e);
+			Throwables.propagate(e);
 		}
 	}
 
@@ -49,7 +51,6 @@ public class OutputBolt extends WorkberchOrderBolt {
 	public void executeOrdered(final WorkberchTuple input, final BasicOutputCollector collector, final boolean lastValues) {
 		tuplesToWrite.add(input);
 		if (lastValues) {
-			System.out.println("Crearndo archivo " + getBoltId() + XML_EXT);
 			final File file = new File(OUTPUT_PATH + getBoltId() + XML_EXT);
 			try {
 				if (!file.exists()) {
@@ -59,12 +60,9 @@ public class OutputBolt extends WorkberchOrderBolt {
 				final PrintWriter bufferWritter = new PrintWriter(new BufferedWriter(new FileWriter(file, true)));
 
 				for (final WorkberchTuple inputToWrite : tuplesToWrite) {
-					System.out.println("Valor - " + inputToWrite.getValues().get(getBoltId()));
 					bufferWritter.println("Valor - " + inputToWrite.getValues().get(getBoltId()));
 				}
 
-				System.out.println("Cerrando Archivo");
-				
 				bufferWritter.close();
 				RedisHandeler.setStateFinished(getBoltId());
 			} catch (final IOException e) {
