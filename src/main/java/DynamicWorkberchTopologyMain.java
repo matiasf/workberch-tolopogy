@@ -1,5 +1,7 @@
 package main.java;
 
+import static main.java.utils.constants.WorkberchConstants.GUID_REPLACE;
+
 import java.io.IOException;
 
 import main.java.parser.taverna.WorkberchTavernaParser;
@@ -20,9 +22,9 @@ public class DynamicWorkberchTopologyMain {
 		jedis.close();
 		
 		WorkberchConstants.GUID = args[0];
-		WorkberchConstants.WORKFLOW_PATH = args[1];
-		WorkberchConstants.INPUT_PATH = args[2];
-		WorkberchConstants.OUTPUT_PATH = args[3];
+		WorkberchConstants.WORKFLOW_PATH = StringUtils.replace(args[1], GUID_REPLACE, WorkberchConstants.GUID);
+		WorkberchConstants.INPUT_PATH = StringUtils.replace(args[2], GUID_REPLACE, WorkberchConstants.GUID);
+		WorkberchConstants.OUTPUT_PATH = StringUtils.replace(args[3], GUID_REPLACE, WorkberchConstants.GUID);
 
 		if (StringUtils.isNotEmpty(WorkberchConstants.GUID) && StringUtils.isNotEmpty(WorkberchConstants.WORKFLOW_PATH)
 				&& StringUtils.isNotEmpty(WorkberchConstants.OUTPUT_PATH) && StringUtils.isNotEmpty(WorkberchConstants.INDEX_FIELD)) {
