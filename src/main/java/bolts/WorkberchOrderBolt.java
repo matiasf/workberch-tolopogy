@@ -142,8 +142,7 @@ abstract public class WorkberchOrderBolt extends WorkberchProvenanceBolt {
 		}
 	}
 
-	private void emitAllSavedTuplesInOrder(final CartesianIndex templateIndex, final BasicOutputCollector collector, final boolean lastValues) {
-		//FIXME Something to do with lastValues
+	private void emitAllSavedTuplesInOrder(final CartesianIndex templateIndex, final BasicOutputCollector collector) {
 		try {
 			final Map<CartesianIndex, WorkberchTuple> cartesianIndex = RedisHandeler.loadCartesianIndexObjects(getBoltId());
 
@@ -158,7 +157,6 @@ abstract public class WorkberchOrderBolt extends WorkberchProvenanceBolt {
 				tuple.setPlainIndex(lastIndex);
 				executeOrdered(tuple, collector, !indexMap.containsKey(++lastIndex));
 			} while (indexMap.containsKey(lastIndex));
-			System.out.println("Workflow terminado.");
 		} catch (final RedisException e) {
 			Throwables.propagate(e);
 		}
@@ -167,6 +165,7 @@ abstract public class WorkberchOrderBolt extends WorkberchProvenanceBolt {
 	private void processReceivedTupleCommingInOrder(final WorkberchTuple input, final BasicOutputCollector collector, final boolean lastValues) {
 		final Long currentLong = (Long) input.getValues().get(INDEX_FIELD);
 		final long currentIndex = currentLong.longValue();
+		
 		if (currentIndex > lastIndex) {
 			indexMap.put(currentLong, input);
 		} else if (currentIndex == lastIndex) {
@@ -189,9 +188,6 @@ abstract public class WorkberchOrderBolt extends WorkberchProvenanceBolt {
 
 	private void processReceivedTuple(final WorkberchTuple input, final BasicOutputCollector collector, final boolean lastValues) {
 		if (ordered) {
-			if (lastValues) {
-				RedisHandeler.setStateFinished(getBoltId());
-			}
 			processReceivedTupleCommingInOrder(input, collector, lastValues);
 		} else {
 			proccessReceivedTupleCommingWithoutOrder(input);
@@ -208,8 +204,7 @@ abstract public class WorkberchOrderBolt extends WorkberchProvenanceBolt {
 		processReceivedTuple(input, collector, lastValues);
 
 		if (lastValues && !ordered) {
-			RedisHandeler.setStateFinished(getBoltId());
-			emitAllSavedTuplesInOrder((CartesianIndex) input.getValues().get(INDEX_FIELD), collector, lastValues);
+			emitAllSavedTuplesInOrder((CartesianIndex) input.getValues().get(INDEX_FIELD), collector);
 		}
 	}
 

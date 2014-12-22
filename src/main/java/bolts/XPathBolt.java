@@ -64,7 +64,6 @@ public class XPathBolt extends WorkberchTavernaProcessorBolt {
 			final List<Object> emitTuple = new ArrayList<Object>();
 
 			for (int i = 0; i < nl.getLength(); i++) {
-				System.out.println(nl.item(i).toString() + nl.item(i).getTextContent());
 				final String nodeContent = nl.item(i).getTextContent();
 				emitTuple.add(nodeContent);
 

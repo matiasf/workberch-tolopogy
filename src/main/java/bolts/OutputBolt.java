@@ -60,15 +60,16 @@ public class OutputBolt extends WorkberchOrderBolt {
 				final PrintWriter bufferWritter = new PrintWriter(new BufferedWriter(new FileWriter(file, true)));
 
 				for (final WorkberchTuple inputToWrite : tuplesToWrite) {
-					bufferWritter.println("Valor - " + inputToWrite.getValues().get(getBoltId()));
+					for (final String field : inputToWrite.getFields()) {
+						bufferWritter.println("Valor " + field + " - " + inputToWrite.getValues().get(field));
+					}
 				}
 
 				bufferWritter.close();
 				RedisHandeler.setStateFinished(getBoltId());
 			} catch (final IOException e) {
-				throw new RuntimeException(e);
+				Throwables.propagate(e);
 			}
-
 		}
 	}
 

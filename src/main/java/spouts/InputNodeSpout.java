@@ -25,8 +25,6 @@ public class InputNodeSpout extends WorkberchGenericSpout {
 	@Override
 	public void emitNextTuple(final Values values) {
 		collector.emit(values);	
-		System.out.println(values);
-		
 	}
 
 }

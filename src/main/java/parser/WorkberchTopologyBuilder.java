@@ -79,8 +79,6 @@ public class WorkberchTopologyBuilder {
 	public void addOutput(final WorkberchOutputNode node, final WorkberchLink incomingLink) {
 		final WorkberchGenericBolt bolt = node.buildBolt();
 		tBuilder.setBolt(node.getName(), bolt).shuffleGrouping(incomingLink.getSourceNode());
-		
-		//nodes.put(node.getName(), node);
 	}
 	
 	public StormTopology buildTopology() {

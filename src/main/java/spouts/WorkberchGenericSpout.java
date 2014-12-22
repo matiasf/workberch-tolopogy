@@ -57,7 +57,6 @@ abstract public class WorkberchGenericSpout extends BaseRichSpout  {
 				final Values value = iterValues.next();
 				value.add(indexSpout++);
 				if (!iterValues.hasNext()) {
-					System.out.println("Finish node " + boltId + " on spout");
 					RedisHandeler.setStateFinished(boltId);
 				}
 				emitNextTuple(value);

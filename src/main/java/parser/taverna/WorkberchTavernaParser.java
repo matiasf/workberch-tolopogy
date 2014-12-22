@@ -38,7 +38,6 @@ public class WorkberchTavernaParser {
 		
 		final WorkberchTopologyBuilder builder = new WorkberchTopologyBuilder();
 		try {
-			
 			final WorkflowBundle wfBundle = io.readBundle(t2File, APP_TYPE_TAVERNA_WORKFLOW);
 			
 			final Workflow workflow = wfBundle.getMainWorkflow();

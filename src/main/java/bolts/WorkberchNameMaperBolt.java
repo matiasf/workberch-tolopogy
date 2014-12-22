@@ -16,9 +16,7 @@ public class WorkberchNameMaperBolt extends WorkberchProvenanceBolt {
 
 	private static final long serialVersionUID = -755957444551948715L;
 	
-	
 	private final Map<String, String> mapedInputs = new HashMap<String, String>();
-	
 	
 	public WorkberchNameMaperBolt(final List<String> outputFields) {
 		super(outputFields);
@@ -28,7 +26,6 @@ public class WorkberchNameMaperBolt extends WorkberchProvenanceBolt {
 		mapedInputs.put(toName, sourceField);
 	}
 
-
 	@Override
 	public void declareOutputFields(final OutputFieldsDeclarer declarer) {
 		declarer.declare(new Fields(getOutputFields()));
@@ -36,10 +33,8 @@ public class WorkberchNameMaperBolt extends WorkberchProvenanceBolt {
 
 	@Override
 	public void executeLogic(final WorkberchTuple input, final BasicOutputCollector collector, final boolean lastValues) {
-
 		final List<Object> emitTuple = new ArrayList<Object>();
 		
-
 		for (final String output : getOutputFields()) {
 			if (!output.equals(INDEX_FIELD)) {
 				Object outputValue = null;
@@ -47,15 +42,14 @@ public class WorkberchNameMaperBolt extends WorkberchProvenanceBolt {
 
 				if (inputField != null) {
 					outputValue = input.getValues().get(inputField);
-					
 				}
 				
 				emitTuple.add(outputValue);
 			}
 		}
+		
 		emitTuple.add(input.getValues().get(INDEX_FIELD));
 		emitTuple(emitTuple, collector, lastValues);
-		
 	}
 
 }

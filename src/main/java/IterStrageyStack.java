@@ -33,9 +33,7 @@ public class IterStrageyStack {
 			final Processor pr = workflow.getProcessors().getByName("Concatenate_two_strings_3");
 			
 			final IterationStrategyStack iterStrategy = pr.getIterationStrategyStack();
-			final int i = 1;
 			for (final IterationStrategyTopNode iterNode : iterStrategy) {
-				System.out.println("Nivel " + i);
 				for (final IterationStrategyNode node : iterNode) {
 					if (node instanceof CrossProduct) {
 						final CrossProduct cp = (CrossProduct) node;
