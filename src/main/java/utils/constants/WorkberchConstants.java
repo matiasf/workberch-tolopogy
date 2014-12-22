@@ -11,12 +11,9 @@ public class WorkberchConstants {
     
     public static final String PROVENANCE_FIELD_R = "XR_";
     public static final String PROVENANCE_FIELD_E = "XE_";
-    
-    public static String GUID;
-    public static String OUTPUT_PATH;
-    public static String INPUT_PATH;
-    public static String WORKFLOW_PATH;
 
+    public static String GUID;
+    
     private WorkberchConstants() {
     };
 

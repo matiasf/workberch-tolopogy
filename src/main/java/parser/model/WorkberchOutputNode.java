@@ -6,6 +6,7 @@ import main.java.bolts.WorkberchGenericBolt;
 public class WorkberchOutputNode implements WorkberchBoltBuilder {
 
 	private String name;
+	private String outputPath;
 
 	public String getName() {
 		return name;
@@ -14,10 +15,18 @@ public class WorkberchOutputNode implements WorkberchBoltBuilder {
 	public void setName(final String name) {
 		this.name = name;
 	}
+	
+	public String getOutputPath() {
+		return outputPath;
+	}
+
+	public void setOutputPath(final String outputPath) {
+		this.outputPath = outputPath;
+	}
 
 	@Override
 	public WorkberchGenericBolt buildBolt() {
-		final OutputBolt ret = new OutputBolt(true);
+		final OutputBolt ret = new OutputBolt(true, outputPath);
 		return ret;
 	}
 

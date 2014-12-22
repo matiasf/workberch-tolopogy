@@ -1,5 +1,7 @@
 package main.java.parser.taverna;
 
+import static main.java.utils.constants.WorkberchConstants.GUID_REPLACE;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -12,7 +14,9 @@ import main.java.parser.model.WorkberchLink;
 import main.java.parser.model.WorkberchNodeInput;
 import main.java.parser.model.WorkberchOutputNode;
 import main.java.parser.model.WorkberchProcessorNode;
-import main.java.utils.constants.WorkberchConstants;
+
+import org.apache.commons.lang.StringUtils;
+
 import uk.org.taverna.scufl2.api.configurations.Configuration;
 import uk.org.taverna.scufl2.api.container.WorkflowBundle;
 import uk.org.taverna.scufl2.api.core.DataLink;
@@ -31,10 +35,47 @@ public class WorkberchTavernaParser {
 	
 	private static String APP_TYPE_TAVERNA_WORKFLOW = "application/vnd.taverna.t2flow+xml";
 	
+	private String guid;
+	private String workflowPath;
+	private String inputPath;
+	private String outputPath;
+	
+	public String getGuid() {
+		return guid;
+	}
+
+	public void setGuid(final String guid) {
+		this.guid = guid;
+	}
+
+	public String getWorkflowPath() {
+		return workflowPath;
+	}
+
+	public void setWorkflowPath(final String workflowPath) {
+		this.workflowPath = StringUtils.replace(workflowPath, GUID_REPLACE, guid);
+	}
+
+	public String getInputPath() {
+		return inputPath;
+	}
+
+	public void setInputPath(final String inputPath) {
+		this.inputPath = StringUtils.replace(inputPath, GUID_REPLACE, guid);
+	}
+
+	public String getOutputPath() {
+		return outputPath;
+	}
+
+	public void setOutputPath(final String outputPath) {
+		this.outputPath = StringUtils.replace(outputPath, GUID_REPLACE, guid);
+	}
+	
 	public StormTopology parse() {
 		
 		final WorkflowBundleIO io = new WorkflowBundleIO();
-		final File t2File = new File(WorkberchConstants.WORKFLOW_PATH);
+		final File t2File = new File(workflowPath);
 		
 		final WorkberchTopologyBuilder builder = new WorkberchTopologyBuilder();
 		try {
@@ -47,7 +88,7 @@ public class WorkberchTavernaParser {
 			final Set<InputWorkflowPort> wfInputPorts = workflow.getInputPorts();
 			for (final InputWorkflowPort inputWorkflowPort : wfInputPorts) {
 				final FileDataGenerator dg = new FileDataGenerator();
-				dg.setFilePath(WorkberchConstants.INPUT_PATH + inputWorkflowPort.getName() + ".xml");
+				dg.setFilePath(getInputPath() + inputWorkflowPort.getName() + ".xml");
 				final WorkberchNodeInput inputNode = WorkberchTavernaFactory.inputPort2NodeInput(inputWorkflowPort, dg);
 				builder.addInputNode(inputNode);
 				
@@ -76,7 +117,7 @@ public class WorkberchTavernaParser {
 			for (final OutputPort outputPort: workflow.getOutputPorts()) {
 				final WorkberchOutputNode outputNode = new WorkberchOutputNode();
 				outputNode.setName(outputPort.getName());
-				
+				outputNode.setOutputPath(outputPath);
 				
 				final Set<DataLink> allDataLinks = workflow.getDataLinks();
 				final DataLink dataLink = WorkberchSCUFL2Utils.getIncomingDataLinksFromOutputPort(outputPort, allDataLinks);
@@ -94,8 +135,5 @@ public class WorkberchTavernaParser {
 		
 		return builder.buildTopology();
 	}
-	
-	
-	
 	
 }
