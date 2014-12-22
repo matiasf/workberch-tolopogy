@@ -21,3 +21,6 @@ target/
 
 # Redis dump file
 dump.rdb
+
+# Git merge files
+*.orig
