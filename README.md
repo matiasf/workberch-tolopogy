@@ -1,4 +1,4 @@
 workberch-tolopogy
 ==================
 
-Topologia dinamica para la creacion de workflows cientificos dinamicos utiluzando componentes de Taverna Server.
+Dynamic Apache Storm topology created by a workflow file on Taverna Workbench.
