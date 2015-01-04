@@ -78,7 +78,7 @@ public class WorkberchCartesianBoltTest {
 		recivedFields.add("dummyField1");
 		recivedFields.add("dummyField2");
 
-		final WorkberchCartesianBolt cartesianBolt = spy(new WorkberchCartesianBolt(recivedFields));
+		final WorkberchCartesianBolt cartesianBolt = spy(new WorkberchCartesianBolt("mockGuid", recivedFields));
 
 		final Tuple stormTuple1 = mock(Tuple.class);
 		final Tuple stormTuple2 = mock(Tuple.class);

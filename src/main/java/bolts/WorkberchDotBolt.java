@@ -16,8 +16,8 @@ public class WorkberchDotBolt extends WorkberchProvenanceBolt {
 
 	private final Map<Long, Map<String, Object>> vectorsMap = new HashMap<Long, Map<String, Object>>();
 	
-	public WorkberchDotBolt(final List<String> outputFields) {
-		super(new ArrayList<String>(outputFields));
+	public WorkberchDotBolt(final String guid, final List<String> outputFields) {
+		super(guid, new ArrayList<String>(outputFields));
 	}
 	
 	@Override

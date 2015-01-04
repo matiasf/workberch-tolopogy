@@ -11,7 +11,8 @@ public interface WorkberchIterStgy {
 	
 	public String getBoltName();
 	
-	public BoltDeclarer addStrategy2Topology(TopologyBuilder tBuilder);
+	public BoltDeclarer addStrategy2Topology(String guid, TopologyBuilder tBuilder);
 	
-	List<String> getOutputFields();
+	public List<String> getOutputFields();
+	
 }

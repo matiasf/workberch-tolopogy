@@ -1,6 +1,5 @@
 package main.java.utils.redis;
 
-import static main.java.utils.constants.WorkberchConstants.GUID;
 import static main.java.utils.constants.WorkberchConstants.INDEX_FIELD;
 import static main.java.utils.constants.WorkberchConstants.NAME_DELIMITER;
 import static main.java.utils.constants.WorkberchConstants.PROVENANCE_FIELD_E;
@@ -121,7 +120,7 @@ public class RedisHandeler {
 		return cartesianMap;
 	}
 
-	public static void setProvenanceReceivedInfo(final String nodeId, final List<String> outputFields, final List<Object> tuple) throws RedisException {
+	public static void setProvenanceReceivedInfo(final String guid, final String nodeId, final List<String> outputFields, final List<Object> tuple) throws RedisException {
 		final Jedis jedis = new Jedis(REDIS_SERVER);
 		final Iterator<Object> iterTuple = tuple.iterator();
 		final Iterator<String> iterFields = outputFields.iterator();
@@ -140,12 +139,12 @@ public class RedisHandeler {
 		
 		final Iterator<Object> iterTupleReturn = tuple.iterator();
 		for (final String field : outputFields) {
-			jedis.hset((GUID + NAME_DELIMITER + nodeId).getBytes(), (PROVENANCE_FIELD_R + indexValue + NAME_DELIMITER + field).getBytes(), serializeValue(iterTupleReturn.next()));
+			jedis.hset((guid + NAME_DELIMITER + nodeId).getBytes(), (PROVENANCE_FIELD_R + indexValue + NAME_DELIMITER + field).getBytes(), serializeValue(iterTupleReturn.next()));
 		}
 		jedis.close();
 	}
 	
-	public static void setProvenanceEmitedInfo(final String nodeId, final List<String> outputFields, final List<Object> tuple) throws RedisException {
+	public static void setProvenanceEmitedInfo(final String guid, final String nodeId, final List<String> outputFields, final List<Object> tuple) throws RedisException {
 		final Jedis jedis = new Jedis(REDIS_SERVER);
 		final Iterator<Object> iterTuple = tuple.iterator();
 		final Iterator<String> iterFields = outputFields.iterator();
@@ -164,8 +163,20 @@ public class RedisHandeler {
 		
 		final Iterator<Object> iterTupleReturn = tuple.iterator();
 		for (final String field : outputFields) {
-			jedis.hset((GUID + NAME_DELIMITER + nodeId).getBytes(), (PROVENANCE_FIELD_E + indexValue + NAME_DELIMITER + field).getBytes(), serializeValue(iterTupleReturn.next()));
+			jedis.hset((guid + NAME_DELIMITER + nodeId).getBytes(), (PROVENANCE_FIELD_E + indexValue + NAME_DELIMITER + field).getBytes(), serializeValue(iterTupleReturn.next()));
 		}
+		jedis.close();
+	}
+	
+	public static void addOutput(final String guid, final String boltId) {
+		final Jedis jedis = new Jedis(REDIS_SERVER);
+		jedis.incr(guid + "_outputs");
+		jedis.close();
+	}
+	
+	public static void addOutputFinished(final String guid, final String boltId) {
+		final Jedis jedis = new Jedis(REDIS_SERVER);
+		jedis.incr(guid + "_outputs_finished");
 		jedis.close();
 	}
 

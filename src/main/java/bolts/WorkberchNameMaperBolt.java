@@ -18,8 +18,8 @@ public class WorkberchNameMaperBolt extends WorkberchProvenanceBolt {
 	
 	private final Map<String, String> mapedInputs = new HashMap<String, String>();
 	
-	public WorkberchNameMaperBolt(final List<String> outputFields) {
-		super(outputFields);
+	public WorkberchNameMaperBolt(final String guid, final List<String> outputFields) {
+		super(guid, outputFields);
 	}
 	
 	public void addLink(final String sourceField, final String toName) {

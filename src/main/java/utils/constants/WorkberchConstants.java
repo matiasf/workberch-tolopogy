@@ -12,8 +12,6 @@ public class WorkberchConstants {
     public static final String PROVENANCE_FIELD_R = "XR_";
     public static final String PROVENANCE_FIELD_E = "XE_";
 
-    public static String GUID;
-    
     private WorkberchConstants() {
     };
 

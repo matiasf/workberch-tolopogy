@@ -38,10 +38,6 @@ public class WorkberchTavernaParser {
 	private String workflowPath;
 	private String inputPath;
 	private String outputPath;
-	
-	public String getGuid() {
-		return guid;
-	}
 
 	public void setGuid(final String guid) {
 		this.guid = guid;
@@ -72,11 +68,11 @@ public class WorkberchTavernaParser {
 	}
 	
 	public StormTopology parse() {
-		
 		final T2FlowReader io = new T2FlowReader();
 		final File t2File = new File(workflowPath);
 		
 		final WorkberchTopologyBuilder builder = new WorkberchTopologyBuilder();
+		builder.setGuid(guid);
 		try {
 			final WorkflowBundle wfBundle = io.readBundle(t2File, APPLICATION_VND_TAVERNA_T2FLOW_XML);
 			
@@ -90,7 +86,6 @@ public class WorkberchTavernaParser {
 				dg.setFilePath(getInputPath() + inputWorkflowPort.getName() + ".xml");
 				final WorkberchNodeInput inputNode = WorkberchTavernaFactory.inputPort2NodeInput(inputWorkflowPort, dg);
 				builder.addInputNode(inputNode);
-				
 			}
 			
 			//Agrego procesors
@@ -102,7 +97,7 @@ public class WorkberchTavernaParser {
 					builder.addInputNode(inputNode);
 				}
 				else {
-					final WorkberchProcessorNode processorNode = WorkberchTavernaFactory.processeor2ProcessorNode(processor, config);
+					final WorkberchProcessorNode processorNode = WorkberchTavernaFactory.processeor2ProcessorNode(guid, processor, config);
 					final Set<DataLink> allDataLinks = workflow.getDataLinks();
 					final Set<DataLink> incomingDataLinks = WorkberchSCUFL2Utils.getIncomingDataLinksFromProcessor(processor, allDataLinks);
 					final List<WorkberchLink> incomingLinks = new ArrayList<WorkberchLink>();
@@ -120,10 +115,6 @@ public class WorkberchTavernaParser {
 				
 				final Set<DataLink> allDataLinks = workflow.getDataLinks();
 				final DataLink dataLink = WorkberchSCUFL2Utils.getIncomingDataLinksFromOutputPort(outputPort, allDataLinks);
-				/*final List<WorkberchLink> incomingLinks = new ArrayList<WorkberchLink>();
-				for (final DataLink dataLink : incomingDataLinks) {
-					incomingLinks.add(WorkberchTavernaFactory.dataLink2Link(dataLink));
-				}*/
 				builder.addOutput(outputNode, WorkberchTavernaFactory.dataLink2Link(dataLink));
 			}
 		} catch (final ReaderException e) {

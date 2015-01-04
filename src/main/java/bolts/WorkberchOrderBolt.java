@@ -194,8 +194,8 @@ abstract public class WorkberchOrderBolt extends WorkberchProvenanceBolt {
 		}
 	};
 
-	public WorkberchOrderBolt(final List<String> outputFields, final Boolean ordered) {
-		super(outputFields);
+	public WorkberchOrderBolt(final String guid, final List<String> outputFields, final Boolean ordered) {
+		super(guid, outputFields);
 		this.ordered = ordered;
 	}
 

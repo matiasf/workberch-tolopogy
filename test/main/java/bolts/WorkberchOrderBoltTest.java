@@ -53,7 +53,7 @@ public class WorkberchOrderBoltTest {
 
 	@Test
 	public void testAlreadyOrderedFlowReceived() {
-		final WorkberchOrderBolt orderedBolt = spy(new WorkberchOrderBolt(new ArrayList<String>(), true) {
+		final WorkberchOrderBolt orderedBolt = spy(new WorkberchOrderBolt("mockGuid", new ArrayList<String>(), true) {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -111,7 +111,7 @@ public class WorkberchOrderBoltTest {
 
 	@Test
 	public void testNotOrderedButPlainTreeIndexOfTwoSourcesFromCartesian() throws IOException {
-		final WorkberchOrderBolt orderedBolt = spy(new WorkberchOrderBolt(new ArrayList<String>(), false) {
+		final WorkberchOrderBolt orderedBolt = spy(new WorkberchOrderBolt("mockGuid", new ArrayList<String>(), false) {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -196,7 +196,7 @@ public class WorkberchOrderBoltTest {
 
 	@Ignore
 	public void testNotOrderedNotPlainIndexOfTwoSourcesFromCartesian() throws IOException {
-		final WorkberchOrderBolt orderedBolt = spy(new WorkberchOrderBolt(new ArrayList<String>(), false) {
+		final WorkberchOrderBolt orderedBolt = spy(new WorkberchOrderBolt("mockGuid", new ArrayList<String>(), false) {
 			private static final long serialVersionUID = 1L;
 
 			@Override

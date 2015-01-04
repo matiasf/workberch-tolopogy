@@ -26,9 +26,8 @@ public class OutputBolt extends WorkberchOrderBolt {
 	private final List<WorkberchTuple> tuplesToWrite = new ArrayList<WorkberchTuple>();
 	private final String outputPath;
 
-	public OutputBolt(final Boolean ordered, final String outputPath) {
-		super(new ArrayList<String>(), ordered);
-
+	public OutputBolt(final String guid, final Boolean ordered, final String outputPath) {
+		super(guid, new ArrayList<String>(), ordered);
 		this.outputPath = outputPath;
 		try {
 			FileUtils.deleteDirectory(new File(this.outputPath));
@@ -36,6 +35,7 @@ public class OutputBolt extends WorkberchOrderBolt {
 		} catch (final IOException e) {
 			Throwables.propagate(e);
 		}
+		RedisHandeler.addOutput(guid, getBoltId());
 	}
 
 	@Override
@@ -58,6 +58,7 @@ public class OutputBolt extends WorkberchOrderBolt {
 
 				bufferWritter.close();
 				RedisHandeler.setStateFinished(getBoltId());
+				RedisHandeler.addOutputFinished(getGuid(), getBoltId());
 			} catch (final IOException e) {
 				Throwables.propagate(e);
 			}

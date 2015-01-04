@@ -87,8 +87,8 @@ public class WorkberchCartesianBolt extends WorkberchProvenanceBolt {
 		}
 	}
 
-	public WorkberchCartesianBolt(final List<String> outputFields) {
-		super(outputFields);
+	public WorkberchCartesianBolt(final String guid, final List<String> outputFields) {
+		super(guid, outputFields);
 		for (final String inputField : outputFields) {
 			if (!inputField.equals(INDEX_FIELD)) {
 				executedInputs.put(inputField, new ArrayList<ExecutedValue>());

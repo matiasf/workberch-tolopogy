@@ -53,16 +53,16 @@ public class WorkberchIterStgyNode implements WorkberchIterStgy {
 	}
 
 	@Override
-	public BoltDeclarer addStrategy2Topology(final TopologyBuilder tBuilder) {
+	public BoltDeclarer addStrategy2Topology(final String guid, final TopologyBuilder tBuilder) {
 
 		final List<String> strategiesNames = new ArrayList<String>(); 
 		
 		for (final WorkberchIterStgy workberchIterStgy : childStrategies) {
 			strategiesNames.add(workberchIterStgy.getBoltName());
-			workberchIterStgy.addStrategy2Topology(tBuilder);
+			workberchIterStgy.addStrategy2Topology(guid, tBuilder);
 		}
 		
-		final WorkberchDotBolt dotBolt = new WorkberchDotBolt(getOutputFields());
+		final WorkberchDotBolt dotBolt = new WorkberchDotBolt(guid, getOutputFields());
 		
 		final String dotBoltName = getBoltName();
 		

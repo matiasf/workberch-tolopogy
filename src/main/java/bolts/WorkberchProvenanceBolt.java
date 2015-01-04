@@ -14,19 +14,26 @@ import com.google.common.base.Throwables;
 public abstract class WorkberchProvenanceBolt extends WorkberchGenericBolt {
 	
 	private static final long serialVersionUID = 1L;
+	
+	private final String guid;
 
 	@Override
 	protected void emitTuple(final List<Object> tuple, final BasicOutputCollector collector, final boolean lastValue) {
 		try {
-			RedisHandeler.setProvenanceEmitedInfo(getBoltId(), getOutputFields(), tuple);
+			RedisHandeler.setProvenanceEmitedInfo(guid, getBoltId(), getOutputFields(), tuple);
 			super.emitTuple(tuple, collector, lastValue);
 		} catch (final RedisException e) {
 			Throwables.propagate(e);
 		}	
 	}
 	
-	public WorkberchProvenanceBolt(final List<String> outputFields) {
+	protected String getGuid() {
+		return guid;
+	}
+	
+	public WorkberchProvenanceBolt(final String guid, final List<String> outputFields) {
 		super(outputFields);
+		this.guid = guid;
 	}
 	
 	@Override
@@ -40,7 +47,7 @@ public abstract class WorkberchProvenanceBolt extends WorkberchGenericBolt {
 		}
 		
 		try {
-			RedisHandeler.setProvenanceReceivedInfo(getBoltId(), fields, values);
+			RedisHandeler.setProvenanceReceivedInfo(guid, getBoltId(), fields, values);
 		} catch (final RedisException e) {
 			Throwables.propagate(e);
 		}

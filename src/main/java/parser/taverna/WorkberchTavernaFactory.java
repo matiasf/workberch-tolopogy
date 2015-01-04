@@ -22,7 +22,7 @@ import uk.org.taverna.scufl2.api.port.SenderPort;
 
 public class WorkberchTavernaFactory {
 
-	static public WorkberchNodeInput inputPort2NodeInput(final InputWorkflowPort inputWorkflowPort, final DataGenerator dataGenerator ) {
+	public static WorkberchNodeInput inputPort2NodeInput(final InputWorkflowPort inputWorkflowPort, final DataGenerator dataGenerator ) {
 		final List<String> output = new ArrayList<String>();
 		output.add(inputWorkflowPort.getName() + WorkberchConstants.NAME_DELIMITER + inputWorkflowPort.getName());
 		
@@ -31,8 +31,7 @@ public class WorkberchTavernaFactory {
 		return ret;
 	}
 	
-	static public WorkberchNodeInput processor2NodeInput(final Processor processor, final Configuration config) {
-
+	public static WorkberchNodeInput processor2NodeInput(final Processor processor, final Configuration config) {
 		
 		final String processorType = config.getType().toString();
 		DataGenerator dg = null;
@@ -56,9 +55,7 @@ public class WorkberchTavernaFactory {
 		
 	}
 
-	static public WorkberchProcessorNode processeor2ProcessorNode(final Processor processor, final Configuration config) {
-		
-		
+	public static WorkberchProcessorNode processeor2ProcessorNode(final String guid, final Processor processor, final Configuration config) {
 		config.getType().toString();
 		
 		final List<String> inputFields = new ArrayList<String>();
@@ -80,7 +77,7 @@ public class WorkberchTavernaFactory {
 		return ret;
 	}
 	
-	static public WorkberchLink dataLink2Link(final DataLink dataLink) {
+	public static WorkberchLink dataLink2Link(final DataLink dataLink) {
 		final WorkberchLink link = new WorkberchLink();
 		
 		link.setSourceNode(getSourceNameFromDataLink(dataLink));
@@ -95,7 +92,7 @@ public class WorkberchTavernaFactory {
 		return link;
 	}
 	
-	static private int getSourceDepth(final DataLink dataLink) {
+	private static int getSourceDepth(final DataLink dataLink) {
 		final SenderPort senderPort = dataLink.getReceivesFrom();
 		int ret = 0;
 		
@@ -109,7 +106,7 @@ public class WorkberchTavernaFactory {
 		return ret;
 	}
 	
-	static private int getDestDepth(final DataLink dataLink) {
+	private static int getDestDepth(final DataLink dataLink) {
 		final ReceiverPort receiverPort = dataLink.getSendsTo();
 		int ret = 0;
 		
@@ -121,7 +118,7 @@ public class WorkberchTavernaFactory {
 	}
 	
 	
-	static private String getDestNameFromDataLink(final DataLink dataLink) {
+	private static String getDestNameFromDataLink(final DataLink dataLink) {
 		
 		final ReceiverPort receiverPort = dataLink.getSendsTo();
 		String ret;

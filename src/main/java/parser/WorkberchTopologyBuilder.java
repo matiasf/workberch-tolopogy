@@ -20,12 +20,11 @@ import backtype.storm.topology.TopologyBuilder;
 public class WorkberchTopologyBuilder {
 
 	private final TopologyBuilder tBuilder = new TopologyBuilder();
+	private final Map<String, WorkberchNode> nodes = new HashMap<String, WorkberchNode>();
 	
 	private String outputPath;
-	
 	private String inputPath;
-	
-	private final Map<String, WorkberchNode> nodes = new HashMap<String, WorkberchNode>();
+	private String guid;
 	
 	public String getOutputPath() {
 		return outputPath;
@@ -49,6 +48,10 @@ public class WorkberchTopologyBuilder {
 		tBuilder.setSpout(inputNode.getName(), spout);
 		nodes.put(inputNode.getName(), inputNode);
 	}
+
+	public void setGuid(final String guid) {
+		this.guid = guid;
+	}
 	
 	public void addNode(final WorkberchProcessorNode node, final List<WorkberchLink> incomingLinks) {
 	
@@ -67,17 +70,17 @@ public class WorkberchTopologyBuilder {
 		strat.setProcessorName(node.getName());
 		strat.setCross(false);
 		
-		strat.addStrategy2Topology(tBuilder);
+		strat.addStrategy2Topology(guid, tBuilder);
 		
 		
-		final WorkberchGenericBolt bolt = node.buildBolt();
+		final WorkberchGenericBolt bolt = node.buildBolt(guid);
 		tBuilder.setBolt(node.getName(), bolt).shuffleGrouping(strat.getBoltName());
 		
 		nodes.put(node.getName(), node);
 	}
 	
 	public void addOutput(final WorkberchOutputNode node, final WorkberchLink incomingLink) {
-		final WorkberchGenericBolt bolt = node.buildBolt();
+		final WorkberchGenericBolt bolt = node.buildBolt(guid);
 		tBuilder.setBolt(node.getName(), bolt).shuffleGrouping(incomingLink.getSourceNode());
 	}
 	

@@ -19,8 +19,8 @@ public class WorkberchNameMaperOrderedBolt extends WorkberchOrderBolt {
 	private final Map<String, String> mapedInputs = new HashMap<String, String>();
 	private  Long newIndex = (long) 0;
 	
-	public WorkberchNameMaperOrderedBolt(final List<String> outputFields) {
-		super(outputFields, Boolean.TRUE);
+	public WorkberchNameMaperOrderedBolt(final String guid, final List<String> outputFields) {
+		super(guid, outputFields, Boolean.TRUE);
 	}
 	
 	public void addLink(final String sourceField, final String toName) {

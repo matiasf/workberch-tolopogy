@@ -33,19 +33,17 @@ public class XPathBolt extends WorkberchTavernaProcessorBolt {
 
 	String xPathExpression;
 
-	public XPathBolt(final List<String> outputFields, final String xPathExpression) {
-		super(outputFields);
+	public XPathBolt(final String guid, final List<String> outputFields, final String xPathExpression) {
+		super(guid, outputFields);
 		this.xPathExpression = xPathExpression;
 	}
 
-	public XPathBolt(final List<String> inputFields, final List<String> outputFields, final JsonNode node) {
-		super(inputFields, outputFields, node);
-
+	public XPathBolt(final String guid, final List<String> inputFields, final List<String> outputFields, final JsonNode node) {
+		super(guid, inputFields, outputFields, node);
 	}
 
 	@Override
 	public void executeLogic(final WorkberchTuple tuple, final BasicOutputCollector collector, final boolean lastValue) {
-
 		try {
 
 			final XPathFactory xPathfactory = XPathFactory.newInstance();
@@ -94,7 +92,6 @@ public class XPathBolt extends WorkberchTavernaProcessorBolt {
 	@Override
 	protected void initFromJsonNode(final JsonNode jsonNode) {
 		xPathExpression = jsonNode.get("xpathExpression").asText();
-
 	}
 
 }

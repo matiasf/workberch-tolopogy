@@ -14,12 +14,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 public class WorkberchTavernaNode extends WorkberchProcessorNode {
 
+	private TavernaNodeType nodeType;
+	private JsonNode config;
+
 	public WorkberchTavernaNode(final String name, final List<String> outputs, final List<String> inputs) {
 		super(name, outputs, inputs);
 	}
-
-	private TavernaNodeType nodeType;
-	private JsonNode config;
 	
 	public TavernaNodeType getNodeType() {
 		return nodeType;
@@ -38,27 +38,24 @@ public class WorkberchTavernaNode extends WorkberchProcessorNode {
 	}
 
 	@Override
-	public WorkberchGenericBolt buildBolt() {
+	public WorkberchGenericBolt buildBolt(final String guid) {
 		
 		WorkberchGenericBolt ret = null;
     	switch (nodeType) {
     		case XPATH:
-    			ret = new XPathBolt(getInputs(), getOutputs(), config);
+    			ret = new XPathBolt(guid, getInputs(), getOutputs(), config);
     			break;
     		case REST:
-    			ret = new RestBolt(getInputs(), getOutputs(), config);
+    			ret = new RestBolt(guid, getInputs(), getOutputs(), config);
     			break;
     		case BEANSHELL:
-    			ret = new BeanshellBolt(getInputs(), getOutputs(), config);
+    			ret = new BeanshellBolt(guid, getInputs(), getOutputs(), config);
     			break;
     		default:
-    			
     			throw new WrongMethodTypeException("No se ha implementado el tipo de processor de taverna: " + nodeType);
     	}
     	
     	return ret;
 	}
-	
-	
 
 }
