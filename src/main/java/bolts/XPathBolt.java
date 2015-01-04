@@ -29,6 +29,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 public class XPathBolt extends WorkberchTavernaProcessorBolt {
 
+	private static final long serialVersionUID = 1L;
+
 	String xPathExpression;
 
 	public XPathBolt(final List<String> outputFields, final String xPathExpression) {

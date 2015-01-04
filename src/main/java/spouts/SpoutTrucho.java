@@ -23,8 +23,9 @@ public class SpoutTrucho extends BaseRichSpout{
     	spoutFields = fields;
     }
 
-    @Override
-    public void open(final Map conf, final TopologyContext context, final SpoutOutputCollector collector) {
+	@Override
+	@SuppressWarnings("rawtypes")
+	public void open(final Map conf, final TopologyContext context, final SpoutOutputCollector collector) {
 		this.collector = collector;
     }
 

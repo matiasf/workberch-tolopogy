@@ -48,6 +48,7 @@ public class WorkberchNameMaperOrderedBolt extends WorkberchOrderBolt {
 			}
 		}
 		
+		@SuppressWarnings("unchecked")
 		final Collection<Object> values = (Collection<Object>) outputValue;
 		
 		for (final Object object : values) {

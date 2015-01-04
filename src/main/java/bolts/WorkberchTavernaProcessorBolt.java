@@ -6,6 +6,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 public abstract class WorkberchTavernaProcessorBolt extends WorkberchProvenanceBolt {
 	
+	private static final long serialVersionUID = 1L;
+
 	public WorkberchTavernaProcessorBolt(final List<String> outputFields) {
 		super(outputFields);
 	}

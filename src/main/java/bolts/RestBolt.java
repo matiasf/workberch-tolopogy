@@ -20,6 +20,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 public class RestBolt extends WorkberchTavernaProcessorBolt {
 
+	private static final long serialVersionUID = 1L;
+
 	String address;
 	String requestMethod;
 	String accetpHeader;
@@ -78,7 +80,7 @@ public class RestBolt extends WorkberchTavernaProcessorBolt {
 			final String outputValue = sb.toString();
 
 			final ArrayList<Object> values = new ArrayList<Object>();
-			
+
 			values.add(outputValue);
 			values.add(tuple.getValues().get(INDEX_FIELD));
 			emitTuple(values, collector, lastValue);
