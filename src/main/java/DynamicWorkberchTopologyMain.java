@@ -10,11 +10,13 @@ import org.apache.commons.lang.StringUtils;
 import redis.clients.jedis.Jedis;
 import uk.org.taverna.scufl2.api.io.ReaderException;
 import backtype.storm.Config;
-import backtype.storm.LocalCluster;
+import backtype.storm.StormSubmitter;
+import backtype.storm.generated.AlreadyAliveException;
+import backtype.storm.generated.InvalidTopologyException;
 
 public class DynamicWorkberchTopologyMain {
 
-	public static void main(final String[] args) throws ReaderException, IOException {
+	public static void main(final String[] args) throws ReaderException, IOException, AlreadyAliveException, InvalidTopologyException {
 		final Jedis jedis = new Jedis("localhost");
 		jedis.flushAll();
 		jedis.close();
@@ -31,13 +33,20 @@ public class DynamicWorkberchTopologyMain {
 			parser.setWorkflowPath(workflowPath);
 			parser.setInputPath(inputPath);
 			parser.setOutputPath(outputPath);
-
+			
 			final Config conf = new Config();
-			conf.setDebug(true);
-			conf.setMaxTaskParallelism(1);
+			conf.setNumWorkers(20);
+			conf.setMaxSpoutPending(5000);
+			
+			StormSubmitter.submitTopology(WorkberchConstants.GUID, conf, parser.parse());
 
-			final LocalCluster cluster = new LocalCluster();
-			cluster.submitTopology("workberch", conf, parser.parse());
+			//Local Setup
+//			final Config conf = new Config();
+//			conf.setDebug(true);
+//			conf.setMaxTaskParallelism(1);
+//
+//			final LocalCluster cluster = new LocalCluster();
+//			cluster.submitTopology("workberch", conf, parser.parse());
 		} else {
 			throw new RuntimeException("Workflow can't be initialized");
 		}

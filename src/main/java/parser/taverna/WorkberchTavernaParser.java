@@ -1,6 +1,7 @@
 package main.java.parser.taverna;
 
 import static main.java.utils.constants.WorkberchConstants.GUID_REPLACE;
+import static uk.org.taverna.scufl2.translator.t2flow.T2FlowReader.APPLICATION_VND_TAVERNA_T2FLOW_XML;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,17 +24,15 @@ import uk.org.taverna.scufl2.api.core.DataLink;
 import uk.org.taverna.scufl2.api.core.Processor;
 import uk.org.taverna.scufl2.api.core.Workflow;
 import uk.org.taverna.scufl2.api.io.ReaderException;
-import uk.org.taverna.scufl2.api.io.WorkflowBundleIO;
 import uk.org.taverna.scufl2.api.port.InputWorkflowPort;
 import uk.org.taverna.scufl2.api.port.OutputPort;
 import uk.org.taverna.scufl2.api.profiles.Profile;
+import uk.org.taverna.scufl2.translator.t2flow.T2FlowReader;
 import backtype.storm.generated.StormTopology;
 
 import com.google.common.base.Throwables;
 
 public class WorkberchTavernaParser {
-	
-	private static String APP_TYPE_TAVERNA_WORKFLOW = "application/vnd.taverna.t2flow+xml";
 	
 	private String guid;
 	private String workflowPath;
@@ -74,12 +73,12 @@ public class WorkberchTavernaParser {
 	
 	public StormTopology parse() {
 		
-		final WorkflowBundleIO io = new WorkflowBundleIO();
+		final T2FlowReader io = new T2FlowReader();
 		final File t2File = new File(workflowPath);
 		
 		final WorkberchTopologyBuilder builder = new WorkberchTopologyBuilder();
 		try {
-			final WorkflowBundle wfBundle = io.readBundle(t2File, APP_TYPE_TAVERNA_WORKFLOW);
+			final WorkflowBundle wfBundle = io.readBundle(t2File, APPLICATION_VND_TAVERNA_T2FLOW_XML);
 			
 			final Workflow workflow = wfBundle.getMainWorkflow();
 			final Profile profile = wfBundle.getMainProfile();

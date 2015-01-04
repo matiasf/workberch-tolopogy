@@ -25,19 +25,20 @@
 
 			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
+				<version>2.4</version>
 				<configuration>
+					<descriptorRefs>
+						<descriptorRef>jar-with-dependencies</descriptorRef>
+					</descriptorRefs>
 					<archive>
 						<manifest>
 							<mainClass>main.java.DynamicWorkberchTopologyMain</mainClass>
 						</manifest>
 					</archive>
-					<descriptorRefs>
-						<descriptorRef>jar-with-dependencies</descriptorRef>
-					</descriptorRefs>
 				</configuration>
 				<executions>
 					<execution>
-						<id>make-assembly</id>
+						<id>jar-with-dependencies</id>
 						<phase>package</phase>
 						<goals>
 							<goal>single</goal>
@@ -113,6 +114,7 @@
 			<groupId>storm</groupId>
 			<artifactId>storm</artifactId>
 			<version>0.9.0.1</version>
+			<scope>provided</scope>
 		</dependency>
 
 		<!-- Scufl Dependencies -->
