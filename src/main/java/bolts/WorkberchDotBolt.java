@@ -21,7 +21,7 @@ public class WorkberchDotBolt extends WorkberchProvenanceBolt {
 	}
 	
 	@Override
-	public void executeLogic(final WorkberchTuple input, final BasicOutputCollector collector, final boolean lastValue) {
+	public void executeLogic(final WorkberchTuple input, final BasicOutputCollector collector, final boolean lastValue, final String uuid) {
 		final Long index = Long.valueOf(input.getValues().get(INDEX_FIELD).toString());
 		final Map<String, Object> value = vectorsMap.containsKey(index) ? vectorsMap.get(index) : new HashMap<String, Object>();
 
@@ -42,7 +42,7 @@ public class WorkberchDotBolt extends WorkberchProvenanceBolt {
 			for (final String field : getOutputFields()) {
 				tupleToEmit.add(value.get(field));
 			}
-			emitTuple(tupleToEmit, collector, lastValue);
+			emitTuple(tupleToEmit, collector, lastValue, uuid);
 			vectorsMap.remove(index);
 		} else {
 			vectorsMap.put(index, value);

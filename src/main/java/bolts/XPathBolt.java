@@ -43,7 +43,7 @@ public class XPathBolt extends WorkberchTavernaProcessorBolt {
 	}
 
 	@Override
-	public void executeLogic(final WorkberchTuple tuple, final BasicOutputCollector collector, final boolean lastValue) {
+	public void executeLogic(final WorkberchTuple tuple, final BasicOutputCollector collector, final boolean lastValue, final String uuid) {
 		try {
 
 			final XPathFactory xPathfactory = XPathFactory.newInstance();
@@ -71,7 +71,7 @@ public class XPathBolt extends WorkberchTavernaProcessorBolt {
 			final List<Object> salida = new ArrayList<Object>();
 			salida.add(emitTuple);
 			salida.add(tuple.getValues().get(INDEX_FIELD));
-			emitTuple(salida, collector, lastValue);
+			emitTuple(salida, collector, lastValue, uuid);
 
 		} catch (final XPathExpressionException e) {
 			// TODO Auto-generated catch block

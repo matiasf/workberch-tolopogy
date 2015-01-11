@@ -41,7 +41,7 @@ public class RestBolt extends WorkberchTavernaProcessorBolt {
 	}
 
 	@Override
-	public void executeLogic(final WorkberchTuple tuple, final BasicOutputCollector collector, final boolean lastValue) {
+	public void executeLogic(final WorkberchTuple tuple, final BasicOutputCollector collector, final boolean lastValue, final String uuid) {
 
 		String localAddress = address;
 
@@ -81,7 +81,7 @@ public class RestBolt extends WorkberchTavernaProcessorBolt {
 
 			values.add(outputValue);
 			values.add(tuple.getValues().get(INDEX_FIELD));
-			emitTuple(values, collector, lastValue);
+			emitTuple(values, collector, lastValue, uuid);
 
 		} catch (final MalformedURLException e) {
 			// TODO Auto-generated catch block

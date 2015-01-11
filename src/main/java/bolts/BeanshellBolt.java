@@ -33,7 +33,7 @@ public class BeanshellBolt extends WorkberchTavernaProcessorBolt {
 	}
 
 	@Override
-	public void executeLogic(final WorkberchTuple tuple, final BasicOutputCollector collector, final boolean lastValues) {
+	public void executeLogic(final WorkberchTuple tuple, final BasicOutputCollector collector, final boolean lastValues, final String uuid) {
 
 		for (final String param : tuple.getValues().keySet()) {
 			if (!param.equals(WorkberchConstants.INDEX_FIELD)) {
@@ -51,7 +51,7 @@ public class BeanshellBolt extends WorkberchTavernaProcessorBolt {
 		}
 
 		values.add(tuple.getValues().get(INDEX_FIELD));
-		emitTuple(values, collector, lastValues);
+		emitTuple(values, collector, lastValues, uuid);
 
 	}
 

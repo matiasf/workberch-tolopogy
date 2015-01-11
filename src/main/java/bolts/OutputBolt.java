@@ -39,7 +39,7 @@ public class OutputBolt extends WorkberchOrderBolt {
 	}
 
 	@Override
-	public void executeOrdered(final WorkberchTuple input, final BasicOutputCollector collector, final boolean lastValues) {
+	public void executeOrdered(final WorkberchTuple input, final BasicOutputCollector collector, final boolean lastValues, final String uuid) {
 		tuplesToWrite.add(input);
 		if (lastValues) {
 			final File file = new File(outputPath + getBoltId() + XML_EXT);

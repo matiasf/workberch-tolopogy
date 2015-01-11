@@ -43,7 +43,7 @@ public class CartesianNode implements CartesianIndex {
 		int byMult = 1;
 		int hashCode = 0;
         for (final CartesianIndex node : childNodes) {
-        	hashCode += node.hashCode()*byMult;
+        	hashCode += node.hashCode() * byMult;
         	byMult *= 10;
 		}
         return hashCode;
@@ -62,6 +62,11 @@ public class CartesianNode implements CartesianIndex {
 			return allEquals && !itOther.hasNext() && !itCurrent.hasNext();
 		}
 		return false;
+	}
+	
+	@Override
+	public String toString() {
+		return String.valueOf(hashCode());
 	}
 
 }

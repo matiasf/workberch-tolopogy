@@ -127,7 +127,7 @@ public class WorkberchCartesianBoltTest {
 
 		cartesianBolt.execute(stormTuple1, mock(BasicOutputCollector.class));
 
-		verify(cartesianBolt, never()).emitTuple(anyListOf(Object.class), any(BasicOutputCollector.class), anyBoolean());
+		verify(cartesianBolt, never()).emitTuple(anyListOf(Object.class), any(BasicOutputCollector.class), anyBoolean(), anyString());
 		
 		verifyStatic();
         RedisHandeler.increseRecivedState(anyString());
@@ -139,7 +139,7 @@ public class WorkberchCartesianBoltTest {
 		verifyStatic(times(2));
         RedisHandeler.increseRecivedState(anyString());
 
-		verify(cartesianBolt).emitTuple(argThat(new IndexMatcher(index)), any(BasicOutputCollector.class), anyBoolean());
+		verify(cartesianBolt).emitTuple(argThat(new IndexMatcher(index)), any(BasicOutputCollector.class), anyBoolean(), anyString());
 	}
 
 }

@@ -32,7 +32,7 @@ public class WorkberchNameMaperBolt extends WorkberchProvenanceBolt {
 	}
 
 	@Override
-	public void executeLogic(final WorkberchTuple input, final BasicOutputCollector collector, final boolean lastValues) {
+	public void executeLogic(final WorkberchTuple input, final BasicOutputCollector collector, final boolean lastValues, final String uuid) {
 		final List<Object> emitTuple = new ArrayList<Object>();
 		
 		for (final String output : getOutputFields()) {
@@ -49,7 +49,7 @@ public class WorkberchNameMaperBolt extends WorkberchProvenanceBolt {
 		}
 		
 		emitTuple.add(input.getValues().get(INDEX_FIELD));
-		emitTuple(emitTuple, collector, lastValues);
+		emitTuple(emitTuple, collector, lastValues, uuid);
 	}
 
 }

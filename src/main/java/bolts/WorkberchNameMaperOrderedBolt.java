@@ -17,26 +17,23 @@ public class WorkberchNameMaperOrderedBolt extends WorkberchOrderBolt {
 
 	private static final long serialVersionUID = -755957444551948715L;
 	private final Map<String, String> mapedInputs = new HashMap<String, String>();
-	private  Long newIndex = (long) 0;
-	
+	private Long newIndex = (long) 0;
+
 	public WorkberchNameMaperOrderedBolt(final String guid, final List<String> outputFields) {
 		super(guid, outputFields, Boolean.TRUE);
 	}
-	
+
 	public void addLink(final String sourceField, final String toName) {
 		mapedInputs.put(toName, sourceField);
 	}
-
 
 	@Override
 	public void declareOutputFields(final OutputFieldsDeclarer declarer) {
 		declarer.declare(new Fields(getOutputFields()));
 	}
-	
+
 	@Override
-	public void executeOrdered(final WorkberchTuple input, final BasicOutputCollector collector, final boolean lastValue) {
-		
-		
+	public void executeOrdered(final WorkberchTuple input, final BasicOutputCollector collector, final boolean lastValue, final String uuid) {
 		Object outputValue = null;
 		for (final String output : getOutputFields()) {
 			if (!output.equals(INDEX_FIELD)) {
@@ -47,21 +44,16 @@ public class WorkberchNameMaperOrderedBolt extends WorkberchOrderBolt {
 				}
 			}
 		}
-		
+
 		@SuppressWarnings("unchecked")
 		final Collection<Object> values = (Collection<Object>) outputValue;
-		
+
 		for (final Object object : values) {
 			final List<Object> emitTuple = new ArrayList<Object>();
 			emitTuple.add(object);
 			emitTuple.add(newIndex++);
-			emitTuple(emitTuple, collector, lastValue);
+			emitTuple(emitTuple, collector, lastValue, uuid);
 		}
-		
-		
-		
-		
-		
 	}
 
 }
