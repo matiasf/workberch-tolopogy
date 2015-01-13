@@ -5,13 +5,13 @@ import static uk.org.taverna.scufl2.translator.t2flow.T2FlowReader.APPLICATION_V
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 import main.java.parser.WorkberchTopologyBuilder;
 import main.java.parser.model.FileDataGenerator;
-import main.java.parser.model.WorkberchLink;
+import main.java.parser.model.WorkberchIterStgy;
 import main.java.parser.model.WorkberchNodeInput;
 import main.java.parser.model.WorkberchOutputNode;
 import main.java.parser.model.WorkberchProcessorNode;
@@ -103,13 +103,18 @@ public class WorkberchTavernaParser {
 				}
 				else {
 					final WorkberchProcessorNode processorNode = WorkberchTavernaFactory.processeor2ProcessorNode(processor, config);
+					
 					final Set<DataLink> allDataLinks = workflow.getDataLinks();
 					final Set<DataLink> incomingDataLinks = WorkberchSCUFL2Utils.getIncomingDataLinksFromProcessor(processor, allDataLinks);
-					final List<WorkberchLink> incomingLinks = new ArrayList<WorkberchLink>();
+					
+					final Map<String , DataLink> linksMap = new HashMap<String, DataLink>();
+					
 					for (final DataLink dataLink : incomingDataLinks) {
-						incomingLinks.add(WorkberchTavernaFactory.dataLink2Link(dataLink));
+						linksMap.put(dataLink.getSendsTo().getName(), dataLink);
 					}
-					builder.addNode(processorNode, incomingLinks);					
+					
+					final WorkberchIterStgy strategy = WorkberchTavernaFactory.iterationStrategyStack2WorkberchIterStgyNode(processor.getIterationStrategyStack(), linksMap);
+					builder.addNode(processorNode, strategy);					
 				}
 			}
 			

@@ -1,14 +1,10 @@
 package main.java.parser;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import main.java.bolts.WorkberchGenericBolt;
 import main.java.parser.model.WorkberchIterStgy;
-import main.java.parser.model.WorkberchIterStgyLink;
-import main.java.parser.model.WorkberchIterStgyNode;
 import main.java.parser.model.WorkberchLink;
 import main.java.parser.model.WorkberchNode;
 import main.java.parser.model.WorkberchOutputNode;
@@ -50,28 +46,11 @@ public class WorkberchTopologyBuilder {
 		nodes.put(inputNode.getName(), inputNode);
 	}
 	
-	public void addNode(final WorkberchProcessorNode node, final List<WorkberchLink> incomingLinks) {
+	public void addNode(final WorkberchProcessorNode node, final WorkberchIterStgy strategy) {
 	
-		final List<WorkberchIterStgy> links = new ArrayList<WorkberchIterStgy>();
-		for (final WorkberchLink incomingLink : incomingLinks) {
-			
-			final WorkberchIterStgyLink link = new WorkberchIterStgyLink();
-			link.setLink(incomingLink);
-			link.setProcessorName(node.getName());
-			links.add(link);
-		
-		}
-		
-		final WorkberchIterStgyNode strat = new WorkberchIterStgyNode();
-		strat.setChildStrategies(links);
-		strat.setProcessorName(node.getName());
-		strat.setCross(false);
-		
-		strat.addStrategy2Topology(tBuilder);
-		
-		
+		strategy.addStrategy2Topology(tBuilder);
 		final WorkberchGenericBolt bolt = node.buildBolt();
-		tBuilder.setBolt(node.getName(), bolt).shuffleGrouping(strat.getBoltName());
+		tBuilder.setBolt(node.getName(), bolt).shuffleGrouping(strategy.getBoltName());
 		
 		nodes.put(node.getName(), node);
 	}

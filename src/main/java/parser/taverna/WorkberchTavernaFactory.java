@@ -3,9 +3,13 @@ package main.java.parser.taverna;
 import java.lang.invoke.WrongMethodTypeException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import main.java.parser.model.DataGenerator;
 import main.java.parser.model.TextDataGenerator;
+import main.java.parser.model.WorkberchIterStgy;
+import main.java.parser.model.WorkberchIterStgyLink;
+import main.java.parser.model.WorkberchIterStgyNode;
 import main.java.parser.model.WorkberchLink;
 import main.java.parser.model.WorkberchNodeInput;
 import main.java.parser.model.WorkberchProcessorNode;
@@ -14,6 +18,11 @@ import main.java.utils.constants.WorkberchConstants;
 import uk.org.taverna.scufl2.api.configurations.Configuration;
 import uk.org.taverna.scufl2.api.core.DataLink;
 import uk.org.taverna.scufl2.api.core.Processor;
+import uk.org.taverna.scufl2.api.iterationstrategy.CrossProduct;
+import uk.org.taverna.scufl2.api.iterationstrategy.IterationStrategyNode;
+import uk.org.taverna.scufl2.api.iterationstrategy.IterationStrategyStack;
+import uk.org.taverna.scufl2.api.iterationstrategy.IterationStrategyTopNode;
+import uk.org.taverna.scufl2.api.iterationstrategy.PortNode;
 import uk.org.taverna.scufl2.api.port.InputProcessorPort;
 import uk.org.taverna.scufl2.api.port.InputWorkflowPort;
 import uk.org.taverna.scufl2.api.port.OutputProcessorPort;
@@ -93,6 +102,51 @@ public class WorkberchTavernaFactory {
 		link.setDestDepth(getDestDepth(dataLink));
 		
 		return link;
+	}
+	
+	static public WorkberchIterStgy iterationStrategyStack2WorkberchIterStgyNode(final IterationStrategyStack iterStack, final Map<String, DataLink> incomingDataLinks) {
+		final String processorName = iterStack.getParent().getName();
+		
+		final IterationStrategyTopNode topNode = iterStack.get(0);
+		
+		final WorkberchIterStgy ret = iterationStrategyStack2WorkberchIterStgyNode(processorName, topNode, incomingDataLinks);
+		return ret;
+	}
+	
+	static private WorkberchIterStgy iterationStrategyStack2WorkberchIterStgyNode(final String processorName, final IterationStrategyNode stgyNode, final Map<String, DataLink> incomingDataLinks) {
+		WorkberchIterStgy ret = null;
+		
+		if (stgyNode instanceof PortNode) {
+			final PortNode portNode = (PortNode) stgyNode;
+			final WorkberchIterStgyLink iterStgyLink = new WorkberchIterStgyLink();
+			
+			final DataLink dl = incomingDataLinks.get(portNode.getInputProcessorPort().getName());
+			iterStgyLink.setLink(WorkberchTavernaFactory.dataLink2Link(dl));
+			ret = iterStgyLink;
+		}
+		else {
+			final WorkberchIterStgyNode iterStgyNode = new WorkberchIterStgyNode();
+			final IterationStrategyTopNode topNode = (IterationStrategyTopNode) stgyNode;
+			
+			final List<WorkberchIterStgy> childStrategies = new ArrayList<WorkberchIterStgy>();
+			
+			for (final IterationStrategyNode iterationStrategyNode : topNode) {
+				
+				final WorkberchIterStgy childStgy = WorkberchTavernaFactory.iterationStrategyStack2WorkberchIterStgyNode(processorName, iterationStrategyNode, incomingDataLinks);
+				childStrategies.add(childStgy);
+				
+			}
+			iterStgyNode.setChildStrategies(childStrategies);
+			
+			iterStgyNode.setCross(topNode instanceof CrossProduct);
+			
+			
+			ret = iterStgyNode;
+		}
+		
+		
+		ret.setProcessorName(processorName);
+		return ret;
 	}
 	
 	static private int getSourceDepth(final DataLink dataLink) {

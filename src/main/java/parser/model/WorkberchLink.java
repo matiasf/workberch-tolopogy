@@ -1,9 +1,15 @@
 package main.java.parser.model;
 
+import java.io.Serializable;
+
 import main.java.utils.constants.WorkberchConstants;
 
-public class WorkberchLink {
+public class WorkberchLink implements Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -7867960519903176328L;
 	String sourceNode;
 	String sourceOutput;
 	
