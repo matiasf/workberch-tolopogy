@@ -87,8 +87,8 @@ public class WorkberchCartesianBolt extends WorkberchProvenanceBolt {
 		}
 	}
 
-	public WorkberchCartesianBolt(final List<String> outputFields) {
-		super(outputFields);
+	public WorkberchCartesianBolt(final String guid, final List<String> outputFields) {
+		super(guid, outputFields);
 		for (final String inputField : outputFields) {
 			if (!inputField.equals(INDEX_FIELD)) {
 				executedInputs.put(inputField, new ArrayList<ExecutedValue>());
@@ -97,7 +97,7 @@ public class WorkberchCartesianBolt extends WorkberchProvenanceBolt {
 	}
 
 	@Override
-	public void executeLogic(final WorkberchTuple input, final BasicOutputCollector collector, final boolean lastValues) {
+	public void executeLogic(final WorkberchTuple input, final BasicOutputCollector collector, final boolean lastValues, final String uuid) {
 		final List<String> remainingFields = new ArrayList<String>();
 		remainingFields.addAll(executedInputs.keySet());
 		remainingFields.removeAll(input.getFields());
@@ -117,7 +117,7 @@ public class WorkberchCartesianBolt extends WorkberchProvenanceBolt {
 			createTuples(remainingFields, input, valuesToEmit);
 			final Iterator<List<Object>> iterValue = valuesToEmit.iterator();
 			while (iterValue.hasNext()) {
-				emitTuple(iterValue.next(), collector, lastValues && !iterValue.hasNext());
+				emitTuple(iterValue.next(), collector, lastValues && !iterValue.hasNext(), uuid);
 			}
 		}
 	}

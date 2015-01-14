@@ -15,6 +15,11 @@ import backtype.storm.tuple.Fields;
 
 public class WorkberchIterStgyNode implements WorkberchIterStgy {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 5340528828113698457L;
+
 	private boolean cross;
 
 	private String processorName;
@@ -59,13 +64,13 @@ public class WorkberchIterStgyNode implements WorkberchIterStgy {
 	}
 
 	@Override
-	public BoltDeclarer addStrategy2Topology(final TopologyBuilder tBuilder) {
+	public BoltDeclarer addStrategy2Topology(final String guid, final TopologyBuilder tBuilder) {
 
 		final List<String> strategiesNames = new ArrayList<String>(); 
 		
 		for (final WorkberchIterStgy workberchIterStgy : childStrategies) {
 			strategiesNames.add(workberchIterStgy.getBoltName());
-			workberchIterStgy.addStrategy2Topology(tBuilder);
+			workberchIterStgy.addStrategy2Topology(guid, tBuilder);
 		}
 		
 		
@@ -74,30 +79,32 @@ public class WorkberchIterStgyNode implements WorkberchIterStgy {
 		
 		if (cross) {
 			
-			final WorkberchCartesianBolt bolt = new WorkberchCartesianBolt(getOutputFields());
+			final WorkberchCartesianBolt bolt = new WorkberchCartesianBolt(guid, getOutputFields());
 			
 			boltDeclarer = tBuilder.setBolt(CROSS_PREFIX + processorName, bolt);
 			
-			final WorkberchOrderBolt orderBolt = new WorkberchOrderBolt(getOutputFields(), false) {
+			final WorkberchOrderBolt orderBolt = new WorkberchOrderBolt(guid, getOutputFields(), true) {
 				
 				
 				private static final long serialVersionUID = -1687335238822989302L;
 
+
 				@Override
-				public void executeOrdered(final WorkberchTuple input, final BasicOutputCollector collector, final boolean lastValues) {
-					emitTuple(new ArrayList<Object>(input.getValues().values()), collector, lastValues);
+				public void executeOrdered(final WorkberchTuple input, final BasicOutputCollector collector, final boolean lastValues, final String uuid) {
+					emitTuple(new ArrayList<Object>(input.getValues().values()), collector, lastValues, uuid);
 					
 				}
 			};
 			boltDeclarer = tBuilder.setBolt(ORDER_PREFIX + processorName, orderBolt);			
 		}
 		else {
-			final WorkberchDotBolt bolt = new WorkberchDotBolt(getOutputFields());
+			final WorkberchDotBolt bolt = new WorkberchDotBolt(guid, getOutputFields());
 			startBolt = DOT_PREFIX + processorName;
 			boltDeclarer = tBuilder.setBolt(startBolt, bolt);			
 		}
 		
 		
+
 		
 		for (final String strategyName: strategiesNames) {
 			boltDeclarer = boltDeclarer.fieldsGrouping(strategyName, new Fields(WorkberchConstants.INDEX_FIELD));

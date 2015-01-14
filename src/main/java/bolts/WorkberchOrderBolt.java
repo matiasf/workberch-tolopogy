@@ -142,7 +142,7 @@ abstract public class WorkberchOrderBolt extends WorkberchProvenanceBolt {
 		}
 	}
 
-	private void emitAllSavedTuplesInOrder(final CartesianIndex templateIndex, final BasicOutputCollector collector) {
+	private void emitAllSavedTuplesInOrder(final CartesianIndex templateIndex, final BasicOutputCollector collector, final String uuid) {
 		try {
 			final Map<CartesianIndex, WorkberchTuple> cartesianIndex = RedisHandeler.loadCartesianIndexObjects(getBoltId());
 
@@ -155,14 +155,14 @@ abstract public class WorkberchOrderBolt extends WorkberchProvenanceBolt {
 			do {
 				tuple = indexMap.get(lastIndex);
 				tuple.setPlainIndex(lastIndex);
-				executeOrdered(tuple, collector, !indexMap.containsKey(++lastIndex));
+				executeOrdered(tuple, collector, !indexMap.containsKey(++lastIndex), uuid);
 			} while (indexMap.containsKey(lastIndex));
 		} catch (final RedisException e) {
 			Throwables.propagate(e);
 		}
 	}
 
-	private void processReceivedTupleCommingInOrder(final WorkberchTuple input, final BasicOutputCollector collector, final boolean lastValues) {
+	private void processReceivedTupleCommingInOrder(final WorkberchTuple input, final BasicOutputCollector collector, final boolean lastValues, final String uuid) {
 		final Long currentLong = (Long) input.getValues().get(INDEX_FIELD);
 		final long currentIndex = currentLong.longValue();
 		
@@ -173,7 +173,7 @@ abstract public class WorkberchOrderBolt extends WorkberchProvenanceBolt {
 			WorkberchTuple tuple;
 			do {
 				tuple = indexMap.get(lastIndex);
-				executeOrdered(tuple, collector, lastValues);
+				executeOrdered(tuple, collector, lastValues, uuid);
 			} while (indexMap.containsKey(++lastIndex));
 		}
 	}
@@ -186,28 +186,28 @@ abstract public class WorkberchOrderBolt extends WorkberchProvenanceBolt {
 		}
 	}
 
-	private void processReceivedTuple(final WorkberchTuple input, final BasicOutputCollector collector, final boolean lastValues) {
+	private void processReceivedTuple(final WorkberchTuple input, final BasicOutputCollector collector, final boolean lastValues, final String uuid) {
 		if (ordered) {
-			processReceivedTupleCommingInOrder(input, collector, lastValues);
+			processReceivedTupleCommingInOrder(input, collector, lastValues, uuid);
 		} else {
 			proccessReceivedTupleCommingWithoutOrder(input);
 		}
 	};
 
-	public WorkberchOrderBolt(final List<String> outputFields, final Boolean ordered) {
-		super(outputFields);
+	public WorkberchOrderBolt(final String guid, final List<String> outputFields, final Boolean ordered) {
+		super(guid, outputFields);
 		this.ordered = ordered;
 	}
 
 	@Override
-	public void executeLogic(final WorkberchTuple input, final BasicOutputCollector collector, final boolean lastValues) {
-		processReceivedTuple(input, collector, lastValues);
+	public void executeLogic(final WorkberchTuple input, final BasicOutputCollector collector, final boolean lastValues, final String uuid) {
+		processReceivedTuple(input, collector, lastValues, uuid);
 
 		if (lastValues && !ordered) {
-			emitAllSavedTuplesInOrder((CartesianIndex) input.getValues().get(INDEX_FIELD), collector);
+			emitAllSavedTuplesInOrder((CartesianIndex) input.getValues().get(INDEX_FIELD), collector, uuid);
 		}
 	}
 
-	abstract public void executeOrdered(final WorkberchTuple input, final BasicOutputCollector collector, final boolean lastValues);
+	abstract public void executeOrdered(final WorkberchTuple input, final BasicOutputCollector collector, final boolean lastValues, final String uuid);
 
 }

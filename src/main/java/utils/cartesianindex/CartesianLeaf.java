@@ -49,5 +49,10 @@ public class CartesianLeaf implements CartesianIndex {
 		}
 		return false;
 	}
+	
+	@Override
+	public String toString() {
+		return String.valueOf(hashCode());
+	}
 
 }

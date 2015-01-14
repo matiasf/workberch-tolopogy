@@ -28,22 +28,20 @@ public class RestBolt extends WorkberchTavernaProcessorBolt {
 
 	final String ACCEPT_PROP = "Accept";
 
-	public RestBolt(final List<String> outputFields, final String address, final String requestMethod, final String accetpHeader) {
-
-		super(outputFields);
+	public RestBolt(final String guid, final List<String> outputFields, final String address, final String requestMethod, final String accetpHeader) {
+		super(guid, outputFields);
 
 		this.address = address;
 		this.requestMethod = requestMethod;
 		this.accetpHeader = accetpHeader;
-
 	}
 
-	public RestBolt(final List<String> inputFields, final List<String> outputFields, final JsonNode node) {
-		super(inputFields, outputFields, node);
+	public RestBolt(final String guid, final List<String> inputFields, final List<String> outputFields, final JsonNode node) {
+		super(guid, inputFields, outputFields, node);
 	}
 
 	@Override
-	public void executeLogic(final WorkberchTuple tuple, final BasicOutputCollector collector, final boolean lastValue) {
+	public void executeLogic(final WorkberchTuple tuple, final BasicOutputCollector collector, final boolean lastValue, final String uuid) {
 
 		String localAddress = address;
 
@@ -83,7 +81,7 @@ public class RestBolt extends WorkberchTavernaProcessorBolt {
 
 			values.add(outputValue);
 			values.add(tuple.getValues().get(INDEX_FIELD));
-			emitTuple(values, collector, lastValue);
+			emitTuple(values, collector, lastValue, uuid);
 
 		} catch (final MalformedURLException e) {
 			// TODO Auto-generated catch block

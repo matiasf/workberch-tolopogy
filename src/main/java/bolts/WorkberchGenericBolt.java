@@ -24,7 +24,7 @@ abstract public class WorkberchGenericBolt extends BaseBasicBolt {
 	private final List<String> outputFields;
 	private String boltId;
 
-	protected void emitTuple(final List<Object> tuple, final BasicOutputCollector collector, final boolean lastValue) {
+	protected void emitTuple(final List<Object> tuple, final BasicOutputCollector collector, final boolean lastValue, String uuid) {
 		RedisHandeler.increseEmitedState(boltId);
 		if (lastValue) {
 			RedisHandeler.setStateFinished(boltId);

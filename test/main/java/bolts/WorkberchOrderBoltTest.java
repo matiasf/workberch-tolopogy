@@ -53,11 +53,11 @@ public class WorkberchOrderBoltTest {
 
 	@Test
 	public void testAlreadyOrderedFlowReceived() {
-		final WorkberchOrderBolt orderedBolt = spy(new WorkberchOrderBolt(new ArrayList<String>(), true) {
+		final WorkberchOrderBolt orderedBolt = spy(new WorkberchOrderBolt("mockGuid", new ArrayList<String>(), true) {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public void executeOrdered(final WorkberchTuple input, final BasicOutputCollector collector, final boolean lastValues) {}
+			public void executeOrdered(final WorkberchTuple input, final BasicOutputCollector collector, final boolean lastValues, final String uuid) {}
 		});
 
 		final BasicOutputCollector mockCollector = mock(BasicOutputCollector.class);
@@ -97,25 +97,25 @@ public class WorkberchOrderBoltTest {
 		orderedBolt.executeProvenance(workberchTuple2, mockCollector, false);
 		orderedBolt.executeProvenance(workberchTuple4, mockCollector, false);
 
-		verify(orderedBolt, never()).executeOrdered(any(WorkberchTuple.class), any(BasicOutputCollector.class), anyBoolean());
+		verify(orderedBolt, never()).executeOrdered(any(WorkberchTuple.class), any(BasicOutputCollector.class), anyBoolean(), anyString());
 
 		orderedBolt.executeProvenance(workberchTuple1, mockCollector, false);
 
 		final InOrder inOrder = inOrder(orderedBolt);
-		inOrder.verify(orderedBolt).executeOrdered(eq(workberchTuple1), any(BasicOutputCollector.class), anyBoolean());
-		inOrder.verify(orderedBolt).executeOrdered(eq(workberchTuple2), any(BasicOutputCollector.class), anyBoolean());
-		inOrder.verify(orderedBolt).executeOrdered(eq(workberchTuple3), any(BasicOutputCollector.class), anyBoolean());
-		inOrder.verify(orderedBolt).executeOrdered(eq(workberchTuple4), any(BasicOutputCollector.class), anyBoolean());
-		inOrder.verify(orderedBolt).executeOrdered(eq(workberchTuple5), any(BasicOutputCollector.class), anyBoolean());
+		inOrder.verify(orderedBolt).executeOrdered(eq(workberchTuple1), any(BasicOutputCollector.class), anyBoolean(), anyString());
+		inOrder.verify(orderedBolt).executeOrdered(eq(workberchTuple2), any(BasicOutputCollector.class), anyBoolean(), anyString());
+		inOrder.verify(orderedBolt).executeOrdered(eq(workberchTuple3), any(BasicOutputCollector.class), anyBoolean(), anyString());
+		inOrder.verify(orderedBolt).executeOrdered(eq(workberchTuple4), any(BasicOutputCollector.class), anyBoolean(), anyString());
+		inOrder.verify(orderedBolt).executeOrdered(eq(workberchTuple5), any(BasicOutputCollector.class), anyBoolean(), anyString());
 	}
 
 	@Test
 	public void testNotOrderedButPlainTreeIndexOfTwoSourcesFromCartesian() throws IOException {
-		final WorkberchOrderBolt orderedBolt = spy(new WorkberchOrderBolt(new ArrayList<String>(), false) {
+		final WorkberchOrderBolt orderedBolt = spy(new WorkberchOrderBolt("mockGuid", new ArrayList<String>(), false) {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public void executeOrdered(final WorkberchTuple input, final BasicOutputCollector collector, final boolean lastValues) {}
+			public void executeOrdered(final WorkberchTuple input, final BasicOutputCollector collector, final boolean lastValues, final String uuid) {}
 		});
 
 		final OngoingStubbing<Boolean> returnChainCall = PowerMockito.when(RedisHandeler.getFinishedState(anyString()));
@@ -181,26 +181,26 @@ public class WorkberchOrderBoltTest {
 		orderedBolt.executeProvenance(workberchTuple4, mockCollector, false);
 		orderedBolt.executeProvenance(workberchTuple6, mockCollector, false);
 
-		verify(orderedBolt, never()).executeOrdered(any(WorkberchTuple.class), any(BasicOutputCollector.class), anyBoolean());
+		verify(orderedBolt, never()).executeOrdered(any(WorkberchTuple.class), any(BasicOutputCollector.class), anyBoolean(), anyString());
 
 		orderedBolt.executeProvenance(workberchTuple1, mockCollector, true);
 
 		final InOrder inOrder = inOrder(orderedBolt);
-		inOrder.verify(orderedBolt).executeOrdered(eq(workberchTuple1), any(BasicOutputCollector.class), anyBoolean());
-		inOrder.verify(orderedBolt).executeOrdered(eq(workberchTuple2), any(BasicOutputCollector.class), anyBoolean());
-		inOrder.verify(orderedBolt).executeOrdered(eq(workberchTuple3), any(BasicOutputCollector.class), anyBoolean());
-		inOrder.verify(orderedBolt).executeOrdered(eq(workberchTuple4), any(BasicOutputCollector.class), anyBoolean());
-		inOrder.verify(orderedBolt).executeOrdered(eq(workberchTuple5), any(BasicOutputCollector.class), anyBoolean());
-		inOrder.verify(orderedBolt).executeOrdered(eq(workberchTuple6), any(BasicOutputCollector.class), anyBoolean());
+		inOrder.verify(orderedBolt).executeOrdered(eq(workberchTuple1), any(BasicOutputCollector.class), anyBoolean(), anyString());
+		inOrder.verify(orderedBolt).executeOrdered(eq(workberchTuple2), any(BasicOutputCollector.class), anyBoolean(), anyString());
+		inOrder.verify(orderedBolt).executeOrdered(eq(workberchTuple3), any(BasicOutputCollector.class), anyBoolean(), anyString());
+		inOrder.verify(orderedBolt).executeOrdered(eq(workberchTuple4), any(BasicOutputCollector.class), anyBoolean(), anyString());
+		inOrder.verify(orderedBolt).executeOrdered(eq(workberchTuple5), any(BasicOutputCollector.class), anyBoolean(), anyString());
+		inOrder.verify(orderedBolt).executeOrdered(eq(workberchTuple6), any(BasicOutputCollector.class), anyBoolean(), anyString());
 	}
 
 	@Ignore
 	public void testNotOrderedNotPlainIndexOfTwoSourcesFromCartesian() throws IOException {
-		final WorkberchOrderBolt orderedBolt = spy(new WorkberchOrderBolt(new ArrayList<String>(), false) {
+		final WorkberchOrderBolt orderedBolt = spy(new WorkberchOrderBolt("mockGuid", new ArrayList<String>(), false) {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public void executeOrdered(final WorkberchTuple input, final BasicOutputCollector collector, final boolean lastValues) {}
+			public void executeOrdered(final WorkberchTuple input, final BasicOutputCollector collector, final boolean lastValues, final String uuid) {}
 		});
 
 		final OngoingStubbing<Boolean> returnChainCall = PowerMockito.when(RedisHandeler.getFinishedState(anyString()));
@@ -287,19 +287,19 @@ public class WorkberchOrderBoltTest {
 		orderedBolt.executeProvenance(workberchTuple7, mockCollector, false);
 		orderedBolt.executeProvenance(workberchTuple8, mockCollector, false);
 
-		verify(orderedBolt, never()).executeOrdered(any(WorkberchTuple.class), any(BasicOutputCollector.class), anyBoolean());
+		verify(orderedBolt, never()).executeOrdered(any(WorkberchTuple.class), any(BasicOutputCollector.class), anyBoolean(), anyString());
 
 		orderedBolt.executeProvenance(workberchTuple1, mockCollector, false);
 
 		final InOrder inOrder = inOrder(orderedBolt);
-		inOrder.verify(orderedBolt).executeOrdered(eq(workberchTuple1), any(BasicOutputCollector.class), anyBoolean());
-		inOrder.verify(orderedBolt).executeOrdered(eq(workberchTuple2), any(BasicOutputCollector.class), anyBoolean());
-		inOrder.verify(orderedBolt).executeOrdered(eq(workberchTuple3), any(BasicOutputCollector.class), anyBoolean());
-		inOrder.verify(orderedBolt).executeOrdered(eq(workberchTuple4), any(BasicOutputCollector.class), anyBoolean());
-		inOrder.verify(orderedBolt).executeOrdered(eq(workberchTuple5), any(BasicOutputCollector.class), anyBoolean());
-		inOrder.verify(orderedBolt).executeOrdered(eq(workberchTuple6), any(BasicOutputCollector.class), anyBoolean());
-		inOrder.verify(orderedBolt).executeOrdered(eq(workberchTuple7), any(BasicOutputCollector.class), anyBoolean());
-		inOrder.verify(orderedBolt).executeOrdered(eq(workberchTuple8), any(BasicOutputCollector.class), anyBoolean());
+		inOrder.verify(orderedBolt).executeOrdered(eq(workberchTuple1), any(BasicOutputCollector.class), anyBoolean(), anyString());
+		inOrder.verify(orderedBolt).executeOrdered(eq(workberchTuple2), any(BasicOutputCollector.class), anyBoolean(), anyString());
+		inOrder.verify(orderedBolt).executeOrdered(eq(workberchTuple3), any(BasicOutputCollector.class), anyBoolean(), anyString());
+		inOrder.verify(orderedBolt).executeOrdered(eq(workberchTuple4), any(BasicOutputCollector.class), anyBoolean(), anyString());
+		inOrder.verify(orderedBolt).executeOrdered(eq(workberchTuple5), any(BasicOutputCollector.class), anyBoolean(), anyString());
+		inOrder.verify(orderedBolt).executeOrdered(eq(workberchTuple6), any(BasicOutputCollector.class), anyBoolean(), anyString());
+		inOrder.verify(orderedBolt).executeOrdered(eq(workberchTuple7), any(BasicOutputCollector.class), anyBoolean(), anyString());
+		inOrder.verify(orderedBolt).executeOrdered(eq(workberchTuple8), any(BasicOutputCollector.class), anyBoolean(), anyString());
 	}
 
 }

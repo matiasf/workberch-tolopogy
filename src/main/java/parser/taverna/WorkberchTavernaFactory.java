@@ -65,7 +65,7 @@ public class WorkberchTavernaFactory {
 		
 	}
 
-	static public WorkberchProcessorNode processeor2ProcessorNode(final Processor processor, final Configuration config) {
+	static public WorkberchProcessorNode processeor2ProcessorNode(final String guid, final Processor processor, final Configuration config) {
 		
 		
 		config.getType().toString();

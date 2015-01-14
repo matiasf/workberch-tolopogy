@@ -25,8 +25,8 @@ public class WorkberchOutputNode implements WorkberchBoltBuilder {
 	}
 
 	@Override
-	public WorkberchGenericBolt buildBolt() {
-		final OutputBolt ret = new OutputBolt(true, outputPath);
+	public WorkberchGenericBolt buildBolt(final String guid) {
+		final OutputBolt ret = new OutputBolt(guid, true, outputPath);
 		return ret;
 	}
 

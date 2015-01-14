@@ -3,7 +3,6 @@ package main.java;
 import java.io.IOException;
 
 import main.java.parser.taverna.WorkberchTavernaParser;
-import main.java.utils.constants.WorkberchConstants;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -21,15 +20,14 @@ public class DynamicWorkberchTopologyMain {
 		jedis.flushAll();
 		jedis.close();
 
-		WorkberchConstants.GUID = args[0];
+		final String guid = args[0];
 		final String workflowPath = args[1];
 		final String inputPath = args[2];
 		final String outputPath = args[3];
 
-		if (StringUtils.isNotEmpty(WorkberchConstants.GUID) && StringUtils.isNotEmpty(workflowPath) && StringUtils.isNotEmpty(inputPath)
-				&& StringUtils.isNotEmpty(outputPath)) {
+		if (StringUtils.isNotEmpty(guid) && StringUtils.isNotEmpty(workflowPath) && StringUtils.isNotEmpty(inputPath) && StringUtils.isNotEmpty(outputPath)) {
 			final WorkberchTavernaParser parser = new WorkberchTavernaParser();
-			parser.setGuid(WorkberchConstants.GUID);
+			parser.setGuid(guid);
 			parser.setWorkflowPath(workflowPath);
 			parser.setInputPath(inputPath);
 			parser.setOutputPath(outputPath);
@@ -38,7 +36,7 @@ public class DynamicWorkberchTopologyMain {
 			conf.setNumWorkers(20);
 			conf.setMaxSpoutPending(5000);
 			
-			StormSubmitter.submitTopology(WorkberchConstants.GUID, conf, parser.parse());
+			StormSubmitter.submitTopology(guid, conf, parser.parse());
 
 			//Local Setup
 //			final Config conf = new Config();

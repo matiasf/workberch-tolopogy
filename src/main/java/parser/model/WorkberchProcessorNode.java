@@ -7,10 +7,9 @@ import main.java.spouts.WorkberchGenericSpout;
 
 public abstract class WorkberchProcessorNode implements WorkberchNode , WorkberchBoltBuilder {
 
-	String name;
-	List<String> outputs;
-	List<String> inputs;
-	
+	private final String name;
+	private final List<String> outputs;
+	private final List<String> inputs;
 
 	public WorkberchProcessorNode(final String name, final List<String> outputs, final List<String> inputs) {
 		this.name = name;
@@ -28,23 +27,17 @@ public abstract class WorkberchProcessorNode implements WorkberchNode , Workberc
 		return outputs;
 	}
 
-
 	public List<String> getInputs() {
 		return inputs;
 	}
-
-
-	@Override
-	abstract public WorkberchGenericBolt buildBolt();
-
 
 	@Override
 	public WorkberchGenericSpout buildSpout() {
 		// TODO Auto-generated method stub
 		return null;
 	}
-	
-	
-	
-	
+
+	@Override
+	abstract public WorkberchGenericBolt buildBolt(final String guid);
+
 }

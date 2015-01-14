@@ -77,6 +77,7 @@ public class WorkberchTavernaParser {
 		final File t2File = new File(workflowPath);
 		
 		final WorkberchTopologyBuilder builder = new WorkberchTopologyBuilder();
+		builder.setGuid(guid);
 		try {
 			final WorkflowBundle wfBundle = io.readBundle(t2File, APPLICATION_VND_TAVERNA_T2FLOW_XML);
 			
@@ -102,8 +103,7 @@ public class WorkberchTavernaParser {
 					builder.addInputNode(inputNode);
 				}
 				else {
-					final WorkberchProcessorNode processorNode = WorkberchTavernaFactory.processeor2ProcessorNode(processor, config);
-					
+					final WorkberchProcessorNode processorNode = WorkberchTavernaFactory.processeor2ProcessorNode(guid, processor, config);
 					final Set<DataLink> allDataLinks = workflow.getDataLinks();
 					final Set<DataLink> incomingDataLinks = WorkberchSCUFL2Utils.getIncomingDataLinksFromProcessor(processor, allDataLinks);
 					
