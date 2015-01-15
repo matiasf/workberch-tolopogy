@@ -83,7 +83,7 @@ public class WorkberchIterStgyNode implements WorkberchIterStgy {
 			
 			boltDeclarer = tBuilder.setBolt(CROSS_PREFIX + processorName, bolt);
 			
-			final WorkberchOrderBolt orderBolt = new WorkberchOrderBolt(guid, getOutputFields(), true) {
+			final WorkberchOrderBolt orderBolt = new WorkberchOrderBolt(guid, getOutputFields(), false) {
 				
 				
 				private static final long serialVersionUID = -1687335238822989302L;
@@ -95,7 +95,7 @@ public class WorkberchIterStgyNode implements WorkberchIterStgy {
 					
 				}
 			};
-			boltDeclarer = tBuilder.setBolt(ORDER_PREFIX + processorName, orderBolt);			
+			tBuilder.setBolt(ORDER_PREFIX + processorName, orderBolt).shuffleGrouping(CROSS_PREFIX + processorName);			
 		}
 		else {
 			final WorkberchDotBolt bolt = new WorkberchDotBolt(guid, getOutputFields());
