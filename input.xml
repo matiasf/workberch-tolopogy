@@ -1,0 +1,3 @@
+<t2sr:runInput xmlns:t2sr="http://ns.taverna.org.uk/2010/xml/server/rest/">
+    <t2sr:value>1</t2sr:value>
+</t2sr:runInput>
