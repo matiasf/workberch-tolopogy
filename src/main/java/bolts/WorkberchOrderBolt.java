@@ -20,6 +20,9 @@ import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 
 abstract public class WorkberchOrderBolt extends WorkberchProvenanceBolt {
+	
+	//FIXME: This flag is temporally, we need to improve the good algorithm
+	public static boolean REAL_ALGORITHM = false;
 
 	private static final long serialVersionUID = 1L;
 
@@ -76,7 +79,38 @@ abstract public class WorkberchOrderBolt extends WorkberchProvenanceBolt {
 	}
 
 	private void makePlainIndex(final CartesianIndex templateIndex, final Map<CartesianIndex, WorkberchTuple> cartesianIndex) {
-		makePlainIndexOnMapRecurtion(templateIndex, cartesianIndex, new CartesianNode(new ArrayList<CartesianIndex>()));
+		if (REAL_ALGORITHM) {
+			makePlainIndexOnMapRecurtion(templateIndex, cartesianIndex, new CartesianNode(new ArrayList<CartesianIndex>()));
+		}
+		else {
+			makePlainIndexOnLinealIndex(templateIndex.getNodes(), cartesianIndex, new CartesianNode(new ArrayList<CartesianIndex>()));
+		}		
+	}
+	
+	private boolean makePlainIndexOnLinealIndex(final List<CartesianIndex> nodes, final Map<CartesianIndex, WorkberchTuple> cartesianIndex, final CartesianIndex currentKey) {
+		final boolean isLastDimention = nodes.isEmpty();
+		if (isLastDimention) {
+			final boolean existValue;
+			if(existValue = cartesianIndex.containsKey(currentKey)){
+				indexMap.put(lastIndex, cartesianIndex.get(currentKey));
+				lastIndex++;
+				return existValue;
+			}
+			return existValue;
+		} else {
+			long indexValue = 0L;
+			boolean existValues = false;
+			boolean existSomeIndex = false;
+			do {
+				final CartesianIndex currentIndexLeaf = new CartesianLeaf(indexValue);
+				currentKey.getNodes().add(currentIndexLeaf);
+				existValues = makePlainIndexOnLinealIndex(nodes.subList(1, nodes.size()), cartesianIndex, currentKey);
+				currentKey.getNodes().remove(currentIndexLeaf);
+				indexValue++;
+				existSomeIndex = existSomeIndex || existValues;
+			} while (existValues);
+			return existSomeIndex;
+		}
 	}
 
 	private boolean makePlainIndexOnMapRecurtion(final CartesianIndex templateIndex, final Map<CartesianIndex, WorkberchTuple> cartesianIndex,
@@ -88,7 +122,7 @@ abstract public class WorkberchOrderBolt extends WorkberchProvenanceBolt {
 
 		CartesianIndex currentIndex = createInitialIndexElement(templateIndexHead);
 		currentKey.getNodes().add(currentIndex);
-		final boolean someValueWork = false;
+		boolean someValueWork = false;
 
 		boolean areMoreValuesAvailabe = true;
 		while (areMoreValuesAvailabe) {
@@ -97,8 +131,9 @@ abstract public class WorkberchOrderBolt extends WorkberchProvenanceBolt {
 
 			if (!tupleExists) {
 				areMoreValuesAvailabe = updateTemplateWithLastTops(templateIndexHead, currentIndex);
-			} else if (isLastDimention) {
+			} else if (isLastDimention && tupleExists) {
 				indexMap.put(lastIndex, cartesianIndex.get(currentKey));
+				someValueWork = true;
 				lastIndex++;
 			}
 
@@ -162,10 +197,11 @@ abstract public class WorkberchOrderBolt extends WorkberchProvenanceBolt {
 		}
 	}
 
-	private void processReceivedTupleCommingInOrder(final WorkberchTuple input, final BasicOutputCollector collector, final boolean lastValues, final String uuid) {
+	private void processReceivedTupleCommingInOrder(final WorkberchTuple input, final BasicOutputCollector collector, final boolean lastValues,
+			final String uuid) {
 		final Long currentLong = (Long) input.getValues().get(INDEX_FIELD);
 		final long currentIndex = currentLong.longValue();
-		
+
 		if (currentIndex > lastIndex) {
 			indexMap.put(currentLong, input);
 		} else if (currentIndex == lastIndex) {
@@ -173,8 +209,8 @@ abstract public class WorkberchOrderBolt extends WorkberchProvenanceBolt {
 			WorkberchTuple tuple;
 			do {
 				tuple = indexMap.get(lastIndex);
-				executeOrdered(tuple, collector, lastValues, uuid);
-			} while (indexMap.containsKey(++lastIndex));
+				executeOrdered(tuple, collector, !indexMap.containsKey(++lastIndex) && lastValues, uuid);
+			} while (indexMap.containsKey(lastIndex));
 		}
 	}
 

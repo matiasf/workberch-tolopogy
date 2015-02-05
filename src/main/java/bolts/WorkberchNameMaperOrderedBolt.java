@@ -5,6 +5,7 @@ import static main.java.utils.constants.WorkberchConstants.INDEX_FIELD;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -47,12 +48,13 @@ public class WorkberchNameMaperOrderedBolt extends WorkberchOrderBolt {
 
 		@SuppressWarnings("unchecked")
 		final Collection<Object> values = (Collection<Object>) outputValue;
-
-		for (final Object object : values) {
+		final Iterator<Object> iterValues = values.iterator();
+		while (iterValues.hasNext()) {
 			final List<Object> emitTuple = new ArrayList<Object>();
-			emitTuple.add(object);
+			emitTuple.add(iterValues.next());
 			emitTuple.add(newIndex++);
-			emitTuple(emitTuple, collector, lastValue, uuid);
+			System.out.println("Name Mapper emitiendo en " + getBoltId());
+			emitTuple(emitTuple, collector, lastValue && !iterValues.hasNext(), uuid);
 		}
 	}
 

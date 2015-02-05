@@ -8,6 +8,9 @@ import java.util.Map;
 
 import main.java.utils.WorkberchTuple;
 import main.java.utils.redis.RedisHandeler;
+
+import org.apache.commons.lang.StringUtils;
+
 import backtype.storm.generated.GlobalStreamId;
 import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.BasicOutputCollector;
@@ -24,7 +27,7 @@ abstract public class WorkberchGenericBolt extends BaseBasicBolt {
 	private final List<String> outputFields;
 	private String boltId;
 
-	protected void emitTuple(final List<Object> tuple, final BasicOutputCollector collector, final boolean lastValue, String uuid) {
+	protected void emitTuple(final List<Object> tuple, final BasicOutputCollector collector, final boolean lastValue, final String uuid) {
 		RedisHandeler.increseEmitedState(boltId);
 		if (lastValue) {
 			RedisHandeler.setStateFinished(boltId);
@@ -63,9 +66,12 @@ abstract public class WorkberchGenericBolt extends BaseBasicBolt {
 		int runningNodesCount = 0;
 		final long incState = RedisHandeler.increseRecivedState(boltId + "-" + input.getSourceComponent());
 		for (final String node : runningNodes) {
-			if (!(RedisHandeler.getFinishedState(node) && incState == RedisHandeler.getEmitedState(node))) {
+			if (StringUtils.equals(node, input.getSourceComponent()) && !(RedisHandeler.getFinishedState(node) && incState == RedisHandeler.getEmitedState(node))) {
 				runningNodesCount++;
 			}
+			else if (!(RedisHandeler.getFinishedState(node) && RedisHandeler.getRecivedState(boltId + "-" + node) == RedisHandeler.getEmitedState(node))) {
+				runningNodesCount++;
+			}			
 		}
 
 		final WorkberchTuple baseTuple = new WorkberchTuple(input);

@@ -11,13 +11,10 @@ import backtype.storm.topology.TopologyBuilder;
 
 public class WorkberchIterStgyLink implements WorkberchIterStgy {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 2052236882194623699L;
 
 	private WorkberchLink link;
-	
+
 	private static String MAPPER_PREFIX = "NAME_MAPPER_";
 	private String processorName;
 
@@ -28,7 +25,7 @@ public class WorkberchIterStgyLink implements WorkberchIterStgy {
 	public void setLink(final WorkberchLink link) {
 		this.link = link;
 	}
-	
+
 	@Override
 	public void setProcessorName(final String processorName) {
 		this.processorName = processorName;
@@ -38,11 +35,10 @@ public class WorkberchIterStgyLink implements WorkberchIterStgy {
 	public String getProcessorName() {
 		return processorName;
 	}
-	
+
 	@Override
 	public String getBoltName() {
-		final String mapperName = MAPPER_PREFIX + processorName + WorkberchConstants.NAME_DELIMITER + link.getStormSourceField() ;
-		
+		final String mapperName = MAPPER_PREFIX + processorName + WorkberchConstants.NAME_DELIMITER + link.getStormSourceField();
 		return mapperName;
 	}
 
@@ -55,15 +51,13 @@ public class WorkberchIterStgyLink implements WorkberchIterStgy {
 			final WorkberchNameMaperOrderedBolt mapper = new WorkberchNameMaperOrderedBolt(guid, inputs);
 			mapper.addLink(link.getStormSourceField(), link.getStormDestField());
 			ret = tBuilder.setBolt(getBoltName(), mapper).shuffleGrouping(link.getSourceNode());
-			
-		}
-		else {
+
+		} else {
 			final WorkberchNameMaperBolt mapper = new WorkberchNameMaperBolt(guid, inputs);
 			mapper.addLink(link.getStormSourceField(), link.getStormDestField());
 			ret = tBuilder.setBolt(getBoltName(), mapper).shuffleGrouping(link.getSourceNode());
-			
 		}
-		
+
 		return ret;
 	}
 
