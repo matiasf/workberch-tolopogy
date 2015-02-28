@@ -72,15 +72,12 @@ public class WorkberchTavernaParser {
 	}
 	
 	public StormTopology parse() {
-		
 		final T2FlowReader io = new T2FlowReader();
 		final File t2File = new File(workflowPath);
-		
 		final WorkberchTopologyBuilder builder = new WorkberchTopologyBuilder();
 		builder.setGuid(guid);
 		try {
 			final WorkflowBundle wfBundle = io.readBundle(t2File, APPLICATION_VND_TAVERNA_T2FLOW_XML);
-			
 			final Workflow workflow = wfBundle.getMainWorkflow();
 			final Profile profile = wfBundle.getMainProfile();
 			
@@ -91,7 +88,6 @@ public class WorkberchTavernaParser {
 				dg.setFilePath(getInputPath() + inputWorkflowPort.getName() + ".xml");
 				final WorkberchNodeInput inputNode = WorkberchTavernaFactory.inputPort2NodeInput(inputWorkflowPort, dg);
 				builder.addInputNode(inputNode);
-				
 			}
 			
 			//Agrego procesors
@@ -106,7 +102,6 @@ public class WorkberchTavernaParser {
 					final WorkberchProcessorNode processorNode = WorkberchTavernaFactory.processeor2ProcessorNode(guid, processor, config);
 					final Set<DataLink> allDataLinks = workflow.getDataLinks();
 					final Set<DataLink> incomingDataLinks = WorkberchSCUFL2Utils.getIncomingDataLinksFromProcessor(processor, allDataLinks);
-					
 					final Map<String , DataLink> linksMap = new HashMap<String, DataLink>();
 					
 					for (final DataLink dataLink : incomingDataLinks) {
@@ -125,10 +120,6 @@ public class WorkberchTavernaParser {
 				
 				final Set<DataLink> allDataLinks = workflow.getDataLinks();
 				final DataLink dataLink = WorkberchSCUFL2Utils.getIncomingDataLinksFromOutputPort(outputPort, allDataLinks);
-				/*final List<WorkberchLink> incomingLinks = new ArrayList<WorkberchLink>();
-				for (final DataLink dataLink : incomingDataLinks) {
-					incomingLinks.add(WorkberchTavernaFactory.dataLink2Link(dataLink));
-				}*/
 				builder.addOutput(outputNode, WorkberchTavernaFactory.dataLink2Link(dataLink));
 			}
 		} catch (final ReaderException e) {

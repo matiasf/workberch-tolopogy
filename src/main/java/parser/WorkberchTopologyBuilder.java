@@ -56,7 +56,8 @@ public class WorkberchTopologyBuilder {
 	public void addNode(final WorkberchProcessorNode node, final WorkberchIterStgy strategy) {
 		strategy.addStrategy2Topology(guid, tBuilder);
 		final WorkberchGenericBolt bolt = node.buildBolt(guid);
-		tBuilder.setBolt(node.getName(), bolt).shuffleGrouping(StringUtils.startsWith(strategy.getBoltName(), "CROSS_") ? strategy.getBoltName().replace("CROSS_", "ORDER_") : strategy.getBoltName());
+		tBuilder.setBolt(node.getName(), bolt).shuffleGrouping(StringUtils.startsWith(strategy.getBoltName(), "CROSS_") ?
+				strategy.getBoltName().replace("CROSS_", "ORDER_") : strategy.getBoltName());
 		nodes.put(node.getName(), node);
 	}
 
