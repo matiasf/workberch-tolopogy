@@ -53,7 +53,6 @@ public class WorkberchNameMaperOrderedBolt extends WorkberchOrderBolt {
 			final List<Object> emitTuple = new ArrayList<Object>();
 			emitTuple.add(iterValues.next());
 			emitTuple.add(newIndex++);
-			System.out.println("Name Mapper emitiendo en " + getBoltId());
 			emitTuple(emitTuple, collector, lastValue && !iterValues.hasNext(), uuid);
 		}
 	}

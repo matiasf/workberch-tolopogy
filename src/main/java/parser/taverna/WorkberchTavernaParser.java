@@ -33,12 +33,12 @@ import backtype.storm.generated.StormTopology;
 import com.google.common.base.Throwables;
 
 public class WorkberchTavernaParser {
-	
+
 	private String guid;
 	private String workflowPath;
 	private String inputPath;
 	private String outputPath;
-	
+
 	public String getGuid() {
 		return guid;
 	}
@@ -70,7 +70,7 @@ public class WorkberchTavernaParser {
 	public void setOutputPath(final String outputPath) {
 		this.outputPath = StringUtils.replace(outputPath, GUID_REPLACE, guid);
 	}
-	
+
 	public StormTopology parse() {
 		final T2FlowReader io = new T2FlowReader();
 		final File t2File = new File(workflowPath);
@@ -80,44 +80,50 @@ public class WorkberchTavernaParser {
 			final WorkflowBundle wfBundle = io.readBundle(t2File, APPLICATION_VND_TAVERNA_T2FLOW_XML);
 			final Workflow workflow = wfBundle.getMainWorkflow();
 			final Profile profile = wfBundle.getMainProfile();
-			
-			//Agrego puertos de entrada
+			final Map<String, WorkberchNodeInput> workflowInputs = new HashMap<String, WorkberchNodeInput>();
+
+			// Se agregan puertos de entrada
 			final Set<InputWorkflowPort> wfInputPorts = workflow.getInputPorts();
 			for (final InputWorkflowPort inputWorkflowPort : wfInputPorts) {
 				final FileDataGenerator dg = new FileDataGenerator();
 				dg.setFilePath(getInputPath() + inputWorkflowPort.getName() + ".xml");
 				final WorkberchNodeInput inputNode = WorkberchTavernaFactory.inputPort2NodeInput(inputWorkflowPort, dg);
 				builder.addInputNode(inputNode);
+				workflowInputs.put(inputWorkflowPort.getName(), inputNode);
 			}
-			
-			//Agrego procesors
+
+			// Se agregan procesors
 			for (final Processor processor : workflow.getProcessors()) {
 				final Configuration config = profile.getConfigurations().getByName(processor.getName());
-				//Si el processor es no recibe de nadie entonces es un input
+				
+				// Si el processor no recibe de nadie entonces es un input
 				if (WorkberchSCUFL2Utils.isProcessorInput(processor)) {
 					final WorkberchNodeInput inputNode = WorkberchTavernaFactory.processor2NodeInput(processor, config);
 					builder.addInputNode(inputNode);
-				}
-				else {
+				} else {
 					final WorkberchProcessorNode processorNode = WorkberchTavernaFactory.processeor2ProcessorNode(guid, processor, config);
 					final Set<DataLink> allDataLinks = workflow.getDataLinks();
 					final Set<DataLink> incomingDataLinks = WorkberchSCUFL2Utils.getIncomingDataLinksFromProcessor(processor, allDataLinks);
-					final Map<String , DataLink> linksMap = new HashMap<String, DataLink>();
-					
+					final Map<String, DataLink> toLinks = new HashMap<String, DataLink>();
+					final Map<String, DataLink> inputLinks = new HashMap<String, DataLink>();
+
 					for (final DataLink dataLink : incomingDataLinks) {
-						linksMap.put(dataLink.getSendsTo().getName(), dataLink);
+						toLinks.put(dataLink.getSendsTo().getName(), dataLink);
+						inputLinks.put(dataLink.getReceivesFrom().getName(), dataLink);
 					}
-					
-					final WorkberchIterStgy strategy = WorkberchTavernaFactory.iterationStrategyStack2WorkberchIterStgyNode(processor.getIterationStrategyStack(), linksMap);
-					builder.addNode(processorNode, strategy);					
+
+					final WorkberchIterStgy strategy = WorkberchTavernaFactory.iterationStrategyStack2WorkberchIterStgyNode(
+							processor.getIterationStrategyStack(), toLinks, inputLinks, workflowInputs);
+					builder.addNode(processorNode, strategy);
 				}
 			}
-			
-			for (final OutputPort outputPort: workflow.getOutputPorts()) {
+
+			// Se agregan puertos de salida
+			for (final OutputPort outputPort : workflow.getOutputPorts()) {
 				final WorkberchOutputNode outputNode = new WorkberchOutputNode();
 				outputNode.setName(outputPort.getName());
 				outputNode.setOutputPath(outputPath);
-				
+
 				final Set<DataLink> allDataLinks = workflow.getDataLinks();
 				final DataLink dataLink = WorkberchSCUFL2Utils.getIncomingDataLinksFromOutputPort(outputPort, allDataLinks);
 				builder.addOutput(outputNode, WorkberchTavernaFactory.dataLink2Link(dataLink));
@@ -127,8 +133,8 @@ public class WorkberchTavernaParser {
 		} catch (final IOException e) {
 			Throwables.propagate(e);
 		}
-		
+
 		return builder.buildTopology();
 	}
-	
+
 }

@@ -5,6 +5,7 @@ import java.util.Map;
 
 import main.java.bolts.WorkberchGenericBolt;
 import main.java.parser.model.WorkberchIterStgy;
+import main.java.parser.model.WorkberchIterStgyNode;
 import main.java.parser.model.WorkberchLink;
 import main.java.parser.model.WorkberchNode;
 import main.java.parser.model.WorkberchOutputNode;
@@ -56,8 +57,12 @@ public class WorkberchTopologyBuilder {
 	public void addNode(final WorkberchProcessorNode node, final WorkberchIterStgy strategy) {
 		strategy.addStrategy2Topology(guid, tBuilder);
 		final WorkberchGenericBolt bolt = node.buildBolt(guid);
-		tBuilder.setBolt(node.getName(), bolt).shuffleGrouping(StringUtils.startsWith(strategy.getBoltName(), "CROSS_") ?
-				strategy.getBoltName().replace("CROSS_", "ORDER_") : strategy.getBoltName());
+		if (StringUtils.startsWith(strategy.getBoltName(), "CROSS_") && strategy instanceof WorkberchIterStgyNode && !((WorkberchIterStgyNode)strategy).isOptimized()) {
+			tBuilder.setBolt(node.getName(), bolt).shuffleGrouping(strategy.getBoltName().replace("CROSS_", "ORDER_"));
+		}
+		else {
+			tBuilder.setBolt(node.getName(), bolt).shuffleGrouping(strategy.getBoltName());
+		}
 		nodes.put(node.getName(), node);
 	}
 

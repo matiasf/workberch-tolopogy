@@ -9,6 +9,9 @@ import java.util.List;
 import java.util.Map;
 
 import main.java.utils.WorkberchTuple;
+
+import org.apache.commons.lang.StringUtils;
+
 import backtype.storm.topology.BasicOutputCollector;
 
 public class WorkberchCartesianDummyBolt extends WorkberchProvenanceBolt {
@@ -23,14 +26,16 @@ public class WorkberchCartesianDummyBolt extends WorkberchProvenanceBolt {
 	private void emitTuple(final WorkberchTuple input, final BasicOutputCollector collector, final boolean lastValues, final String uuid) {
 		final List<Object> emitTuple = new ArrayList<Object>();
 		for (final String field : getOutputFields()) {
-			if (!field.equals(flowField)) {
-				emitTuple.add(singleValues.get(field));
+			if (StringUtils.equals(field, getBoltId().replace("CROSS_", StringUtils.EMPTY) + "." + flowField)) {
+				emitTuple.add(input.getValues().get(getBoltId().replace("CROSS_", StringUtils.EMPTY) + "." + flowField));
+			}
+			else if (StringUtils.equals(field, INDEX_FIELD)) {
+				emitTuple.add(input.getValues().get(INDEX_FIELD));
 			}
 			else {
-				emitTuple.add(input.getValues().get(flowField));
+				emitTuple.add(singleValues.get(field));
 			}
 		}
-		emitTuple.add(input.getValues().get(INDEX_FIELD));
 		emitTuple(emitTuple, collector, lastValues, uuid);
 	}
 
@@ -42,7 +47,8 @@ public class WorkberchCartesianDummyBolt extends WorkberchProvenanceBolt {
 
 	@Override
 	public void executeLogic(final WorkberchTuple input, final BasicOutputCollector collector, final boolean lastValues, final String uuid) {
-		if (!input.getValues().containsKey(flowField)) {
+		final String fieldFlowId = getBoltId().replace("CROSS_", "") + "." + flowField;
+		if (!input.getValues().containsKey(fieldFlowId)) {
 			for (final String field: input.getFields()) {
 				if (!field.equals(INDEX_FIELD)) {
 					singleValues.put(field, input.getValues().get(field));
@@ -51,16 +57,24 @@ public class WorkberchCartesianDummyBolt extends WorkberchProvenanceBolt {
 			if (singleValues.size() >= singleValuesSize) {
 				final Iterator<WorkberchTuple> iterWaiting = waitingTuples.iterator();
 				while (iterWaiting.hasNext()) {
-					emitTuple(iterWaiting.next(), collector, lastValues && !iterWaiting.hasNext(), uuid);
+					final WorkberchTuple valueTuEmit = iterWaiting.next();
+					for(final String keyValue: singleValues.keySet()) {
+						valueTuEmit.getValues().put(keyValue, singleValues.get(keyValue));
+						valueTuEmit.getFields().add(keyValue);
+					}
+					emitTuple(valueTuEmit, collector, lastValues && !iterWaiting.hasNext(), uuid);
 				}
 			}
 			else {
 				waitingTuples.add(input);
 			}
-		} else if (input.getValues().containsKey(flowField) && singleValues.size() >= singleValuesSize) {
+		} else if (input.getValues().containsKey(fieldFlowId) && singleValues.size() >= singleValuesSize) {
+			for(final String keyValue: singleValues.keySet()) {
+				input.getValues().put(keyValue, singleValues.get(keyValue));
+				input.getFields().add(keyValue);
+			}
 			emitTuple(input, collector, lastValues, uuid);
 		}
-
 	}
 
 }

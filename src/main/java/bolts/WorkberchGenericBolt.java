@@ -35,7 +35,7 @@ abstract public class WorkberchGenericBolt extends BaseBasicBolt {
 		collector.emit(tuple);
 	}
 
-	protected String getBoltId() {
+	public String getBoltId() {
 		return boltId;
 	}
 	
