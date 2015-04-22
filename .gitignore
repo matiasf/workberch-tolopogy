@@ -25,3 +25,9 @@ dump.rdb
 
 # Git merge files
 *.orig
+
+# IDEA setting files.
+workberch-topology.iml
+workberch-topology.ipr
+workberch-topology.iws
+.idea/
