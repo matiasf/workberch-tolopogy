@@ -23,8 +23,8 @@ public class WorkberchTopologyBuilder {
 	private final Map<String, WorkberchNode> nodes = new HashMap<String, WorkberchNode>();
 
 	private String outputPath;
-
 	private String inputPath;
+	private int parallelism;
 	private String guid;
 
 	public String getOutputPath() {
@@ -46,7 +46,7 @@ public class WorkberchTopologyBuilder {
 	public void addInputNode(final WorkberchNode inputNode) {
 		final WorkberchGenericSpout spout = inputNode.buildSpout();
 
-		tBuilder.setSpout(inputNode.getName(), spout);
+		tBuilder.setSpout(inputNode.getName(), spout, 1);
 		nodes.put(inputNode.getName(), inputNode);
 	}
 
@@ -54,14 +54,18 @@ public class WorkberchTopologyBuilder {
 		this.guid = guid;
 	}
 
+	public void setParallelism(final int parallelism) {
+		this.parallelism = parallelism;
+	}
+
 	public void addNode(final WorkberchProcessorNode node, final WorkberchIterStgy strategy) {
-		strategy.addStrategy2Topology(guid, tBuilder);
+		strategy.addStrategy2Topology(guid, tBuilder, parallelism);
 		final WorkberchGenericBolt bolt = node.buildBolt(guid);
 		if (StringUtils.startsWith(strategy.getBoltName(), "CROSS_") && strategy instanceof WorkberchIterStgyNode && !((WorkberchIterStgyNode)strategy).isOptimized()) {
-			tBuilder.setBolt(node.getName(), bolt).shuffleGrouping(strategy.getBoltName().replace("CROSS_", "ORDER_"));
+			tBuilder.setBolt(node.getName(), bolt, parallelism).shuffleGrouping(strategy.getBoltName().replace("CROSS_", "ORDER_"));
 		}
 		else {
-			tBuilder.setBolt(node.getName(), bolt).shuffleGrouping(strategy.getBoltName());
+			tBuilder.setBolt(node.getName(), bolt, parallelism).shuffleGrouping(strategy.getBoltName());
 		}
 		nodes.put(node.getName(), node);
 	}

@@ -39,6 +39,8 @@ public class WorkberchTavernaParser {
 	private String inputPath;
 	private String outputPath;
 
+	private int parallelism;
+
 	public String getGuid() {
 		return guid;
 	}
@@ -71,11 +73,20 @@ public class WorkberchTavernaParser {
 		this.outputPath = StringUtils.replace(outputPath, GUID_REPLACE, guid);
 	}
 
+	public int getParallelism() {
+		return parallelism;
+	}
+
+	public void setParallelism(int parallelism) {
+		this.parallelism = parallelism;
+	}
+
 	public StormTopology parse() {
 		final T2FlowReader io = new T2FlowReader();
 		final File t2File = new File(workflowPath);
 		final WorkberchTopologyBuilder builder = new WorkberchTopologyBuilder();
 		builder.setGuid(guid);
+		builder.setParallelism(parallelism);
 		try {
 			final WorkflowBundle wfBundle = io.readBundle(t2File, APPLICATION_VND_TAVERNA_T2FLOW_XML);
 			final Workflow workflow = wfBundle.getMainWorkflow();

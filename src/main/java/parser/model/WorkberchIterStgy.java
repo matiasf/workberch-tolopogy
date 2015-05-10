@@ -12,7 +12,7 @@ public interface WorkberchIterStgy extends Serializable {
 	
 	public String getBoltName();
 	
-	public BoltDeclarer addStrategy2Topology(String guid, TopologyBuilder tBuilder);
+	public BoltDeclarer addStrategy2Topology(String guid, TopologyBuilder tBuilder, int parallelism);
 	
 	public List<String> getOutputFields();
 	

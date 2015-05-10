@@ -25,20 +25,21 @@ public class DynamicWorkberchTopologyMain {
 		final String workflowPath = args[1];
 		final String inputPath = args[2];
 		final String outputPath = args[3];
-		final String mode = args[4];
+		final int parallelism = Integer.valueOf(args[4]);
+		final String mode = args[5];
 
 		if (StringUtils.isNotEmpty(guid) && StringUtils.isNotEmpty(workflowPath) && StringUtils.isNotEmpty(inputPath)
 				&& StringUtils.isNotEmpty(outputPath) && StringUtils.isNotEmpty(mode)) {
 			final WorkberchTavernaParser parser = new WorkberchTavernaParser();
 			parser.setGuid(guid);
+			parser.setParallelism(Integer.valueOf(parallelism));
 			parser.setWorkflowPath(workflowPath);
 			parser.setInputPath(inputPath);
 			parser.setOutputPath(outputPath);
 
 			if (mode.equals("local")) {
 				final Config conf = new Config();
-				conf.setDebug(true);
-				conf.setMaxTaskParallelism(1);
+				//conf.setDebug(true);
 
 				final LocalCluster cluster = new LocalCluster();
 				cluster.submitTopology("workberch", conf, parser.parse());
@@ -49,7 +50,7 @@ public class DynamicWorkberchTopologyMain {
 
 				StormSubmitter.submitTopology(guid, conf, parser.parse());
 			} else {
-				throw new IllegalArgumentException("Mode " + mode + " doen't exists");
+				throw new IllegalArgumentException("Mode " + mode + " doesn't exists");
 			}
 		} else {
 			throw new IllegalArgumentException("Workflow can't be initialized");

@@ -16,6 +16,7 @@ public class WorkberchIterStgyLink implements WorkberchIterStgy {
 	private WorkberchLink link;
 
 	private static String MAPPER_PREFIX = "NAME_MAPPER_";
+
 	private String processorName;
 
 	public WorkberchLink getLink() {
@@ -43,19 +44,19 @@ public class WorkberchIterStgyLink implements WorkberchIterStgy {
 	}
 
 	@Override
-	public BoltDeclarer addStrategy2Topology(final String guid, final TopologyBuilder tBuilder) {
+	public BoltDeclarer addStrategy2Topology(final String guid, final TopologyBuilder tBuilder, final int parallelism) {
 		BoltDeclarer ret = null;
 		final List<String> inputs = new ArrayList<String>();
 		inputs.add(link.getStormDestField());
 		if (link.getSourceDepth() > link.getDestDepth()) {
 			final WorkberchNameMaperOrderedBolt mapper = new WorkberchNameMaperOrderedBolt(guid, inputs);
 			mapper.addLink(link.getStormSourceField(), link.getStormDestField());
-			ret = tBuilder.setBolt(getBoltName(), mapper).shuffleGrouping(link.getSourceNode());
+			ret = tBuilder.setBolt(getBoltName(), mapper, 1).shuffleGrouping(link.getSourceNode());
 
 		} else {
 			final WorkberchNameMaperBolt mapper = new WorkberchNameMaperBolt(guid, inputs);
 			mapper.addLink(link.getStormSourceField(), link.getStormDestField());
-			ret = tBuilder.setBolt(getBoltName(), mapper).shuffleGrouping(link.getSourceNode());
+			ret = tBuilder.setBolt(getBoltName(), mapper, parallelism).shuffleGrouping(link.getSourceNode());
 		}
 
 		return ret;

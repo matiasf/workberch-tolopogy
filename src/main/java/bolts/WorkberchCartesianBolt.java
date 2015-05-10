@@ -24,6 +24,15 @@ public class WorkberchCartesianBolt extends WorkberchProvenanceBolt {
 	private final Map<String, List<ExecutedValue>> executedInputs = new HashMap<String, List<ExecutedValue>>();
 	private boolean uncompleteTuples = true;
 
+	public WorkberchCartesianBolt(final String guid, final List<String> outputFields) {
+		super(guid, outputFields);
+		for (final String inputField : outputFields) {
+			if (!inputField.equals(INDEX_FIELD)) {
+				executedInputs.put(inputField, new ArrayList<ExecutedValue>());
+			}
+		}
+	}
+
 	private List<Object> uniteIndexOnCartesianIndex(final List<Object> valuesToEmit) {
 		final List<Object> realValues = new ArrayList<Object>();
 		final List<CartesianIndex> indexValues = new ArrayList<CartesianIndex>();
@@ -55,7 +64,7 @@ public class WorkberchCartesianBolt extends WorkberchProvenanceBolt {
 						}
 						else {
 							tupleToEmit.add(baseTuple.getValues().get(INDEX_FIELD + sourceIndex));
-						}						
+						}
 					}
 				} else {
 					tupleToEmit.add(baseTuple.getValues().get(field));
@@ -79,25 +88,17 @@ public class WorkberchCartesianBolt extends WorkberchProvenanceBolt {
 			if (!remainingFields.contains(field) && !field.equals(INDEX_FIELD)) {
 				final List<ExecutedValue> values = executedInputs.get(field);
 				if (values != null) {
-					final ExecutedValue valueExec = new ExecutedValue(tuple.getValues().get(field), INDEX_FIELD + tuple.getSource(), tuple
-							.getValues().get(INDEX_FIELD));
+					final ExecutedValue valueExec = new ExecutedValue(tuple.getValues().get(field), INDEX_FIELD + tuple.
+							getSource(), tuple.getValues().get(INDEX_FIELD));
 					values.add(valueExec);
 				}
 			}
 		}
 	}
 
-	public WorkberchCartesianBolt(final String guid, final List<String> outputFields) {
-		super(guid, outputFields);
-		for (final String inputField : outputFields) {
-			if (!inputField.equals(INDEX_FIELD)) {
-				executedInputs.put(inputField, new ArrayList<ExecutedValue>());
-			}
-		}
-	}
-
 	@Override
-	public void executeLogic(final WorkberchTuple input, final BasicOutputCollector collector, final boolean lastValues, final String uuid) {
+	public void executeLogic(final WorkberchTuple input, final BasicOutputCollector collector, final boolean lastValues,
+							 final String uuid) {
 		final List<String> remainingFields = new ArrayList<String>();
 		remainingFields.addAll(executedInputs.keySet());
 		remainingFields.removeAll(input.getFields());

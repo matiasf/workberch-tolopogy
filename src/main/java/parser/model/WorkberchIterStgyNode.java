@@ -82,19 +82,19 @@ public class WorkberchIterStgyNode implements WorkberchIterStgy {
 	}
 
 	@Override
-	public BoltDeclarer addStrategy2Topology(final String guid, final TopologyBuilder tBuilder) {
+	public BoltDeclarer addStrategy2Topology(final String guid, final TopologyBuilder tBuilder, final int paralellism) {
 		final List<String> strategiesNames = new ArrayList<String>();
 
 		for (final WorkberchIterStgy workberchIterStgy : childStrategies) {
 			strategiesNames.add(workberchIterStgy.getBoltName());
-			workberchIterStgy.addStrategy2Topology(guid, tBuilder);
+			workberchIterStgy.addStrategy2Topology(guid, tBuilder, paralellism);
 		}
 
 		final BoltDeclarer boltReturned;
 		if (cross) {
 			if (optimized) {
 				final WorkberchCartesianDummyBolt bolt = new WorkberchCartesianDummyBolt(guid, getOutputFields(), getFlowField());
-				BoltDeclarer boltDeclarer = tBuilder.setBolt(CROSS_PREFIX + processorName, bolt);
+				BoltDeclarer boltDeclarer = tBuilder.setBolt(CROSS_PREFIX + processorName, bolt, 1);
 				boltReturned = boltDeclarer;
 				
 				final Iterator<String> iterStrategies = strategiesNames.iterator();
@@ -104,7 +104,7 @@ public class WorkberchIterStgyNode implements WorkberchIterStgy {
 				}
 			} else {
 				final WorkberchCartesianBolt bolt = new WorkberchCartesianBolt(guid, getOutputFields());
-				BoltDeclarer boltDeclarer = tBuilder.setBolt(CROSS_PREFIX + processorName, bolt);
+				BoltDeclarer boltDeclarer = tBuilder.setBolt(CROSS_PREFIX + processorName, bolt, 1);
 
 				final Iterator<String> iterStrategies = strategiesNames.iterator();
 				while (iterStrategies.hasNext()) {
@@ -112,7 +112,7 @@ public class WorkberchIterStgyNode implements WorkberchIterStgy {
 					boltDeclarer = iterStrategies.hasNext() ? boltDeclarer.allGrouping(strategyName) : boltDeclarer.shuffleGrouping(strategyName);
 				}
 				
-				final WorkberchOrderBolt orderBolt = new WorkberchOrderBolt(guid, getOutputFields(), optimized) {
+				final WorkberchOrderBolt orderBolt = new WorkberchOrderBolt(guid, getOutputFields(), false) {
 					private static final long serialVersionUID = -1687335238822989302L;
 
 					@Override
@@ -126,7 +126,7 @@ public class WorkberchIterStgyNode implements WorkberchIterStgy {
 		} else {
 			final WorkberchDotBolt bolt = new WorkberchDotBolt(guid, getOutputFields());
 			final String startBolt = DOT_PREFIX + processorName;
-			BoltDeclarer boltDeclarer = tBuilder.setBolt(startBolt, bolt);
+			BoltDeclarer boltDeclarer = tBuilder.setBolt(startBolt, bolt, paralellism);
 
 			for (final String strategyName : strategiesNames) {
 				boltDeclarer = boltDeclarer.fieldsGrouping(strategyName, new Fields(WorkberchConstants.INDEX_FIELD));
